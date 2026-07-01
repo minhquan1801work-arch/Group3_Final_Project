@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Glassity brand palette "LUXE" -->
+    <color name="brand_dark">#322D29</color>
+    <color name="brand_wine">#72383D</color>
+    <color name="brand_taupe">#AC9C8D</color>
+    <color name="brand_beige">#D1C7BD</color>
+    <color name="brand_gray_light">#D9D9D9</color>
+    <color name="brand_cream">#EFE9E1</color>
+
+    <!-- Semantic aliases dùng trong layout -->
+    <color name="color_background">@color/brand_cream</color>
+    <color name="color_primary">@color/brand_dark</color>
+    <color name="color_accent">@color/brand_wine</color>
+    <color name="color_text_primary">@color/brand_dark</color>
+    <color name="color_text_secondary">#8A8079</color>
+    <color name="color_hint">#B3AAA2</color>
+    <color name="color_field_bg">#FFFFFF</color>
+    <color name="color_field_border">@color/brand_beige</color>
+    <color name="color_error">#B3261E</color>
+</resources>

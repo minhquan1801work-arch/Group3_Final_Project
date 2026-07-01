@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">Glassity</string>
+
+    <!-- LA.Login/Signup — màn chọn -->
+    <string name="welcome_login_btn">Đăng nhập</string>
+    <string name="welcome_signup_btn">Đăng ký</string>
+    <string name="welcome_or_login_with">Hoặc đăng nhập bằng</string>
+    <string name="welcome_or_signup_with">Hoặc đăng ký bằng</string>
+    <string name="welcome_continue_guest">Tiếp tục với vai trò Khách</string>
+
+    <!-- LA.Login -->
+    <string name="login_title">Đăng Nhập</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Mật khẩu</string>
+    <string name="login_forgot_password">Quên mật khẩu?</string>
+    <string name="login_btn">Đăng nhập</string>
+
+    <!-- LA.Signup -->
+    <string name="signup_title">Tạo tài khoản</string>
+    <string name="signup_name_hint">Tên</string>
+    <string name="signup_email_hint">Email</string>
+    <string name="signup_password_hint">Mật khẩu</string>
+    <string name="signup_password_rule">Mật khẩu phải có ít nhất 6 ký tự gồm chữ và số</string>
+    <string name="signup_confirm_password_hint">Xác nhận mật khẩu</string>
+    <string name="signup_terms">Tôi đồng ý với Điều khoản sử dụng</string>
+    <string name="signup_btn">Tạo tài khoản</string>
+
+    <!-- Quên mật khẩu -->
+    <string name="forgot_title">Quên Mật Khẩu</string>
+    <string name="forgot_desc">Vui lòng điền Email đã đăng ký để thực hiện khôi phục lại mật khẩu.</string>
+    <string name="forgot_btn_continue">Tiếp tục</string>
+    <string name="forgot_back_to_login">Quay lại Đăng nhập</string>
+    <string name="forgot_sent_title">Đã gửi email khôi phục</string>
+    <string name="forgot_sent_desc">Glassity vừa gửi cho bạn một email khôi phục mật khẩu, vui lòng kiểm tra hộp thư (kể cả mục Spam).</string>
+    <string name="forgot_resend">Chưa nhận được email? Gửi lại</string>
+    <string name="forgot_btn_back_login">Quay lại Đăng nhập</string>
+
+    <!-- Lỗi validate dùng chung -->
+    <string name="err_required">Không được để trống</string>
+    <string name="err_email_invalid">Email không hợp lệ</string>
+    <string name="err_password_short">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="err_password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="err_terms_required">Bạn cần đồng ý Điều khoản sử dụng</string>
+</resources>
