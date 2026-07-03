@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Màn hình chính: 4 tab dùng CHUNG 1 footer (component duy nhất).
+
+  Footer kiểu FLOATING PILL tối màu (theo design):
+  - MaterialCardView bo tròn 32dp, nền tối, nổi cách mép màn hình
+  - BottomNavigationView bên trong: chỉ icon (không label),
+    tab đang chọn = icon trắng, còn lại xám nhạt
+  - Badge đỏ số lượng giỏ hàng gắn trên icon Cart (MainActivity)
+  - HideBottomViewOnScrollBehavior: cuộn xuống ẩn, kéo ngược nhẹ hiện lại
+-->
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navHostFragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:defaultNavHost="true"
+        app:navGraph="@navigation/main_nav_graph" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/navBarCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="14dp"
+        app:cardBackgroundColor="@color/nav_pill_dark"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="8dp"
+        app:strokeWidth="0dp"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@android:color/transparent"
+        app:elevation="0dp"
+        app:itemIconTint="@color/nav_item_color_dark"
+        app:itemRippleColor="@android:color/transparent"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

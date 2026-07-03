@@ -1,0 +1,72 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Group3_Final_Project" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <item name="colorPrimary">@color/color_primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/color_accent</item>
+        <item name="android:windowBackground">@color/color_background</item>
+        <item name="colorError">@color/color_error</item>
+    </style>
+
+    <!-- Nút chính, nền đen bo góc, chữ trắng -->
+    <style name="Widget.Glassity.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/color_primary</item>
+        <item name="cornerRadius">8dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+
+    <!-- Nút social (Google/Facebook) nền trắng viền mỏng, hình tròn -->
+    <style name="Widget.Glassity.Button.Social" parent="Widget.Material3.Button.IconButton.Outlined">
+        <item name="strokeColor">@color/color_field_border</item>
+        <item name="backgroundTint">@color/white</item>
+        <item name="cornerRadius">24dp</item>
+    </style>
+
+    <!-- Ô nhập liệu -->
+    <style name="Widget.Glassity.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/color_field_border</item>
+        <item name="hintTextColor">@color/color_text_secondary</item>
+        <item name="boxCornerRadiusTopStart">8dp</item>
+        <item name="boxCornerRadiusTopEnd">8dp</item>
+        <item name="boxCornerRadiusBottomStart">8dp</item>
+        <item name="boxCornerRadiusBottomEnd">8dp</item>
+    </style>
+
+    <style name="Theme.Group3_Final_Project" parent="Base.Theme.Group3_Final_Project" />
+
+    <!-- Bảng kích thước sản phẩm (DL_Product Detail): 1 dòng = label xám | value trắng -->
+    <style name="SpecRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:background">@color/color_divider</item>
+    </style>
+
+    <style name="SpecLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@color/color_section_gap</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/color_text_primary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="SpecValue">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">2</item>
+        <item name="android:layout_marginStart">1dp</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/color_text_secondary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+</resources>

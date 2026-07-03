@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Glassity brand palette "LUXE" -->
+    <color name="brand_dark">#322D29</color>
+    <color name="brand_wine">#72383D</color>
+    <color name="brand_taupe">#AC9C8D</color>
+    <color name="brand_beige">#D1C7BD</color>
+    <color name="brand_gray_light">#D9D9D9</color>
+    <color name="brand_cream">#EFE9E1</color>
+
+    <!-- Semantic aliases dùng trong layout -->
+    <!-- Figma: nền TRẮNG toàn app (không dùng cream) -->
+    <color name="color_background">@color/white</color>
+    <color name="color_primary">@color/brand_dark</color>
+    <color name="color_accent">@color/brand_wine</color>
+    <color name="color_text_primary">@color/brand_dark</color>
+    <color name="color_text_secondary">#8A8079</color>
+    <color name="color_hint">#B3AAA2</color>
+    <color name="color_field_bg">#FFFFFF</color>
+    <color name="color_field_border">@color/brand_beige</color>
+    <color name="color_error">#B3261E</color>
+    <color name="color_success">#2E7D32</color>
+    <color name="color_pending">#E65100</color>
+
+    <!-- Figma DL_Cart / LA.Payment -->
+    <color name="color_price">#EE4D2D</color>      <!-- giá cam-đỏ -->
+    <color name="color_divider">#EEEEEE</color>    <!-- kẻ phân cách mảnh -->
+    <color name="color_section_gap">#F5F5F5</color><!-- khoảng cách section -->
+    <color name="color_btn_black">#111111</color>  <!-- nút đen Figma -->
+    <color name="color_voucher_yellow">#F5A623</color>
+
+    <!-- Footer floating pill (dark) -->
+    <color name="nav_pill_dark">#3B3835</color>
+    <color name="nav_icon_active">#FFFFFF</color>
+    <color name="nav_icon_inactive">#B8B3AE</color>
+</resources>

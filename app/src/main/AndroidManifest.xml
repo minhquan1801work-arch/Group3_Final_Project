@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Group3_Final_Project">
+
+        <!-- Màn khởi động: chọn Đăng nhập / Đăng ký / Khách -->
+        <activity
+            android:name=".ui.account.WelcomeActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.account.LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.SignupActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.ForgotPasswordActivity"
+            android:exported="false" />
+
+        <!-- MainActivity không còn là màn khởi động — chỉ mở SAU khi đăng nhập/đăng ký/khách thành công -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.catalog.ProductListActivity"
+            android:exported="false" />
+
+        <!-- [B1] Chi tiết sản phẩm (DL_Product Detail_Layout2) -->
+        <activity
+            android:name=".ui.catalog.ProductDetailActivity"
+            android:exported="false" />
+
+        <!-- Person A — luồng Giỏ hàng → Thanh toán -->
+        <activity
+            android:name=".ui.order.CheckoutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.PaymentResultActivity"
+            android:exported="false" />
+    </application>
+
+</manifest>

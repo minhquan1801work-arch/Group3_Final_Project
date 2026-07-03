@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "702679808137",
+    "project_id": "glassity-770c5",
+    "storage_bucket": "glassity-770c5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:702679808137:android:92aa9b1c71256731f8ee58",
+        "android_client_info": {
+          "package_name": "com.FinalProject.group3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "702679808137-o5mg30m1ku7mqvt48f8b62mnh72ud3md.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.FinalProject.group3",
+            "certificate_hash": "bab52d92bc2fc6ba695d5e8bed4e80b14adafd2a"
+          }
+        },
+        {
+          "client_id": "702679808137-4o6p6v2rv1tavbfngn7mi07e5lm6u2nj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZdqYHoCd8oBqdSt-0sYmWZSuKYfcJBOI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "702679808137-4o6p6v2rv1tavbfngn7mi07e5lm6u2nj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

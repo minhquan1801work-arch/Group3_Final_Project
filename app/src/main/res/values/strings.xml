@@ -1,0 +1,92 @@
+<resources>
+    <string name="app_name">Glassity</string>
+
+    <!-- LA.Login/Signup — màn chọn -->
+    <string name="welcome_login_btn">Đăng nhập</string>
+    <string name="welcome_signup_btn">Đăng ký</string>
+    <string name="welcome_or_login_with">Hoặc đăng nhập bằng</string>
+    <string name="welcome_or_signup_with">Hoặc đăng ký bằng</string>
+    <string name="welcome_continue_guest">Tiếp tục với vai trò Khách</string>
+
+    <!-- LA.Login -->
+    <string name="login_title">Đăng Nhập</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Mật khẩu</string>
+    <string name="login_forgot_password">Quên mật khẩu?</string>
+    <string name="login_btn">Đăng nhập</string>
+
+    <!-- LA.Signup -->
+    <string name="signup_title">Tạo tài khoản</string>
+    <string name="signup_name_hint">Tên</string>
+    <string name="signup_email_hint">Email</string>
+    <string name="signup_password_hint">Mật khẩu</string>
+    <string name="signup_password_rule">Mật khẩu phải có ít nhất 6 ký tự gồm chữ và số</string>
+    <string name="signup_confirm_password_hint">Xác nhận mật khẩu</string>
+    <string name="signup_terms">Tôi đồng ý với Điều khoản sử dụng</string>
+    <string name="signup_btn">Tạo tài khoản</string>
+
+    <!-- Quên mật khẩu -->
+    <string name="forgot_title">Quên Mật Khẩu</string>
+    <string name="forgot_desc">Vui lòng điền Email đã đăng ký để thực hiện khôi phục lại mật khẩu.</string>
+    <string name="forgot_btn_continue">Tiếp tục</string>
+    <string name="forgot_back_to_login">Quay lại Đăng nhập</string>
+    <string name="forgot_sent_title">Đã gửi email khôi phục</string>
+    <string name="forgot_sent_desc">Glassity vừa gửi cho bạn một email khôi phục mật khẩu, vui lòng kiểm tra hộp thư (kể cả mục Spam).</string>
+    <string name="forgot_resend">Chưa nhận được email? Gửi lại</string>
+    <string name="forgot_btn_back_login">Quay lại Đăng nhập</string>
+
+    <!-- Lỗi validate dùng chung -->
+    <string name="err_required">Không được để trống</string>
+    <string name="err_email_invalid">Email không hợp lệ</string>
+    <string name="err_password_short">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="err_password_mismatch">Mật khẩu xác nhận không khớp</string>
+    <string name="err_terms_required">Bạn cần đồng ý Điều khoản sử dụng</string>
+
+    <!-- DL_Cart — Giỏ hàng -->
+    <string name="cart_title">Giỏ hàng</string>
+    <string name="cart_empty_msg">Chưa có sản phẩm nào được thêm vào Giỏ hàng</string>
+    <string name="cart_continue_shopping">TIẾP TỤC MUA SẮM</string>
+    <string name="cart_login_msg">Đăng nhập để xem Giỏ hàng của bạn</string>
+    <string name="cart_login_btn">ĐĂNG NHẬP</string>
+    <string name="cart_select_all">Chọn tất cả</string>
+    <string name="cart_total_label">Tổng cộng</string>
+    <string name="cart_buy_btn">MUA HÀNG</string>
+    <string name="cart_delete_title">Xóa sản phẩm</string>
+    <string name="cart_delete_msg">Bạn muốn xóa sản phẩm này khỏi Giỏ hàng?</string>
+    <string name="cart_voucher_hint">Chọn hoặc nhập mã giảm giá ở bước Thanh toán</string>
+
+    <!-- DL_Checkout — Thanh toán -->
+    <string name="checkout_title">Thanh toán</string>
+    <string name="checkout_address_title">Địa chỉ nhận hàng</string>
+    <string name="checkout_address_edit">Sửa</string>
+    <string name="checkout_address_empty">Chưa có địa chỉ — nhấn Sửa để thêm</string>
+    <string name="checkout_products_title">Sản phẩm &amp; Vận chuyển</string>
+    <string name="checkout_shipping_title">Phương pháp vận chuyển</string>
+    <string name="checkout_ship_saving">Giao hàng tiêu chuẩn</string>
+    <string name="checkout_ship_fast">Giao hàng nhanh</string>
+    <string name="checkout_voucher_title">Mã giảm giá</string>
+    <string name="checkout_voucher_input_hint">Nhập mã giảm giá…</string>
+    <string name="checkout_voucher_apply">Áp dụng</string>
+    <string name="checkout_payment_title">Phương thức thanh toán</string>
+    <string name="checkout_pay_cod">Thanh toán khi giao hàng [COD]</string>
+    <string name="checkout_pay_bank">Thanh toán chuyển khoản ngân hàng</string>
+    <string name="checkout_summary_title">Chi tiết thanh toán</string>
+    <string name="checkout_summary_subtotal">Tổng tiền hàng</string>
+    <string name="checkout_summary_shipping">Tổng tiền phí vận chuyển</string>
+    <string name="checkout_summary_ship_discount">Giảm giá phí vận chuyển</string>
+    <string name="checkout_summary_discount">Tổng cộng Voucher giảm giá</string>
+    <string name="checkout_summary_total">Tổng thanh toán</string>
+    <string name="checkout_terms_note">Nhấn "Đặt hàng" đồng nghĩa với việc bạn đồng ý tuân theo Điều khoản Glassity</string>
+    <string name="checkout_total_label">Tổng cộng:</string>
+    <string name="checkout_place_order">ĐẶT HÀNG</string>
+    <string name="checkout_err_no_address">Vui lòng nhập địa chỉ nhận hàng</string>
+
+    <!-- LA_Payment — Kết quả -->
+    <string name="payment_pending_title">ĐANG CHỜ THANH TOÁN</string>
+    <string name="payment_pending_desc">Đơn hàng chưa được thanh toán. Vui lòng chuyển khoản theo thông tin bên dưới, đơn hàng sẽ được xử lý sau khi xác nhận.</string>
+    <string name="payment_success_title">ĐẶT HÀNG THÀNH CÔNG</string>
+    <string name="payment_success_desc">Cảm ơn bạn đã đặt hàng! Bạn sẽ thanh toán khi nhận hàng (COD).</string>
+    <string name="payment_view_order">XEM ĐƠN HÀNG</string>
+    <string name="payment_go_home">VỀ TRANG CHỦ</string>
+    <string name="payment_suggest_title">Có thể bạn cũng thích</string>
+</resources>
