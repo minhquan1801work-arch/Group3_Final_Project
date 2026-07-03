@@ -372,7 +372,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     // ═══ Adapter ảnh lớn (ViewPager2) ═══
-    private class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.VH> {
+    private static class ImagePagerAdapter extends RecyclerView.Adapter<ImagePagerAdapter.VH> {
         private final List<String> urls;
         ImagePagerAdapter(List<String> urls) { this.urls = urls; }
 
@@ -402,7 +402,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     // ═══ Adapter thumbnail ═══
-    private class ThumbAdapter extends RecyclerView.Adapter<ThumbAdapter.VH> {
+    private static class ThumbAdapter extends RecyclerView.Adapter<ThumbAdapter.VH> {
         interface OnThumbClick { void onClick(int position); }
 
         private final List<String> urls;
