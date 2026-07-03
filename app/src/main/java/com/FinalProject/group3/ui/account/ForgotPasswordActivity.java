@@ -36,6 +36,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityForgotPasswordBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
         binding.tvBackToLogin.setOnClickListener(v -> finish());

@@ -59,6 +59,15 @@
         <activity
             android:name=".ui.order.PaymentResultActivity"
             android:exported="false" />
+
+        <!-- Sổ địa chỉ (LA.Address) + Thêm/Sửa địa chỉ (DL_Add New Address) -->
+        <activity
+            android:name=".ui.order.AddressListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.AddAddressActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

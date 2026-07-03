@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 34 tỉnh/thành phố sau sáp nhập 07/2025 — dropdown DL_Add New Address -->
+    <string-array name="provinces">
+        <item>TP. Hồ Chí Minh</item>
+        <item>TP. Hà Nội</item>
+        <item>TP. Đà Nẵng</item>
+        <item>TP. Hải Phòng</item>
+        <item>TP. Cần Thơ</item>
+        <item>TP. Huế</item>
+        <item>An Giang</item>
+        <item>Bắc Ninh</item>
+        <item>Cà Mau</item>
+        <item>Cao Bằng</item>
+        <item>Đắk Lắk</item>
+        <item>Điện Biên</item>
+        <item>Đồng Nai</item>
+        <item>Đồng Tháp</item>
+        <item>Gia Lai</item>
+        <item>Hà Tĩnh</item>
+        <item>Hưng Yên</item>
+        <item>Khánh Hòa</item>
+        <item>Lai Châu</item>
+        <item>Lâm Đồng</item>
+        <item>Lạng Sơn</item>
+        <item>Lào Cai</item>
+        <item>Nghệ An</item>
+        <item>Ninh Bình</item>
+        <item>Phú Thọ</item>
+        <item>Quảng Ngãi</item>
+        <item>Quảng Ninh</item>
+        <item>Quảng Trị</item>
+        <item>Sơn La</item>
+        <item>Tây Ninh</item>
+        <item>Thái Nguyên</item>
+        <item>Thanh Hóa</item>
+        <item>Tuyên Quang</item>
+        <item>Vĩnh Long</item>
+    </string-array>
+</resources>

@@ -77,6 +77,27 @@ public class CheckoutActivity extends AppCompatActivity {
     private Customer customer;
     private String appliedVoucher = null;
 
+    // Địa chỉ giao hàng đang chọn (từ Sổ địa chỉ — LA.Address)
+    private String shipName, shipPhone, shipFullAddress;
+    private final com.FinalProject.group3.repository.AddressRepository addressRepo =
+            new com.FinalProject.group3.repository.AddressRepository();
+
+    // Mở Sổ địa chỉ, nhận địa chỉ user chọn trả về
+    private final androidx.activity.result.ActivityResultLauncher<Intent> addressLauncher =
+            registerForActivityResult(
+                    new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            shipName = result.getData().getStringExtra(AddressListActivity.RESULT_NAME);
+                            shipPhone = result.getData().getStringExtra(AddressListActivity.RESULT_PHONE);
+                            shipFullAddress = result.getData().getStringExtra(AddressListActivity.RESULT_FULL_ADDRESS);
+                            bindAddress();
+                        } else {
+                            // Quay lại không chọn gì (vd vừa thêm địa chỉ mới xong) → load lại mặc định
+                            loadDefaultAddress();
+                        }
+                    });
+
     public static void start(Context context, ArrayList<String> cartDetailIds) {
         Intent intent = new Intent(context, CheckoutActivity.class);
         intent.putStringArrayListExtra(EXTRA_CART_DETAIL_IDS, cartDetailIds);
@@ -88,6 +109,7 @@ public class CheckoutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityCheckoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
 
@@ -109,8 +131,10 @@ public class CheckoutActivity extends AppCompatActivity {
         binding.rowVoucher.setOnClickListener(v -> showVoucherSheet());
         binding.btnApplyVoucherInline.setOnClickListener(v ->
                 applyVoucherCode(binding.etVoucher.getText().toString().trim().toUpperCase(Locale.US)));
-        binding.rowAddress.setOnClickListener(v -> showEditAddressDialog());
-        binding.btnEditAddress.setOnClickListener(v -> showEditAddressDialog());
+        binding.rowAddress.setOnClickListener(v ->
+                addressLauncher.launch(AddressListActivity.intent(this)));
+        binding.btnEditAddress.setOnClickListener(v ->
+                addressLauncher.launch(AddressListActivity.intent(this)));
         binding.btnPlaceOrder.setOnClickListener(v -> placeOrder());
 
         binding.rvProducts.setLayoutManager(new LinearLayoutManager(this));
@@ -135,59 +159,49 @@ public class CheckoutActivity extends AppCompatActivity {
                         customer.setPhone(doc.getString("phone"));
                         customer.setAddress(doc.getString("address"));
                     }
-                    bindAddress();
+                    loadDefaultAddress();
                 });
     }
 
-    private void bindAddress() {
-        if (customer == null) return;
-        String phone = customer.getPhone() == null ? "" : customer.getPhone();
-        binding.tvReceiver.setText(customer.getName() + " | " + phone);
-        binding.tvAddress.setText(customer.getAddress() == null || customer.getAddress().isEmpty()
-                ? getString(R.string.checkout_address_empty) : customer.getAddress());
+    /**
+     * Luồng LA.Address: lấy sổ địa chỉ → có địa chỉ thì tự chọn địa chỉ MẶC ĐỊNH;
+     * người mới (chưa có) → fallback địa chỉ cũ trong customers (nếu có) hoặc
+     * hiện "Chưa có địa chỉ — nhấn để thêm".
+     */
+    private void loadDefaultAddress() {
+        addressRepo.getAddresses(new com.FinalProject.group3.repository.AddressRepository.ListCallback() {
+            @Override
+            public void onSuccess(List<com.FinalProject.group3.model.Address> list) {
+                if (!list.isEmpty()) {
+                    // Repo xếp địa chỉ mặc định lên đầu
+                    com.FinalProject.group3.model.Address def = list.get(0);
+                    shipName = def.getName();
+                    shipPhone = def.getPhone();
+                    shipFullAddress = def.fullAddress();
+                } else if (customer != null && customer.getAddress() != null
+                        && !customer.getAddress().isEmpty()) {
+                    // Data cũ (trước khi có Sổ địa chỉ) vẫn dùng được
+                    shipName = customer.getName();
+                    shipPhone = customer.getPhone();
+                    shipFullAddress = customer.getAddress();
+                }
+                bindAddress();
+            }
+
+            @Override
+            public void onFailure(String error) { bindAddress(); }
+        });
     }
 
-    // Dialog sửa nhanh người nhận / SĐT / địa chỉ (DL_Add address rút gọn)
-    private void showEditAddressDialog() {
-        if (customer == null) return;
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (16 * getResources().getDisplayMetrics().density);
-        layout.setPadding(pad, pad / 2, pad, 0);
-
-        EditText etName = new EditText(this);
-        etName.setHint("Tên người nhận");
-        etName.setText(customer.getName());
-        EditText etPhone = new EditText(this);
-        etPhone.setHint("Số điện thoại");
-        etPhone.setInputType(InputType.TYPE_CLASS_PHONE);
-        etPhone.setText(customer.getPhone());
-        EditText etAddress = new EditText(this);
-        etAddress.setHint("Địa chỉ nhận hàng");
-        etAddress.setText(customer.getAddress());
-
-        layout.addView(etName);
-        layout.addView(etPhone);
-        layout.addView(etAddress);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.checkout_address_title)
-                .setView(layout)
-                .setPositiveButton("Lưu", (d, w) -> {
-                    customer.setName(etName.getText().toString().trim());
-                    customer.setPhone(etPhone.getText().toString().trim());
-                    customer.setAddress(etAddress.getText().toString().trim());
-                    bindAddress();
-                    // Lưu lại vào Firestore để lần sau không phải nhập lại
-                    Map<String, Object> update = new HashMap<>();
-                    update.put("name", customer.getName());
-                    update.put("phone", customer.getPhone());
-                    update.put("address", customer.getAddress());
-                    FirebaseHelper.getDb().collection(FirebaseHelper.COL_CUSTOMERS)
-                            .document(FirebaseHelper.getCurrentUserId()).update(update);
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+    private void bindAddress() {
+        if (shipFullAddress != null && !shipFullAddress.isEmpty()) {
+            binding.tvReceiver.setText(shipName + " | " + (shipPhone == null ? "" : shipPhone));
+            binding.tvAddress.setText(shipFullAddress);
+        } else {
+            binding.tvReceiver.setText(customer != null && customer.getName() != null
+                    ? customer.getName() : "");
+            binding.tvAddress.setText(R.string.checkout_address_empty);
+        }
     }
 
     // ── 2. Load các item đã chọn từ Giỏ hàng ─────────────────────────────────
@@ -350,8 +364,10 @@ public class CheckoutActivity extends AppCompatActivity {
 
     // ── ĐẶT HÀNG ─────────────────────────────────────────────────────────────
     private void placeOrder() {
-        if (customer == null || customer.getAddress() == null || customer.getAddress().isEmpty()) {
+        if (shipFullAddress == null || shipFullAddress.isEmpty()) {
             Toast.makeText(this, R.string.checkout_err_no_address, Toast.LENGTH_SHORT).show();
+            // Người mới → đưa thẳng vào Sổ địa chỉ (tự mở form thêm nếu trống)
+            addressLauncher.launch(AddressListActivity.intent(this));
             return;
         }
         if (items.isEmpty()) return;
@@ -368,8 +384,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 + "-" + String.format(Locale.US, "%04d", new Random().nextInt(10000));
 
         // Địa chỉ giao = tên + SĐT + địa chỉ (đủ thông tin cho shipper)
-        String shippingAddress = customer.getName() + " | " + customer.getPhone()
-                + " | " + customer.getAddress();
+        String shippingAddress = shipName + " | " + shipPhone + " | " + shipFullAddress;
 
         Order order = new Order(uid, orderCode, total, method, shippingAddress);
 

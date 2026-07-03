@@ -24,6 +24,12 @@
         tools:layout="@layout/fragment_cart" />
 
     <fragment
+        android:id="@+id/notificationFragment"
+        android:name="com.FinalProject.group3.ui.account.NotificationFragment"
+        android:label="Thông báo"
+        tools:layout="@layout/fragment_notification" />
+
+    <fragment
         android:id="@+id/profileFragment"
         android:name="com.FinalProject.group3.ui.account.ProfileFragment"
         android:label="Cá nhân"

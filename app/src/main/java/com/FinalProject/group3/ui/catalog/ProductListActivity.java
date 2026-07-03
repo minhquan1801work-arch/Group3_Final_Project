@@ -52,6 +52,7 @@ public class ProductListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProductListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         String categoryId   = getIntent().getStringExtra(EXTRA_CATEGORY_ID);
         String categoryName = getIntent().getStringExtra(EXTRA_CATEGORY_NAME);

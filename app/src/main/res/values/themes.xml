@@ -39,6 +39,14 @@
 
     <style name="Theme.Group3_Final_Project" parent="Base.Theme.Group3_Final_Project" />
 
+    <!-- Footer pill (Figma): vòng tròn trắng mờ 40dp sau icon tab đang chọn -->
+    <style name="NavPillActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/nav_item_circle_selected</item>
+        <item name="android:width">40dp</item>
+        <item name="android:height">40dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
+
     <!-- Bảng kích thước sản phẩm (DL_Product Detail): 1 dòng = label xám | value trắng -->
     <style name="SpecRow">
         <item name="android:layout_width">match_parent</item>

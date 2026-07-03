@@ -44,48 +44,39 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: app khởi tạo UI lần đầu");
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(findViewById(R.id.main));
 
         FragmentManager fm = getSupportFragmentManager();
         NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.navHostFragment);
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        // Footer pill: chỉ đổi màu icon khi chọn, tắt viên indicator mặc định của Material3
-        bottomNav.setItemActiveIndicatorEnabled(false);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             NavigationUI.setupWithNavController(bottomNav, navController);
         }
 
-        setupCartBadge(bottomNav);
+        setupNotificationDot(bottomNav);
     }
 
     /**
-     * Badge đỏ trên icon Giỏ hàng (footer pill) — dùng snapshot listener nên
-     * số tự cập nhật realtime khi thêm/xóa sản phẩm, không cần reload.
+     * Chấm đỏ trên icon chuông (footer pill, theo Figma) — snapshot listener
+     * nên tự bật/tắt realtime khi có thông báo UNREAD mới.
      */
-    private void setupCartBadge(BottomNavigationView bottomNav) {
+    private void setupNotificationDot(BottomNavigationView bottomNav) {
         String uid = com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId();
         if (uid == null) return; // khách chưa đăng nhập → không có badge
 
         com.google.android.material.badge.BadgeDrawable badge =
-                bottomNav.getOrCreateBadge(R.id.cartFragment);
-        badge.setBackgroundColor(getColor(R.color.color_price));
-        badge.setBadgeTextColor(getColor(R.color.white));
+                bottomNav.getOrCreateBadge(R.id.notificationFragment);
+        badge.setBackgroundColor(getColor(R.color.nav_badge_red));
         badge.setVisible(false);
 
         com.FinalProject.group3.utils.FirebaseHelper.getDb()
-                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CARTS)
-                .document(uid)
-                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CART_DETAILS)
+                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_NOTIFICATIONS)
+                .whereEqualTo("customerId", uid)
+                .whereEqualTo("status", "UNREAD")
                 .addSnapshotListener((snapshot, e) -> {
                     if (snapshot == null) return;
-                    int count = snapshot.size();
-                    badge.setVisible(count > 0);
-                    badge.setNumber(count);
+                    badge.setVisible(!snapshot.isEmpty());
                 });
     }
 

@@ -76,14 +76,11 @@ public class HomeFragment extends Fragment {
         binding.btnSearch.setOnClickListener(v ->
                 Toast.makeText(requireContext(), "Tim kiem", Toast.LENGTH_SHORT).show());
 
-        // Cart icon header -> switch sang tab Cart (bottomNav ID = R.id.cartFragment)
-        binding.btnCart.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                com.google.android.material.bottomnavigation.BottomNavigationView bottomNav =
-                        getActivity().findViewById(com.FinalProject.group3.R.id.bottomNav);
-                if (bottomNav != null) bottomNav.setSelectedItemId(com.FinalProject.group3.R.id.cartFragment);
-            }
-        });
+        // Cart icon header -> mở màn Giỏ hàng (cart không còn ở footer pill,
+        // vào bằng NavController vì cartFragment vẫn nằm trong nav graph)
+        binding.btnCart.setOnClickListener(v ->
+                androidx.navigation.fragment.NavHostFragment.findNavController(this)
+                        .navigate(com.FinalProject.group3.R.id.cartFragment));
 
         // "Xem tat ca" -> mo ProductListActivity (tat ca san pham)
         binding.btnViewAllFeatured.setOnClickListener(v ->

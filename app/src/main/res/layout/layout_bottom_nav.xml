@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  COMPONENT footer pill dùng chung (theo Figma "Bottom Navigation(raw)" node 1592:1881):
+  - Pill 330x60dp, nền #292526, bo tròn hết cỡ (radius 30 = height/2)
+  - 4 tab: Trang chủ / Danh mục / Thông báo (chấm đỏ khi có UNREAD) / Cá nhân
+  - Tab đang chọn: icon trắng + vòng tròn trắng mờ phía sau (itemActiveIndicator)
+  - Cuộn xuống ẩn, kéo ngược lên hiện lại (HideBottomViewOnScrollBehavior —
+    chỉ hoạt động khi nằm trong CoordinatorLayout và nội dung cuộn là
+    RecyclerView/NestedScrollView)
+
+  Cách dùng ở màn hình khác: <include layout="@layout/layout_bottom_nav"/>
+  rồi trong Activity/Fragment gọi NavigationUI.setupWithNavController(...)
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navBarCard"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_gravity="bottom"
+    android:layout_marginHorizontal="15dp"
+    android:layout_marginBottom="15dp"
+    app:cardBackgroundColor="@color/nav_pill_dark"
+    app:cardCornerRadius="30dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="0dp"
+    app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+<!-- BottomNavigationView dồn icon lên trên (chừa chỗ label dù unlabeled),
+         đo thực tế lệch 12dp → paddingTop đẩy nguyên cụm icon xuống giữa pill -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="18dp"
+        android:background="@android:color/transparent"
+        app:elevation="0dp"
+        app:itemActiveIndicatorStyle="@style/NavPillActiveIndicator"
+        app:itemIconTint="@color/nav_item_color_dark"
+        app:itemPaddingTop="0dp"
+        app:itemPaddingBottom="0dp"
+        app:itemRippleColor="@android:color/transparent"
+        app:labelVisibilityMode="unlabeled"
+        app:menu="@menu/bottom_nav_menu" />
+
+</com.google.android.material.card.MaterialCardView>

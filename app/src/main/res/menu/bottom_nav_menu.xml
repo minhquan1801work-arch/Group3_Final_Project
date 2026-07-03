@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 4 tab theo Figma: Home / Danh mục / Thông báo / Cá nhân.
+     Giỏ hàng KHÔNG nằm ở footer — vào bằng icon cart trên header. -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/homeFragment"
@@ -9,9 +11,9 @@
         android:icon="@drawable/ic_nav_category"
         android:title="Danh mục" />
     <item
-        android:id="@+id/cartFragment"
-        android:icon="@drawable/ic_nav_cart"
-        android:title="Giỏ hàng" />
+        android:id="@+id/notificationFragment"
+        android:icon="@drawable/ic_nav_notification"
+        android:title="Thông báo" />
     <item
         android:id="@+id/profileFragment"
         android:icon="@drawable/ic_nav_profile"
