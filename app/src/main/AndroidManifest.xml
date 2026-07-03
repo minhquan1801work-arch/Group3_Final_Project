@@ -45,6 +45,15 @@
         <activity
             android:name=".ui.catalog.ProductListActivity"
             android:exported="false" />
+
+        <!-- Person A — luồng Giỏ hàng → Thanh toán -->
+        <activity
+            android:name=".ui.order.CheckoutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.PaymentResultActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

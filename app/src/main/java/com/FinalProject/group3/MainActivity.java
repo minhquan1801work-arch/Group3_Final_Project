@@ -52,11 +52,41 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fm = getSupportFragmentManager();
         NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.navHostFragment);
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        // Footer pill: chỉ đổi màu icon khi chọn, tắt viên indicator mặc định của Material3
+        bottomNav.setItemActiveIndicatorEnabled(false);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
-            BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
             NavigationUI.setupWithNavController(bottomNav, navController);
         }
+
+        setupCartBadge(bottomNav);
+    }
+
+    /**
+     * Badge đỏ trên icon Giỏ hàng (footer pill) — dùng snapshot listener nên
+     * số tự cập nhật realtime khi thêm/xóa sản phẩm, không cần reload.
+     */
+    private void setupCartBadge(BottomNavigationView bottomNav) {
+        String uid = com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId();
+        if (uid == null) return; // khách chưa đăng nhập → không có badge
+
+        com.google.android.material.badge.BadgeDrawable badge =
+                bottomNav.getOrCreateBadge(R.id.cartFragment);
+        badge.setBackgroundColor(getColor(R.color.color_price));
+        badge.setBadgeTextColor(getColor(R.color.white));
+        badge.setVisible(false);
+
+        com.FinalProject.group3.utils.FirebaseHelper.getDb()
+                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CARTS)
+                .document(uid)
+                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CART_DETAILS)
+                .addSnapshotListener((snapshot, e) -> {
+                    if (snapshot == null) return;
+                    int count = snapshot.size();
+                    badge.setVisible(count > 0);
+                    badge.setNumber(count);
+                });
     }
 
     @Override

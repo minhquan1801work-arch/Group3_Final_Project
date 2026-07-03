@@ -3,7 +3,9 @@ package com.FinalProject.group3.repository;
 import com.FinalProject.group3.model.Cart;
 import com.FinalProject.group3.model.CartDetail;
 import com.FinalProject.group3.utils.FirebaseHelper;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -44,8 +46,22 @@ public class CartRepository {
                 .document(cartId)
                 .collection(FirebaseHelper.COL_CART_DETAILS)
                 .get()
-                .addOnSuccessListener(snapshot ->
-                        callback.onSuccess(snapshot.toObjects(CartDetail.class)))
+                .addOnSuccessListener(snapshot -> {
+                    // Map thủ công thay vì toObjects(): nếu document lỡ chứa field
+                    // trùng tên với @DocumentId (data seed cũ / nhập tay sai),
+                    // toObjects() sẽ ném RuntimeException làm CRASH app.
+                    // Cách này an toàn với mọi data bẩn.
+                    List<CartDetail> items = new ArrayList<>();
+                    for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                        CartDetail d = new CartDetail(
+                                doc.getString("productId"),
+                                doc.getLong("quantity") != null ? doc.getLong("quantity").intValue() : 1,
+                                doc.getString("color"));
+                        d.setCartDetailId(doc.getId());
+                        items.add(d);
+                    }
+                    callback.onSuccess(items);
+                })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 

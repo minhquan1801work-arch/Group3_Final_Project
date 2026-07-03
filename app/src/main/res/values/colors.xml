@@ -12,7 +12,8 @@
     <color name="brand_cream">#EFE9E1</color>
 
     <!-- Semantic aliases dùng trong layout -->
-    <color name="color_background">@color/brand_cream</color>
+    <!-- Figma: nền TRẮNG toàn app (không dùng cream) -->
+    <color name="color_background">@color/white</color>
     <color name="color_primary">@color/brand_dark</color>
     <color name="color_accent">@color/brand_wine</color>
     <color name="color_text_primary">@color/brand_dark</color>
@@ -21,4 +22,18 @@
     <color name="color_field_bg">#FFFFFF</color>
     <color name="color_field_border">@color/brand_beige</color>
     <color name="color_error">#B3261E</color>
+    <color name="color_success">#2E7D32</color>
+    <color name="color_pending">#E65100</color>
+
+    <!-- Figma DL_Cart / LA.Payment -->
+    <color name="color_price">#EE4D2D</color>      <!-- giá cam-đỏ -->
+    <color name="color_divider">#EEEEEE</color>    <!-- kẻ phân cách mảnh -->
+    <color name="color_section_gap">#F5F5F5</color><!-- khoảng cách section -->
+    <color name="color_btn_black">#111111</color>  <!-- nút đen Figma -->
+    <color name="color_voucher_yellow">#F5A623</color>
+
+    <!-- Footer floating pill (dark) -->
+    <color name="nav_pill_dark">#3B3835</color>
+    <color name="nav_icon_active">#FFFFFF</color>
+    <color name="nav_icon_inactive">#B8B3AE</color>
 </resources>

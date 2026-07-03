@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LA.Voucher — BottomSheet chọn mã giảm giá -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/checkout_voucher_title"
+        android:textColor="@color/color_text_primary"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <RadioGroup
+        android:id="@+id/rgVouchers"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/rbNoVoucher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/color_btn_black"
+            android:checked="true"
+            android:paddingVertical="8dp"
+            android:text="Không dùng mã"
+            android:textColor="@color/color_text_secondary"
+            android:textSize="13sp" />
+
+        <RadioButton
+            android:id="@+id/rbFreeship"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/color_btn_black"
+            android:paddingVertical="8dp"
+            android:text="FREESHIP — Miễn phí vận chuyển"
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp" />
+
+        <RadioButton
+            android:id="@+id/rbGiam10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/color_btn_black"
+            android:paddingVertical="8dp"
+            android:text="GIAM10 — Giảm 10% (tối đa 100.000đ, đơn từ 300.000đ)"
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp" />
+
+        <RadioButton
+            android:id="@+id/rbGiam50k"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/color_btn_black"
+            android:paddingVertical="8dp"
+            android:text="GIAM50K — Giảm 50.000đ (đơn từ 500.000đ)"
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnApplyVoucher"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_btn_black_filled"
+        android:text="Áp dụng"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
+</LinearLayout>
