@@ -29,6 +29,13 @@ public class CartRepository {
         void onFailure(String error);
     }
 
+    /** Callback trả về id document vừa tạo — dùng cho luồng "Mua ngay"
+     *  (BPMN: thêm vào giỏ → đưa thẳng item đó sang Checkout). */
+    public interface IdCallback {
+        void onSuccess(String cartDetailId);
+        void onFailure(String error);
+    }
+
     private final FirebaseFirestore db = FirebaseHelper.getDb();
 
     // ── Lấy cartId từ customerId ───────────────────────────────────────────────
@@ -80,6 +87,22 @@ public class CartRepository {
                 .collection(FirebaseHelper.COL_CART_DETAILS)
                 .add(item)
                 .addOnSuccessListener(ref -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // ── Thêm sản phẩm vào giỏ, trả về id item vừa tạo (luồng Mua ngay) ────────
+    public void addToCartReturningId(CartDetail item, IdCallback callback) {
+        String cartId = getCartId();
+        if (cartId == null) { callback.onFailure("Chưa đăng nhập"); return; }
+
+        Cart cart = new Cart(cartId);
+        db.collection(FirebaseHelper.COL_CARTS).document(cartId).set(cart);
+
+        db.collection(FirebaseHelper.COL_CARTS)
+                .document(cartId)
+                .collection(FirebaseHelper.COL_CART_DETAILS)
+                .add(item)
+                .addOnSuccessListener(ref -> callback.onSuccess(ref.getId()))
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 

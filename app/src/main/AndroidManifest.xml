@@ -46,6 +46,11 @@
             android:name=".ui.catalog.ProductListActivity"
             android:exported="false" />
 
+        <!-- [B1] Chi tiết sản phẩm (DL_Product Detail_Layout2) -->
+        <activity
+            android:name=".ui.catalog.ProductDetailActivity"
+            android:exported="false" />
+
         <!-- Person A — luồng Giỏ hàng → Thanh toán -->
         <activity
             android:name=".ui.order.CheckoutActivity"

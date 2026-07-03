@@ -96,8 +96,8 @@ public class PaymentResultActivity extends AppCompatActivity {
     private void loadSuggestions() {
         binding.rvSuggest.setLayoutManager(new GridLayoutManager(this, 2));
         ProductAdapter adapter = new ProductAdapter(product ->
-                // TODO [B1]: thay bằng ProductDetailActivity.start() khi Person B xong
-                Toast.makeText(this, product.getName(), Toast.LENGTH_SHORT).show());
+                com.FinalProject.group3.ui.catalog.ProductDetailActivity
+                        .start(this, product.getProductId()));
         binding.rvSuggest.setAdapter(adapter);
 
         new ProductRepository().getBestSellerProducts(6, new ProductRepository.ProductListCallback() {

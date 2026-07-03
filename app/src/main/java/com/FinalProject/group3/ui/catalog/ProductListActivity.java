@@ -59,7 +59,7 @@ public class ProductListActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(v -> finish());
 
         productAdapter = new ProductAdapter(product ->
-                Toast.makeText(this, "Chi tiet san pham se lam o buoc tiep theo", Toast.LENGTH_SHORT).show());
+                ProductDetailActivity.start(this, product.getProductId()));
         binding.rvProducts.setAdapter(productAdapter);
 
         // categoryId == null -> load tat ca san pham

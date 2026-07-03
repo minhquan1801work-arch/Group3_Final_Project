@@ -54,17 +54,16 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupAdapters() {
-        // Hang ngang "SAN PHAM BAN CHAY"
+        // Hang ngang "SAN PHAM BAN CHAY" -> mo Chi tiet san pham [B1]
         featuredAdapter = new FeaturedProductAdapter(product ->
-                ProductListActivity.startAll(requireContext()));
+                ProductDetailActivity.start(requireContext(), product.getProductId()));
         binding.rvFeaturedProducts.setLayoutManager(
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvFeaturedProducts.setAdapter(featuredAdapter);
 
-        // Luoi 2 cot "SAN PHAM NOI BAT"
-        // TODO buoc tiep: thay Toast bang ProductDetailActivity.start(requireContext(), product)
+        // Luoi 2 cot "SAN PHAM NOI BAT" -> mo Chi tiet san pham [B1]
         productAdapter = new ProductAdapter(product ->
-                Toast.makeText(requireContext(), product.getName(), Toast.LENGTH_SHORT).show());
+                ProductDetailActivity.start(requireContext(), product.getProductId()));
         binding.rvProducts.setAdapter(productAdapter);
     }
 

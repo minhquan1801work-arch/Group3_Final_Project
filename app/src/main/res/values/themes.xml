@@ -38,4 +38,35 @@
     </style>
 
     <style name="Theme.Group3_Final_Project" parent="Base.Theme.Group3_Final_Project" />
+
+    <!-- Bảng kích thước sản phẩm (DL_Product Detail): 1 dòng = label xám | value trắng -->
+    <style name="SpecRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:layout_marginBottom">1dp</item>
+        <item name="android:background">@color/color_divider</item>
+    </style>
+
+    <style name="SpecLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@color/color_section_gap</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/color_text_primary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="SpecValue">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">2</item>
+        <item name="android:layout_marginStart">1dp</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:textColor">@color/color_text_secondary</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 </resources>
