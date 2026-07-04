@@ -78,6 +78,31 @@
         <activity
             android:name=".ui.order.CheckoutVoucherActivity"
             android:exported="false" />
+
+        <!-- Account sub-screens -->
+        <activity
+            android:name=".ui.account.AccountInfoActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.OrderHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.OrderDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.ReviewActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.ContactActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.PointHistoryActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

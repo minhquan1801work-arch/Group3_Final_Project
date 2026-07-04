@@ -46,11 +46,15 @@ public class ProfileFragment extends Fragment {
         }
 
         // Grid tiện ích
-        binding.menuOrders.setOnClickListener(v -> toast("Đơn hàng của bạn — sẽ làm ở A4"));
-        binding.menuPoints.setOnClickListener(v -> toast("Lịch sử tích điểm — sắp ra mắt"));
+        binding.menuOrders.setOnClickListener(v ->
+                startActivity(com.FinalProject.group3.ui.order.OrderHistoryActivity
+                        .intent(requireContext())));
+        binding.menuPoints.setOnClickListener(v ->
+                startActivity(PointHistoryActivity.intent(requireContext())));
         binding.menuVouchers.setOnClickListener(v ->
                 startActivity(VoucherActivity.intent(requireContext())));
-        binding.menuAccount.setOnClickListener(v -> toast("Thông tin tài khoản — sắp ra mắt"));
+        binding.menuAccount.setOnClickListener(v ->
+                startActivity(AccountInfoActivity.intent(requireContext())));
         binding.menuSettings.setOnClickListener(v -> toast("Cài đặt — sắp ra mắt"));
 
         // Header
@@ -60,7 +64,8 @@ public class ProfileFragment extends Fragment {
                         .navigate(R.id.cartFragment));
 
         // List hỗ trợ / chính sách
-        binding.rowSupport.setOnClickListener(v -> toast("Liên hệ hỗ trợ: support@glassity.com"));
+        binding.rowSupport.setOnClickListener(v ->
+                startActivity(ContactActivity.intent(requireContext())));
         binding.rowFaq.setOnClickListener(v -> toast("Câu hỏi thường gặp — sắp ra mắt"));
         binding.rowPrivacy.setOnClickListener(v -> toast("Chính sách bảo mật — sắp ra mắt"));
         binding.rowWarranty.setOnClickListener(v -> toast("Chính sách bảo hành — sắp ra mắt"));

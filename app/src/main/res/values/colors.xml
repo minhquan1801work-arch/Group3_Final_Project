@@ -38,4 +38,6 @@
     <color name="nav_icon_inactive">#B8B3AE</color>
     <color name="nav_badge_red">#F13658</color>  <!-- Figma: chấm đỏ trên chuông -->
     <color name="nav_item_circle_selected">#1FFFFFFF</color> <!-- trắng 12% — vòng tròn sau icon tab đang chọn -->
+
+    <!-- Tab chip selector ở res/color/color_tab_text.xml -->
 </resources>
