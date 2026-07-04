@@ -52,8 +52,7 @@ public class WelcomeActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
-        // Seed categories + products mẫu vào Firestore lần đầu chạy app
-        SeedDataHelper.seedIfNeeded(this);
+        // SeedDataHelper.seedIfNeeded(this); // tắt — data thật đã seed qua seed_firestore.js
 
         // default_web_client_id được google-services plugin tự sinh ra từ google-services.json.
         // Chỉ hoạt động SAU KHI đã thêm SHA-1 + tải lại google-services.json (xem FIREBASE_SETUP_CHECKLIST.md).

@@ -88,6 +88,15 @@ public class ProductRepository {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    // ── Lấy sản phẩm theo collection (BST) ───────────────────────────────────
+    public void getProductsByCollection(String collection, ProductListCallback callback) {
+        db.collection(FirebaseHelper.COL_PRODUCTS)
+                .whereEqualTo("collection", collection)
+                .get()
+                .addOnSuccessListener(snapshot -> callback.onSuccess(snapshot.toObjects(Product.class)))
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
     // ── Lấy sản phẩm bán chạy (ví dụ: giới hạn 10) ───────────────────────────
     public void getBestSellerProducts(int limit, ProductListCallback callback) {
         db.collection(FirebaseHelper.COL_PRODUCTS)

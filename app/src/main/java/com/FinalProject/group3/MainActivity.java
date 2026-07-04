@@ -1,48 +1,31 @@
 package com.FinalProject.group3;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Gravity;
+import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-/**
- * Màn hình chính SAU KHI đã đăng nhập/đăng ký/chọn Khách (từ WelcomeActivity).
- * Chứa 4 tab bằng footer pill tự code (layout_bottom_nav) + Navigation Component: Trang chủ,
- * Danh mục, Giỏ hàng, Cá nhân — chuyển tab chỉ swap Fragment, KHÔNG tạo lại
- * Activity, nên MainActivity chỉ trải qua onCreate() một lần khi mở app.
- *
- * Ôn lại vòng đời Activity (đúng nội dung slide chương 05 - Activity & Intent):
- *  - onCreate(): app "hiện lên" lần đầu, khởi tạo UI. Chạy đúng 1 lần trừ khi
- *    Activity bị hệ thống huỷ hẳn (xoay màn hình, hết bộ nhớ...).
- *  - onStart()/onResume(): app đang ở FOREGROUND, người dùng thấy và tương tác được.
- *  - onPause(): có Activity/Dialog khác che một phần lên trên (không còn nhận input),
- *    ví dụ khi mở Google Sign-In popup từ WelcomeActivity.
- *  - onStop(): app bị đẩy xuống BACKGROUND (người dùng bấm Home, hoặc mở Activity
- *    khác full-screen như ProductListActivity) — vẫn còn sống trong bộ nhớ, chưa bị hủy.
- *  - onDestroy(): Activity bị huỷ hẳn — do người dùng thoát (back hết stack) hoặc
- *    hệ thống thu hồi bộ nhớ khi app chạy ẩn quá lâu.
- * Khác với "Cancel/Stop" của 1 tiến trình hệ điều hành thông thường, Android
- * không cho code tự "kill" Activity khác — chỉ có thể finish() Activity của
- * chính mình, phần còn lại do hệ điều hành quản lý dựa trên vòng đời trên.
- */
+import com.FinalProject.group3.ui.catalog.CollectionActivity;
+import com.FinalProject.group3.ui.catalog.ProductListActivity;
+import com.FinalProject.group3.ui.catalog.SearchActivity;
+import com.FinalProject.group3.utils.InsetsUtil;
+
 public class MainActivity extends AppCompatActivity {
 
-    private static final String TAG = "MainActivity-Lifecycle";
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate: app khởi tạo UI lần đầu");
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(findViewById(R.id.main));
+        InsetsUtil.applySystemBarsPadding(findViewById(R.id.main));
+
+        drawerLayout = findViewById(R.id.drawerLayout);
 
         FragmentManager fm = getSupportFragmentManager();
         NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.navHostFragment);
@@ -50,23 +33,112 @@ public class MainActivity extends AppCompatActivity {
             setupBottomNav(navHostFragment.getNavController());
         }
 
+        setupDrawer();
         setupNotificationDot();
     }
 
-    /**
-     * Footer pill tự code (layout_bottom_nav.xml): bấm icon → navigate tab,
-     * lắng nghe destination đổi → setSelected để icon trắng + vòng tròn sáng.
-     */
-    private void setupBottomNav(NavController navController) {
-        android.widget.ImageView btnHome = findViewById(R.id.btnNavHome);
-        android.widget.ImageView btnCategory = findViewById(R.id.btnNavCategory);
-        android.widget.ImageView btnNotification = findViewById(R.id.btnNavNotification);
-        android.widget.ImageView btnProfile = findViewById(R.id.btnNavProfile);
+    public void openDrawer() {
+        if (drawerLayout != null) drawerLayout.openDrawer(Gravity.START);
+    }
 
-        btnHome.setOnClickListener(v -> navigateTab(navController, R.id.homeFragment));
-        btnCategory.setOnClickListener(v -> navigateTab(navController, R.id.categoryFragment));
+    private void setupDrawer() {
+        android.view.View drawerView = drawerLayout.getChildAt(1);
+
+        drawerView.findViewById(R.id.btnDrawerClose).setOnClickListener(v ->
+                drawerLayout.closeDrawer(Gravity.START));
+
+        drawerView.findViewById(R.id.btnDrawerSearch).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            startActivity(new android.content.Intent(this, SearchActivity.class));
+        });
+
+        drawerView.findViewById(R.id.btnDrawerCart).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.navHostFragment);
+            if (navHost != null) navHost.getNavController().navigate(R.id.cartFragment);
+        });
+
+        // Nam / Nữ tab toggle
+        TextView tabNam = drawerView.findViewById(R.id.tabNam);
+        TextView tabNu  = drawerView.findViewById(R.id.tabNu);
+        android.view.View indicator = drawerView.findViewById(R.id.tabIndicator);
+
+        tabNam.setOnClickListener(v -> {
+            tabNam.setTypeface(null, android.graphics.Typeface.BOLD);
+            tabNu.setTypeface(null, android.graphics.Typeface.NORMAL);
+            indicator.animate().translationX(0).setDuration(150).start();
+        });
+        tabNu.setOnClickListener(v -> {
+            tabNu.setTypeface(null, android.graphics.Typeface.BOLD);
+            tabNam.setTypeface(null, android.graphics.Typeface.NORMAL);
+            indicator.post(() ->
+                    indicator.animate().translationX(tabNu.getLeft()).setDuration(150).start());
+        });
+
+        // Menu items → ProductListActivity
+        navigate(drawerView, R.id.menuKinhMat,   ProductListActivity.CAT_KINH_MAT, null, "Kính Mát");
+        navigate(drawerView, R.id.menuGongNhua,  ProductListActivity.CAT_KINH_CAN, null, "Kính Gọng Nhựa");
+        navigate(drawerView, R.id.menuGongKimLoai, ProductListActivity.CAT_KINH_CAN, null, "Kính Gọng Kim Loại");
+
+        navigateShape(drawerView, R.id.menuShapeTron,   ProductListActivity.SHAPE_TRON,      "Kính Gọng Tròn");
+        navigateShape(drawerView, R.id.menuShapeOval,   ProductListActivity.SHAPE_TRAI_XOAN, "Kính Gọng Oval");
+        navigateShape(drawerView, R.id.menuShapeMatMeo, ProductListActivity.SHAPE_TRAI_TIM,  "Kính Gọng Mắt Mèo");
+        navigateShape(drawerView, R.id.menuShapeVuong,  ProductListActivity.SHAPE_VUONG,     "Kính Gọng Vuông");
+
+        navigate(drawerView, R.id.menuPhuKien, ProductListActivity.CAT_PHU_KIEN, null, "Phụ Kiện");
+        navigate(drawerView, R.id.menuHopDung, ProductListActivity.CAT_PHU_KIEN, null, "Hộp Đựng Kính");
+        navigate(drawerView, R.id.menuKhanLau, ProductListActivity.CAT_PHU_KIEN, null, "Khăn Lau Kính");
+        navigate(drawerView, R.id.menuNuocLau, ProductListActivity.CAT_PHU_KIEN, null, "Nước Lau Kính");
+
+        drawerView.findViewById(R.id.menuBST).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            startActivity(new android.content.Intent(this, CollectionActivity.class));
+        });
+        navigateCollection(drawerView, R.id.menuMonochrome, "Monochrome Collection");
+        navigateCollection(drawerView, R.id.menuEssential,  "Essential Acetate");
+        navigateCollection(drawerView, R.id.menuSunlight,   "Sunlight Studio");
+
+        drawerView.findViewById(R.id.menuVeGlassity).setOnClickListener(v ->
+                drawerLayout.closeDrawer(Gravity.START));
+
+        drawerView.findViewById(R.id.menuBlogChonKinh).setOnClickListener(v ->
+                drawerLayout.closeDrawer(Gravity.START));
+    }
+
+    private void navigate(android.view.View root, int viewId, String catId, String shape, String title) {
+        root.findViewById(viewId).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            ProductListActivity.start(this, catId, shape, title);
+        });
+    }
+
+    private void navigateShape(android.view.View root, int viewId, String shape, String title) {
+        root.findViewById(viewId).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            ProductListActivity.start(this, null, shape, title);
+        });
+    }
+
+    private void navigateCollection(android.view.View root, int viewId, String collectionName) {
+        root.findViewById(viewId).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            android.content.Intent intent = new android.content.Intent(this, CollectionActivity.class);
+            intent.putExtra(CollectionActivity.EXTRA_COLLECTION, collectionName);
+            startActivity(intent);
+        });
+    }
+
+    private void setupBottomNav(NavController navController) {
+        android.widget.ImageView btnHome         = findViewById(R.id.btnNavHome);
+        android.widget.ImageView btnCategory     = findViewById(R.id.btnNavCategory);
+        android.widget.ImageView btnNotification = findViewById(R.id.btnNavNotification);
+        android.widget.ImageView btnProfile      = findViewById(R.id.btnNavProfile);
+
+        btnHome.setOnClickListener(v         -> navigateTab(navController, R.id.homeFragment));
+        btnCategory.setOnClickListener(v     -> navigateTab(navController, R.id.categoryFragment));
         btnNotification.setOnClickListener(v -> navigateTab(navController, R.id.notificationFragment));
-        btnProfile.setOnClickListener(v -> navigateTab(navController, R.id.profileFragment));
+        btnProfile.setOnClickListener(v      -> navigateTab(navController, R.id.profileFragment));
 
         navController.addOnDestinationChangedListener((c, destination, args) -> {
             int id = destination.getId();
@@ -80,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
     private void navigateTab(NavController navController, int destinationId) {
         if (navController.getCurrentDestination() != null
                 && navController.getCurrentDestination().getId() == destinationId) return;
-        // popUpTo home: back từ tab khác luôn quay về Trang chủ (giống BottomNavigationView)
         androidx.navigation.NavOptions options = new androidx.navigation.NavOptions.Builder()
                 .setLaunchSingleTop(true)
                 .setPopUpTo(R.id.homeFragment, false)
@@ -88,14 +159,10 @@ public class MainActivity extends AppCompatActivity {
         navController.navigate(destinationId, null, options);
     }
 
-    /**
-     * Chấm đỏ trên icon chuông (footer pill, theo Figma) — snapshot listener
-     * nên tự bật/tắt realtime khi có thông báo UNREAD mới.
-     */
     private void setupNotificationDot() {
         android.view.View dot = findViewById(R.id.dotNotification);
         String uid = com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId();
-        if (uid == null) return; // khách chưa đăng nhập → không có badge
+        if (uid == null) return;
 
         com.FinalProject.group3.utils.FirebaseHelper.getDb()
                 .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_NOTIFICATIONS)
@@ -106,35 +173,5 @@ public class MainActivity extends AppCompatActivity {
                     dot.setVisibility(snapshot.isEmpty()
                             ? android.view.View.GONE : android.view.View.VISIBLE);
                 });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        Log.d(TAG, "onStart: app chuẩn bị hiện lên foreground");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: app đang ở foreground, người dùng tương tác được");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        Log.d(TAG, "onPause: có màn hình khác che lên trên (vd: dialog, Activity trong suốt)");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        Log.d(TAG, "onStop: app bị đẩy xuống background (mở Activity khác/bấm Home)");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: Activity bị huỷ hẳn");
     }
 }

@@ -26,21 +26,22 @@ import java.util.List;
  * DL.Product — danh sach san pham theo category hoac dang mat. [Task B3]
  *
  * Phan loai san pham dung 2 truong doc lap:
- *   categoryId  — loai san pham: cat_kinh_mat | cat_kinh_can | cat_phu_kien
+ *   categoryId  — loai san pham: kinh_mat | kinh_can | phu_kien | bst
  *   faceShapes  — dang mat phu hop: tron | trai_xoan | trai_tim | kim_cuong | vuong
  *
  * Khi mo man hinh:
- *   start(ctx, "cat_kinh_mat", null, "Kinh mat")   → loc theo category
+ *   start(ctx, "kinh_mat", null, "Kinh mat")   → loc theo category
  *   start(ctx, null, "tron", "Kinh mat tron")      → loc theo dang mat
  *   startAll(ctx)                                  → tat ca san pham
  *   startAllShapes(ctx)                            → tat ca co dang mat
  */
 public class ProductListActivity extends AppCompatActivity {
 
-    // ── Category IDs (loai san pham) ─────────────────────────────────────────
-    public static final String CAT_KINH_MAT  = "cat_kinh_mat";
-    public static final String CAT_KINH_CAN  = "cat_kinh_can";
-    public static final String CAT_PHU_KIEN  = "cat_phu_kien";
+    // ── Category IDs — khớp với Figma LA.Categories ──
+    public static final String CAT_KINH_MAT = "kinh_mat";   // Kính Mát (sunglasses)
+    public static final String CAT_KINH_CAN = "kinh_can";   // Kính Cận (prescription)
+    public static final String CAT_PHU_KIEN = "phu_kien";   // Phụ Kiện
+    public static final String CAT_BST      = "bst";        // Bộ Sưu Tập
 
     // ── Face shape values (dung voi faceShapes array) ──────────────────────
     public static final String SHAPE_TRON       = "tron";
@@ -117,13 +118,15 @@ public class ProductListActivity extends AppCompatActivity {
     // ── Chips ─────────────────────────────────────────────────────────────────
     private void setupChips() {
         binding.chipKinhMat.setOnClickListener(v -> switchToCategory(CAT_KINH_MAT, binding.chipKinhMat));
-        binding.chipShape.setOnClickListener(v -> switchToAllShapes());
+        binding.chipShape.setOnClickListener(v ->   showShapeSheet());
         binding.chipPhuKien.setOnClickListener(v -> switchToCategory(CAT_PHU_KIEN, binding.chipPhuKien));
+        binding.chipLuxury.setOnClickListener(v ->  switchToCategory(CAT_BST,      binding.chipLuxury));
 
-        // Highlight chip tuong ung khi mo tu ben ngoai
-        if (isAllShapes || currentFaceShape != null) setActiveChip(binding.chipShape);
-        else if (CAT_KINH_MAT.equals(currentCategoryId))  setActiveChip(binding.chipKinhMat);
-        else if (CAT_PHU_KIEN.equals(currentCategoryId))  setActiveChip(binding.chipPhuKien);
+        // Highlight chip tuong ung khi mo tu CategoryFragment / HomeFragment
+        if (CAT_KINH_MAT.equals(currentCategoryId))      setActiveChip(binding.chipKinhMat);
+        else if (CAT_KINH_CAN.equals(currentCategoryId)) setActiveChip(binding.chipShape);
+        else if (CAT_PHU_KIEN.equals(currentCategoryId)) setActiveChip(binding.chipPhuKien);
+        else if (CAT_BST.equals(currentCategoryId))       setActiveChip(binding.chipLuxury);
     }
 
     private void switchToCategory(String categoryId, TextView chip) {
@@ -154,7 +157,7 @@ public class ProductListActivity extends AppCompatActivity {
     }
 
     private void resetChips() {
-        for (TextView c : new TextView[]{binding.chipKinhMat, binding.chipShape, binding.chipPhuKien}) {
+        for (TextView c : new TextView[]{binding.chipKinhMat, binding.chipShape, binding.chipPhuKien, binding.chipLuxury}) {
             c.setBackgroundResource(R.drawable.bg_btn_wine_outline);
             c.setTextColor(getColor(R.color.brand_wine));
         }
@@ -182,6 +185,48 @@ public class ProductListActivity extends AppCompatActivity {
             sheet.dismiss();
         });
         sheet.show();
+    }
+
+    private void showShapeSheet() {
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_shape, null);
+        sheet.setContentView(sheetView);
+
+        int[][] shapeItems = {
+            { R.id.itemShapeTron,    0 },
+            { R.id.itemShapeOval,    1 },
+            { R.id.itemShapeMatMeo,  2 },
+            { R.id.itemShapeVuong,   3 },
+            { R.id.itemShapeAll,     4 }
+        };
+        String[] shapeValues = { SHAPE_TRON, SHAPE_TRAI_XOAN, SHAPE_TRAI_TIM, SHAPE_VUONG, null };
+        String[] shapeLabels = { "Tròn", "Oval", "Mắt Mèo", "Vuông", "Tất cả shape" };
+
+        for (int i = 0; i < shapeItems.length; i++) {
+            final int idx = i;
+            View item = sheetView.findViewById(shapeItems[i][0]);
+            if (item == null) continue;
+            item.setOnClickListener(v -> {
+                sheet.dismiss();
+                if (shapeValues[idx] == null) {
+                    switchToAllShapes();
+                } else {
+                    switchToShape(shapeValues[idx], shapeLabels[idx]);
+                }
+            });
+        }
+        sheet.show();
+    }
+
+    private void switchToShape(String shape, String label) {
+        currentFaceShape  = shape;
+        currentCategoryId = null;
+        isAllShapes       = false;
+        currentSort       = SORT_DEFAULT;
+        resetChips();
+        setActiveChip(binding.chipShape);
+        binding.chipShape.setText("Shape: " + label + " ⌄");
+        loadByFaceShape(shape);
     }
 
     private void applySort() {

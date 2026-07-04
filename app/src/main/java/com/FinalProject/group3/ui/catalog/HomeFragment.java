@@ -1,41 +1,52 @@
 package com.FinalProject.group3.ui.catalog;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.adapter.FeaturedProductAdapter;
+import com.FinalProject.group3.adapter.HeroBannerAdapter;
 import com.FinalProject.group3.adapter.ProductAdapter;
 import com.FinalProject.group3.databinding.FragmentHomeBinding;
 import com.FinalProject.group3.model.Product;
 import com.FinalProject.group3.repository.ProductRepository;
 
+import java.util.Arrays;
 import java.util.List;
 
-/**
- * LA.Homepage -- khop Figma.
- *
- * Vong doi Fragment (chu y vi song trong BottomNavigationView):
- * - onCreateView: inflate binding (tuong duong Activity.onCreate)
- * - onViewCreated: setup adapter + load data (tuong duong onStart/onResume)
- * - onDestroyView: binding = null de tranh leak (tuong duong onDestroy)
- * Fragment instance co the con song (onStop) sau khi view bi huy khi chuyen tab
- * -> callback Firestore PHAI guard `if (binding == null) return` truoc khi dung UI.
- */
 public class HomeFragment extends Fragment {
+
+    // Điền Cloudinary URL vào đây khi có ảnh
+    private static final List<String> HERO_URLS = Arrays.asList(
+            "",   // hero slide 1
+            "",   // hero slide 2
+            ""    // hero slide 3
+    );
 
     private FragmentHomeBinding binding;
     private final ProductRepository productRepository = new ProductRepository();
 
     private FeaturedProductAdapter featuredAdapter;
     private ProductAdapter productAdapter;
+    private HeroBannerAdapter heroBannerAdapter;
+
+    private final Handler autoScrollHandler = new Handler(Looper.getMainLooper());
+    private Runnable autoScrollRunnable;
+    private static final long HERO_AUTO_SCROLL_MS = 3500;
 
     @Nullable
     @Override
@@ -49,51 +60,135 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setupAdapters();
+        setupHeroCarousel();
         setupClickListeners();
         loadProducts();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        startAutoScroll();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopAutoScroll();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        stopAutoScroll();
+        binding = null;
+    }
+
+    // ── Adapters ─────────────────────────────────────────────────────────────
+
     private void setupAdapters() {
-        // Hang ngang "SAN PHAM BAN CHAY" -> mo Chi tiet san pham [B1]
         featuredAdapter = new FeaturedProductAdapter(product ->
                 ProductDetailActivity.start(requireContext(), product.getProductId()));
         binding.rvFeaturedProducts.setLayoutManager(
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvFeaturedProducts.setAdapter(featuredAdapter);
 
-        // Luoi 2 cot "SAN PHAM NOI BAT" -> mo Chi tiet san pham [B1]
         productAdapter = new ProductAdapter(product ->
                 ProductDetailActivity.start(requireContext(), product.getProductId()));
         binding.rvProducts.setAdapter(productAdapter);
     }
 
+    // ── Hero carousel ─────────────────────────────────────────────────────────
+
+    private void setupHeroCarousel() {
+        heroBannerAdapter = new HeroBannerAdapter(HERO_URLS);
+        binding.vpHero.setAdapter(heroBannerAdapter);
+
+        setupDots(HERO_URLS.size());
+
+        binding.vpHero.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                updateDots(position);
+            }
+        });
+    }
+
+    private void setupDots(int count) {
+        binding.llHeroDots.removeAllViews();
+        for (int i = 0; i < count; i++) {
+            ImageView dot = new ImageView(requireContext());
+            int size = dpToPx(8);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+            lp.setMargins(dpToPx(3), 0, dpToPx(3), 0);
+            dot.setLayoutParams(lp);
+            dot.setBackgroundResource(i == 0
+                    ? R.drawable.dot_active : R.drawable.dot_inactive);
+            binding.llHeroDots.addView(dot);
+        }
+    }
+
+    private void updateDots(int selected) {
+        for (int i = 0; i < binding.llHeroDots.getChildCount(); i++) {
+            binding.llHeroDots.getChildAt(i).setBackgroundResource(
+                    i == selected ? R.drawable.dot_active : R.drawable.dot_inactive);
+        }
+    }
+
+    private void startAutoScroll() {
+        stopAutoScroll();
+        autoScrollRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (binding == null) return;
+                int next = (binding.vpHero.getCurrentItem() + 1) % HERO_URLS.size();
+                binding.vpHero.setCurrentItem(next, true);
+                autoScrollHandler.postDelayed(this, HERO_AUTO_SCROLL_MS);
+            }
+        };
+        autoScrollHandler.postDelayed(autoScrollRunnable, HERO_AUTO_SCROLL_MS);
+    }
+
+    private void stopAutoScroll() {
+        if (autoScrollRunnable != null) {
+            autoScrollHandler.removeCallbacks(autoScrollRunnable);
+        }
+    }
+
+    // ── Click listeners ───────────────────────────────────────────────────────
+
     private void setupClickListeners() {
-        // Hamburger menu
-        binding.btnMenu.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Menu danh muc", Toast.LENGTH_SHORT).show());
+        binding.btnMenu.setOnClickListener(v -> {
+            if (getActivity() instanceof com.FinalProject.group3.MainActivity) {
+                ((com.FinalProject.group3.MainActivity) getActivity()).openDrawer();
+            }
+        });
 
-        // Search -> TODO SearchActivity
         binding.btnSearch.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Tim kiem", Toast.LENGTH_SHORT).show());
+                startActivity(new Intent(requireContext(), SearchActivity.class)));
 
-        // Cart icon header -> mở màn Giỏ hàng (cart không còn ở footer pill,
-        // vào bằng NavController vì cartFragment vẫn nằm trong nav graph)
         binding.btnCart.setOnClickListener(v ->
                 androidx.navigation.fragment.NavHostFragment.findNavController(this)
-                        .navigate(com.FinalProject.group3.R.id.cartFragment));
+                        .navigate(R.id.cartFragment));
 
-        // "Xem tat ca" -> mo ProductListActivity (tat ca san pham)
         binding.btnViewAllFeatured.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
-
-        // Bo suu tap -> TODO CollectionActivity
-        binding.btnViewAllCollections.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Bo suu tap -- se lam o buoc tiep theo", Toast.LENGTH_SHORT).show());
 
         binding.btnViewAllProducts.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
 
-        // 5 dạng mặt → mở ProductList filter theo từng shape [B4]
+        // Collection tiles
+        binding.tileMonochrome.setOnClickListener(v ->
+                CollectionActivity.start(requireContext(), "Monochrome Collection"));
+        binding.tileEssential.setOnClickListener(v ->
+                CollectionActivity.start(requireContext(), "Essential Acetate"));
+        binding.tileSunlight.setOnClickListener(v ->
+                CollectionActivity.start(requireContext(), "Sunlight Studio"));
+
+        binding.btnViewAllCollections.setOnClickListener(v ->
+                CollectionActivity.start(requireContext()));
+
+        // Face shapes
         binding.faceTron.setOnClickListener(v ->
                 ProductListActivity.start(requireContext(), null, ProductListActivity.SHAPE_TRON, "Kính mặt tròn"));
         binding.faceTraiXoan.setOnClickListener(v ->
@@ -104,30 +199,44 @@ public class HomeFragment extends Fragment {
                 ProductListActivity.start(requireContext(), null, ProductListActivity.SHAPE_KIM_CUONG, "Kính mặt kim cương"));
         binding.faceVuong.setOnClickListener(v ->
                 ProductListActivity.start(requireContext(), null, ProductListActivity.SHAPE_VUONG, "Kính mặt vuông"));
+
+        // Banner "Khám phá Glassity" → mở tất cả sản phẩm
+        binding.bannerKhamPha.setOnClickListener(v ->
+                ProductListActivity.startAll(requireContext()));
+
+        // Blog → placeholder Toast (chưa có BlogActivity)
+        binding.blogCard1.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Blog sắp ra mắt", Toast.LENGTH_SHORT).show());
+        binding.blogCard2.setOnClickListener(v ->
+                Toast.makeText(requireContext(), "Blog sắp ra mắt", Toast.LENGTH_SHORT).show());
     }
+
+    // ── Load data ─────────────────────────────────────────────────────────────
 
     private void loadProducts() {
         productRepository.getBestSellerProducts(10, new ProductRepository.ProductListCallback() {
             @Override
             public void onSuccess(List<Product> products) {
-                if (binding == null) return; // tab bi switch truoc khi Firestore tra ve
+                if (binding == null) return;
                 featuredAdapter.submitList(products);
                 productAdapter.submitList(products);
-                binding.tvEmptyProducts.setVisibility(products.isEmpty() ? View.VISIBLE : View.GONE);
+                binding.tvEmptyProducts.setVisibility(
+                        products.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
             public void onFailure(String error) {
                 if (binding == null) return;
                 binding.tvEmptyProducts.setVisibility(View.VISIBLE);
-                Toast.makeText(requireContext(), "Loi tai san pham: " + error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Lỗi tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null; // tranh memory leak View sau khi Fragment view bi huy khi chuyen tab
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private int dpToPx(int dp) {
+        float density = requireContext().getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
     }
 }

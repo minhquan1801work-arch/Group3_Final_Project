@@ -12,10 +12,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingBottom="32dp">
+        android:orientation="vertical">
 
-        <!-- HEADER BAR -->
+        <!-- ══════════════════════════════ HEADER BAR ══════════════════════════════ -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutHeader"
             android:layout_width="match_parent"
@@ -75,25 +74,27 @@
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- HERO - placeholder den -->
+        <!-- ══════════════════════════════ HERO CAROUSEL ══════════════════════════════ -->
         <FrameLayout
-            android:id="@+id/frameHero"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:background="@color/brand_dark">
-            <TextView
+            android:layout_height="220dp">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/vpHero"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- Dot indicators -->
+            <LinearLayout
+                android:id="@+id/llHeroDots"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:alpha="0.5"
-                android:letterSpacing="0.2"
-                android:text="GLASSITY"
-                android:textColor="#FFFFFF"
-                android:textSize="28sp"
-                android:textStyle="bold" />
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal" />
         </FrameLayout>
 
-        <!-- PROMO BANNER -->
+        <!-- ══════════════════════════════ PROMO BANNER ══════════════════════════════ -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutPromoBanner"
             android:layout_width="match_parent"
@@ -109,7 +110,7 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="100dp"
-                android:text="Mua san pham thu hai giam ngay 20%"
+                android:text="Mua sản phẩm thứ hai\ngiảm ngay 20%"
                 android:textColor="#FFFFFF"
                 android:textSize="17sp"
                 android:textStyle="bold"
@@ -131,11 +132,11 @@
                 app:layout_constraintTop_toBottomOf="@id/tvPromoText" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- SAN PHAM BAN CHAY - horizontal -->
+        <!-- ══════════════════════════════ SẢN PHẨM BÁN CHẠY ══════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="24dp"
             android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -148,7 +149,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:letterSpacing="0.05"
-                    android:text="SAN PHAM BAN CHAY"
+                    android:text="SẢN PHẨM BÁN CHẠY"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -171,7 +172,7 @@
                 tools:listitem="@layout/item_product_featured" />
         </LinearLayout>
 
-        <!-- CHON KINH THEO DANG MAT (static) -->
+        <!-- ══════════════════════════════ CHỌN KÍNH THEO DÁNG MẶT ══════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -182,7 +183,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:letterSpacing="0.05"
-                android:text="CHON KINH THEO DANG MAT"
+                android:text="CHỌN KÍNH THEO DÁNG MẶT"
                 android:textColor="@color/color_text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -201,7 +202,7 @@
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="TRON"
+                        android:layout_marginTop="4dp" android:text="TRÒN"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
                 <LinearLayout
@@ -213,7 +214,7 @@
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="TRAI XOAN"
+                        android:layout_marginTop="4dp" android:text="TRÁI XOAN"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
                 <LinearLayout
@@ -225,7 +226,7 @@
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="TRAI TIM"
+                        android:layout_marginTop="4dp" android:text="TRÁI TIM"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
             </LinearLayout>
@@ -244,7 +245,7 @@
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="KIM CUONG"
+                        android:layout_marginTop="4dp" android:text="KIM CƯƠNG"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
                 <LinearLayout
@@ -256,19 +257,20 @@
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="VUONG"
+                        android:layout_marginTop="4dp" android:text="VUÔNG"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
                 <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
             </LinearLayout>
         </LinearLayout>
 
-        <!-- BO SUU TAP (static 2 tile) -->
+        <!-- ══════════════════════════════ BỘ SƯU TẬP ══════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -280,7 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:letterSpacing="0.05"
-                    android:text="BO SUU TAP"
+                    android:text="BỘ SƯU TẬP"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -291,52 +293,104 @@
                     android:contentDescription="@null"
                     android:src="@drawable/ic_chevron_right" />
             </LinearLayout>
+
+            <!-- Row 1: Monochrome + Essential -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginHorizontal="16dp"
                 android:orientation="horizontal">
-                <androidx.constraintlayout.widget.ConstraintLayout
+
+                <FrameLayout
+                    android:id="@+id/tileMonochrome"
                     android:layout_width="0dp"
                     android:layout_height="160dp"
                     android:layout_weight="1"
                     android:layout_marginEnd="6dp"
                     android:background="@drawable/bg_rounded_card"
-                    android:backgroundTint="@color/brand_dark">
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <ImageView
+                        android:id="@+id/imgMonochrome"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@color/brand_dark"
+                        android:contentDescription="@null" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
                         android:layout_margin="12dp"
                         android:text="MONOCHROME&#10;COLLECTION"
                         android:textColor="#FFFFFF"
                         android:textSize="11sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-                <androidx.constraintlayout.widget.ConstraintLayout
+                        android:textStyle="bold" />
+                </FrameLayout>
+
+                <FrameLayout
+                    android:id="@+id/tileEssential"
                     android:layout_width="0dp"
                     android:layout_height="160dp"
                     android:layout_weight="1"
                     android:layout_marginStart="6dp"
                     android:background="@drawable/bg_rounded_card"
-                    android:backgroundTint="@color/brand_taupe">
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+                    <ImageView
+                        android:id="@+id/imgEssential"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@color/brand_taupe"
+                        android:contentDescription="@null" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="bottom|start"
                         android:layout_margin="12dp"
                         android:text="ESSENTIAL&#10;ACETATE"
                         android:textColor="#FFFFFF"
                         android:textSize="11sp"
-                        android:textStyle="bold"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                        android:textStyle="bold" />
+                </FrameLayout>
             </LinearLayout>
+
+            <!-- Row 2: Sunlight full-width -->
+            <FrameLayout
+                android:id="@+id/tileSunlight"
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="16dp"
+                android:background="@drawable/bg_rounded_card"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+                <ImageView
+                    android:id="@+id/imgSunlight"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:src="@color/color_field_border"
+                    android:contentDescription="@null" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|start"
+                    android:layout_margin="12dp"
+                    android:text="SUNLIGHT STUDIO"
+                    android:textColor="#FFFFFF"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </FrameLayout>
+
         </LinearLayout>
 
-        <!-- LOI ICH (static 4 item) -->
+        <!-- ══════════════════════════════ LỢI ÍCH ══════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -350,70 +404,57 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <!-- Mien phi van chuyen -->
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginEnd="8dp"
                     android:gravity="center_vertical" android:orientation="horizontal">
                     <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x1F69A;"
-                        android:textSize="16sp" />
+                        android:gravity="center" android:text="&#x1F69A;" android:textSize="16sp" />
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                         android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Mien phi van chuyen tu 399K"
+                        android:text="Miễn phí vận chuyển từ 399K"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
-
-                <!-- Doi tra -->
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
                     <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x1F504;"
-                        android:textSize="16sp" />
+                        android:gravity="center" android:text="&#x1F504;" android:textSize="16sp" />
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                         android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Doi tra trong 30 ngay"
+                        android:text="Đổi trả trong 30 ngày"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:layout_marginVertical="10dp"
-                android:background="@color/color_field_border"/>
+                android:layout_marginVertical="10dp" android:background="@color/color_field_border" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-                <!-- Ho tro -->
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginEnd="8dp"
                     android:gravity="center_vertical" android:orientation="horizontal">
                     <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x1F4AC;"
-                        android:textSize="16sp" />
+                        android:gravity="center" android:text="&#x1F4AC;" android:textSize="16sp" />
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                         android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Nhan vien ho tro 24/7"
+                        android:text="Nhân viên hỗ trợ 24/7"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
-
-                <!-- Chinh hang -->
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
                     <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x2705;"
-                        android:textSize="16sp" />
+                        android:gravity="center" android:text="&#x2705;" android:textSize="16sp" />
                     <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                         android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Cam ket chinh hang 100%"
+                        android:text="Cam kết chính hãng 100%"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
-        <!-- SAN PHAM NOI BAT - luoi 2 cot -->
+        <!-- ══════════════════════════════ SẢN PHẨM NỔI BẬT ══════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -430,7 +471,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:letterSpacing="0.05"
-                    android:text="SAN PHAM NOI BAT"
+                    android:text="SẢN PHẨM NỔI BẬT"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -457,10 +498,316 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:gravity="center"
-                android:text="Chua co san pham nao, doi ngu dang cap nhat."
+                android:text="Chưa có sản phẩm nào, đội ngũ đang cập nhật."
                 android:textColor="@color/color_text_secondary"
                 android:visibility="gone"
                 tools:visibility="visible" />
+        </LinearLayout>
+
+        <!-- ══════════════════════════════ BLOG ══════════════════════════════ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:letterSpacing="0.05"
+                    android:text="BLOG"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Blog card 1 -->
+                    <LinearLayout
+                        android:id="@+id/blogCard1"
+                        android:layout_width="220dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_rounded_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:orientation="vertical">
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:background="@color/color_field_border" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Cách chọn kính phù hợp dáng khuôn mặt"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:maxLines="2"
+                                android:ellipsize="end" />
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Glassity Guide"
+                                android:textColor="@color/color_hint"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Blog card 2 -->
+                    <LinearLayout
+                        android:id="@+id/blogCard2"
+                        android:layout_width="220dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        android:background="@drawable/bg_rounded_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:orientation="vertical">
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:background="@color/color_field_border" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Xu hướng kính mắt 2025 – Những frame đang hot"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:maxLines="2"
+                                android:ellipsize="end" />
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Glassity Guide"
+                                android:textColor="@color/color_hint"
+                                android:textSize="11sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </HorizontalScrollView>
+        </LinearLayout>
+
+        <!-- ══════════════════════════════ KHÁM PHÁ GLASSITY banner ══════════════════════════════ -->
+        <FrameLayout
+            android:id="@+id/bannerKhamPha"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/bg_rounded_card"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/imgKhamPha"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@color/brand_dark"
+                android:contentDescription="@null" />
+
+            <!-- Gradient overlay -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:alpha="0.4"
+                android:background="@color/brand_dark" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.12"
+                    android:text="KHÁM PHÁ"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.08"
+                    android:text="Glassity"
+                    android:textColor="#FFFFFF"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_btn_wine_filled"
+                    android:gravity="center"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="6dp"
+                    android:text="Xem thêm"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- ══════════════════════════════ FOOTER ══════════════════════════════ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:background="@color/brand_dark"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:letterSpacing="0.08"
+                android:text="Glassity"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Kính mắt thời trang – Phong cách của bạn"
+                android:textColor="#AAAAAA"
+                android:textSize="12sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginVertical="16dp"
+                android:background="#444444" />
+
+            <!-- Links -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/footerAbout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="4dp"
+                        android:text="Về Glassity"
+                        android:textColor="#CCCCCC"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/footerContact"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="4dp"
+                        android:text="Liên hệ"
+                        android:textColor="#CCCCCC"
+                        android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/footerPolicy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="4dp"
+                        android:text="Chính sách bảo mật"
+                        android:textColor="#CCCCCC"
+                        android:textSize="12sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="4dp"
+                        android:text="Theo dõi chúng tôi"
+                        android:textColor="#CCCCCC"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:id="@+id/footerFb"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:gravity="center"
+                            android:text="f"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/footerIg"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:layout_marginStart="4dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:gravity="center"
+                            android:text="ig"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginVertical="16dp"
+                android:background="#444444" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="© 2025 Glassity. All rights reserved."
+                android:textColor="#666666"
+                android:textSize="11sp" />
         </LinearLayout>
 
     </LinearLayout>

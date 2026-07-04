@@ -46,6 +46,15 @@
             android:name=".ui.catalog.ProductListActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.catalog.SearchActivity"
+            android:exported="false"
+            android:windowSoftInputMode="stateVisible" />
+
+        <activity
+            android:name=".ui.catalog.CollectionActivity"
+            android:exported="false" />
+
         <!-- [B1] Chi tiết sản phẩm (DL_Product Detail_Layout2) -->
         <activity
             android:name=".ui.catalog.ProductDetailActivity"

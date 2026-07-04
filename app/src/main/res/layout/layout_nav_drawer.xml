@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/color_background"
+    android:orientation="vertical">
+
+    <!-- Header -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:paddingHorizontal="8dp">
+
+        <ImageView
+            android:id="@+id/btnDrawerClose"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null"
+            android:padding="8dp"
+            android:src="@drawable/ic_close"
+            app:tint="@color/color_text_primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.08"
+            android:text="Glassity"
+            android:textColor="@color/color_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <ImageView
+                android:id="@+id/btnDrawerSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_search" />
+            <ImageView
+                android:id="@+id/btnDrawerCart"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_nav_cart"
+                app:tint="@color/color_text_primary" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Nam / Nữ tabs -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tabNam"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Nam"
+            android:textColor="@color/color_text_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tabNu"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Nữ"
+            android:textColor="@color/color_text_secondary"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+    <!-- Tab underline -->
+    <View
+        android:id="@+id/tabIndicator"
+        android:layout_width="160dp"
+        android:layout_height="2dp"
+        android:background="@color/color_text_primary" />
+
+    <!-- Category tree (scrollable) -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="32dp">
+
+            <!-- Kính Mát -->
+            <TextView
+                android:id="@+id/menuKinhMat"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Kính Mát"
+                android:textColor="@color/color_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- Gọng Kính section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Gọng Kính"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/menuGongNhua"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Kính Gọng Nhựa"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuGongKimLoai"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Kính Gọng Kim Loại"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Shape Kính section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Shape Kính"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/menuShapeTron"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Kính Gọng Tròn"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuShapeOval"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Kính Gọng Oval"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuShapeMatMeo"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Kính Gọng Mắt Mèo"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuShapeVuong"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Kính Gọng Vuông"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="4dp"
+                android:background="@color/color_field_border" />
+
+            <!-- Phụ Kiện -->
+            <TextView
+                android:id="@+id/menuPhuKien"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Phụ Kiện"
+                android:textColor="@color/color_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/menuHopDung"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Hộp Đựng Kính"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuKhanLau"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Khăn Lau Kính"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuNuocLau"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Nước Lau Kính"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="4dp"
+                android:background="@color/color_field_border" />
+
+            <!-- Bộ Sưu Tập -->
+            <TextView
+                android:id="@+id/menuBST"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Bộ Sưu Tập"
+                android:textColor="@color/color_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/menuMonochrome"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Monochrome Collection"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuEssential"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Essential Acetate"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuSunlight"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Sunlight Studio"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="4dp"
+                android:background="@color/color_field_border" />
+
+            <!-- Về Glassity -->
+            <TextView
+                android:id="@+id/menuVeGlassity"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Về Glassity"
+                android:textColor="@color/color_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <!-- Blog -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="20dp"
+                android:text="Blog"
+                android:textColor="@color/color_text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/menuBlogChonKinh"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Cách Chọn Kính Cho Từng Dáng Khuôn Mặt"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

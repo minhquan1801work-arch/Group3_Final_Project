@@ -8,6 +8,7 @@ public class Category {
     private String name;
     private String description;
 
+
     public Category() {}
 
     public Category(String name, String description) {
@@ -23,4 +24,6 @@ public class Category {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+
 }
