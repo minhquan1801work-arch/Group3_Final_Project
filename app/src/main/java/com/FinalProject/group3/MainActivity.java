@@ -11,12 +11,10 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
  * Màn hình chính SAU KHI đã đăng nhập/đăng ký/chọn Khách (từ WelcomeActivity).
- * Chứa 4 tab bằng BottomNavigationView + Navigation Component: Trang chủ,
+ * Chứa 4 tab bằng footer pill tự code (layout_bottom_nav) + Navigation Component: Trang chủ,
  * Danh mục, Giỏ hàng, Cá nhân — chuyển tab chỉ swap Fragment, KHÔNG tạo lại
  * Activity, nên MainActivity chỉ trải qua onCreate() một lần khi mở app.
  *
@@ -48,27 +46,56 @@ public class MainActivity extends AppCompatActivity {
 
         FragmentManager fm = getSupportFragmentManager();
         NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.navHostFragment);
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         if (navHostFragment != null) {
-            NavController navController = navHostFragment.getNavController();
-            NavigationUI.setupWithNavController(bottomNav, navController);
+            setupBottomNav(navHostFragment.getNavController());
         }
 
-        setupNotificationDot(bottomNav);
+        setupNotificationDot();
+    }
+
+    /**
+     * Footer pill tự code (layout_bottom_nav.xml): bấm icon → navigate tab,
+     * lắng nghe destination đổi → setSelected để icon trắng + vòng tròn sáng.
+     */
+    private void setupBottomNav(NavController navController) {
+        android.widget.ImageView btnHome = findViewById(R.id.btnNavHome);
+        android.widget.ImageView btnCategory = findViewById(R.id.btnNavCategory);
+        android.widget.ImageView btnNotification = findViewById(R.id.btnNavNotification);
+        android.widget.ImageView btnProfile = findViewById(R.id.btnNavProfile);
+
+        btnHome.setOnClickListener(v -> navigateTab(navController, R.id.homeFragment));
+        btnCategory.setOnClickListener(v -> navigateTab(navController, R.id.categoryFragment));
+        btnNotification.setOnClickListener(v -> navigateTab(navController, R.id.notificationFragment));
+        btnProfile.setOnClickListener(v -> navigateTab(navController, R.id.profileFragment));
+
+        navController.addOnDestinationChangedListener((c, destination, args) -> {
+            int id = destination.getId();
+            btnHome.setSelected(id == R.id.homeFragment);
+            btnCategory.setSelected(id == R.id.categoryFragment);
+            btnNotification.setSelected(id == R.id.notificationFragment);
+            btnProfile.setSelected(id == R.id.profileFragment);
+        });
+    }
+
+    private void navigateTab(NavController navController, int destinationId) {
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == destinationId) return;
+        // popUpTo home: back từ tab khác luôn quay về Trang chủ (giống BottomNavigationView)
+        androidx.navigation.NavOptions options = new androidx.navigation.NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setPopUpTo(R.id.homeFragment, false)
+                .build();
+        navController.navigate(destinationId, null, options);
     }
 
     /**
      * Chấm đỏ trên icon chuông (footer pill, theo Figma) — snapshot listener
      * nên tự bật/tắt realtime khi có thông báo UNREAD mới.
      */
-    private void setupNotificationDot(BottomNavigationView bottomNav) {
+    private void setupNotificationDot() {
+        android.view.View dot = findViewById(R.id.dotNotification);
         String uid = com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId();
         if (uid == null) return; // khách chưa đăng nhập → không có badge
-
-        com.google.android.material.badge.BadgeDrawable badge =
-                bottomNav.getOrCreateBadge(R.id.notificationFragment);
-        badge.setBackgroundColor(getColor(R.color.nav_badge_red));
-        badge.setVisible(false);
 
         com.FinalProject.group3.utils.FirebaseHelper.getDb()
                 .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_NOTIFICATIONS)
@@ -76,7 +103,8 @@ public class MainActivity extends AppCompatActivity {
                 .whereEqualTo("status", "UNREAD")
                 .addSnapshotListener((snapshot, e) -> {
                     if (snapshot == null) return;
-                    badge.setVisible(!snapshot.isEmpty());
+                    dot.setVisibility(snapshot.isEmpty()
+                            ? android.view.View.GONE : android.view.View.VISIBLE);
                 });
     }
 

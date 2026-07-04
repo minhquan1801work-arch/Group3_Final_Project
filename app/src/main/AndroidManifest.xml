@@ -68,6 +68,11 @@
         <activity
             android:name=".ui.order.AddAddressActivity"
             android:exported="false" />
+
+        <!-- Kho mã giảm giá (LA.Voucher) -->
+        <activity
+            android:name=".ui.account.VoucherActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

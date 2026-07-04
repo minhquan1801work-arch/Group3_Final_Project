@@ -22,7 +22,6 @@ import com.FinalProject.group3.repository.CartRepository;
 import com.FinalProject.group3.repository.ProductRepository;
 import com.FinalProject.group3.ui.account.LoginActivity;
 import com.FinalProject.group3.utils.FirebaseHelper;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -151,8 +150,8 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
                 startActivity(new Intent(requireContext(), LoginActivity.class));
             } else {
                 // Chuyển về tab Trang chủ để tiếp tục mua sắm
-                BottomNavigationView nav = requireActivity().findViewById(R.id.bottomNav);
-                if (nav != null) nav.setSelectedItemId(R.id.homeFragment);
+                androidx.navigation.fragment.NavHostFragment.findNavController(this)
+                        .navigate(R.id.homeFragment);
             }
         });
     }

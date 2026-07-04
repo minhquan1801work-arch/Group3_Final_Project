@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Barcode demo cho thẻ thành viên (LA.Profile) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="290dp"
+    android:height="56dp"
+    android:viewportWidth="145"
+    android:viewportHeight="40">
+    <path
+        android:fillColor="#111111"
+        android:pathData="M0,0h4v40h-4z M8,0h2v40h-2z M13,0h6v40h-6z M23,0h2v40h-2z M27,0h4v40h-4z M36,0h2v40h-2z M41,0h6v40h-6z M49,0h4v40h-4z M57,0h2v40h-2z M61,0h6v40h-6z M72,0h2v40h-2z M77,0h4v40h-4z M83,0h6v40h-6z M93,0h2v40h-2z M98,0h4v40h-4z M104,0h2v40h-2z M111,0h6v40h-6z M120,0h4v40h-4z M126,0h2v40h-2z M132,0h6v40h-6z M141,0h4v40h-4z" />
+</vector>
