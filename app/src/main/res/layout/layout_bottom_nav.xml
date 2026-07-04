@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  COMPONENT footer pill dùng chung (theo Figma "Bottom Navigation(raw)" node 1592:1881):
+  - Pill 60dp, nền #292526, bo tròn hết cỡ, margin 15dp, hide-on-scroll
+  - 4 tab tự code (không dùng BottomNavigationView vì nó không căn giữa dọc
+    được icon khi ẩn label): mỗi tab = ImageView 40dp, icon 24dp (padding 8dp),
+    setSelected(true) → nền tròn trắng mờ + icon trắng (selector)
+  - Chấm đỏ trên chuông khi có thông báo UNREAD (MainActivity điều khiển)
+
+  Cách dùng: <include layout="@layout/layout_bottom_nav"/> trong CoordinatorLayout,
+  MainActivity.setupBottomNav() lo phần chuyển tab.
+-->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navBarCard"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_gravity="bottom"
+    android:layout_marginHorizontal="15dp"
+    android:layout_marginBottom="15dp"
+    app:cardBackgroundColor="@color/nav_pill_dark"
+    app:cardCornerRadius="30dp"
+    app:cardElevation="8dp"
+    app:strokeWidth="0dp"
+    app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior">
+
+    <LinearLayout
+        android:id="@+id/bottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/btnNavHome"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_nav_item"
+                android:contentDescription="Trang chủ"
+                android:padding="8dp"
+                android:src="@drawable/ic_nav_home"
+                app:tint="@color/nav_item_color_dark" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/btnNavCategory"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_nav_item"
+                android:contentDescription="Danh mục"
+                android:padding="8dp"
+                android:src="@drawable/ic_nav_category"
+                app:tint="@color/nav_item_color_dark" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/btnNavNotification"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_nav_item"
+                android:contentDescription="Thông báo"
+                android:padding="8dp"
+                android:src="@drawable/ic_nav_notification"
+                app:tint="@color/nav_item_color_dark" />
+
+            <!-- Chấm đỏ thông báo chưa đọc — đè góc phải-trên icon chuông -->
+            <View
+                android:id="@+id/dotNotification"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/bg_dot_red"
+                android:visibility="gone" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <ImageView
+                android:id="@+id/btnNavProfile"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_nav_item"
+                android:contentDescription="Cá nhân"
+                android:padding="8dp"
+                android:src="@drawable/ic_nav_profile"
+                app:tint="@color/nav_item_color_dark" />
+        </FrameLayout>
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

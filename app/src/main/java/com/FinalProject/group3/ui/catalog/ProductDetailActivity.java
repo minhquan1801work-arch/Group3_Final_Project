@@ -91,6 +91,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProductDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
         binding.btnCartHeader.setOnClickListener(v -> finish()); // quay về app, user tự qua tab Giỏ

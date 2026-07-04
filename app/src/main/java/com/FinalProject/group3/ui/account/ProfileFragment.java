@@ -5,16 +5,22 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.FragmentProfileBinding;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.google.firebase.auth.FirebaseUser;
 
-/** LA.Profile — thông tin cơ bản + đăng xuất. Task #21 sẽ bổ sung sửa thông tin, xem đơn hàng... */
+/**
+ * LA.Profile — trang THÀNH VIÊN: thẻ barcode + điểm, grid tiện ích,
+ * list hỗ trợ/chính sách. Các mục chưa làm → Toast (TODO nối dần:
+ * Đơn hàng → A4 OrderHistory, Thông tin tài khoản → màn sửa profile...).
+ */
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
@@ -31,14 +37,40 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Số thẻ demo sinh từ uid — mỗi user 1 số ổn định
         FirebaseUser user = FirebaseHelper.getAuth().getCurrentUser();
         if (user != null) {
-            binding.tvName.setText(user.getDisplayName() != null ? user.getDisplayName() : "Khách");
-            binding.tvEmail.setText(user.getEmail() != null ? user.getEmail() : "");
-        } else {
-            binding.tvName.setText("Khách");
-            binding.tvEmail.setText("Chưa đăng nhập");
+            int hash = Math.abs(user.getUid().hashCode()) % 1000000000;
+            String digits = String.format(java.util.Locale.US, "%09d", hash);
+            binding.tvMemberCode.setText(digits.substring(0, 4) + " " + digits.substring(4) + " ⧉");
         }
+
+        // Grid tiện ích
+        binding.menuOrders.setOnClickListener(v ->
+                startActivity(com.FinalProject.group3.ui.order.OrderHistoryActivity
+                        .intent(requireContext())));
+        binding.menuPoints.setOnClickListener(v ->
+                startActivity(PointHistoryActivity.intent(requireContext())));
+        binding.menuVouchers.setOnClickListener(v ->
+                startActivity(VoucherActivity.intent(requireContext())));
+        binding.menuAccount.setOnClickListener(v ->
+                startActivity(AccountInfoActivity.intent(requireContext())));
+        binding.menuSettings.setOnClickListener(v -> toast("Cài đặt — sắp ra mắt"));
+
+        // Header
+        binding.btnSearch.setOnClickListener(v -> toast("Tìm kiếm — sắp ra mắt"));
+        binding.btnBag.setOnClickListener(v ->
+                androidx.navigation.fragment.NavHostFragment.findNavController(this)
+                        .navigate(R.id.cartFragment));
+
+        // List hỗ trợ / chính sách
+        binding.rowSupport.setOnClickListener(v ->
+                startActivity(ContactActivity.intent(requireContext())));
+        binding.rowFaq.setOnClickListener(v -> toast("Câu hỏi thường gặp — sắp ra mắt"));
+        binding.rowPrivacy.setOnClickListener(v -> toast("Chính sách bảo mật — sắp ra mắt"));
+        binding.rowWarranty.setOnClickListener(v -> toast("Chính sách bảo hành — sắp ra mắt"));
+        binding.rowShippingPolicy.setOnClickListener(v ->
+                toast("Chính sách Giao hàng và Kiểm tra sản phẩm — sắp ra mắt"));
 
         binding.btnLogout.setOnClickListener(v -> {
             FirebaseHelper.signOut();
@@ -46,6 +78,10 @@ public class ProfileFragment extends Fragment {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
     }
 
     @Override

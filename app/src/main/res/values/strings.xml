@@ -80,6 +80,13 @@
     <string name="checkout_total_label">Tổng cộng:</string>
     <string name="checkout_place_order">ĐẶT HÀNG</string>
     <string name="checkout_err_no_address">Vui lòng nhập địa chỉ nhận hàng</string>
+    <string name="checkout_points_label">Sử dụng Điểm thành viên</string>
+    <string name="checkout_points_balance">Số điểm: %1$d điểm</string>
+    <string name="checkout_pay_wallet">Thanh toán qua Ví điện tử</string>
+    <string name="checkout_summary_reward_points">Điểm thưởng</string>
+    <string name="checkout_summary_points_discount">Giảm điểm thành viên</string>
+    <string name="checkout_voucher_screen_title">Mã giảm giá</string>
+    <string name="checkout_voucher_no_voucher">Không dùng mã</string>
 
     <!-- LA_Payment — Kết quả -->
     <string name="payment_pending_title">ĐANG CHỜ THANH TOÁN</string>

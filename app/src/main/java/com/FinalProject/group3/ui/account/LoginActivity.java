@@ -49,7 +49,8 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     });
                 } catch (ApiException e) {
-                    Toast.makeText(this, "Đăng nhập Google thất bại: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+                    if (e.getStatusCode() == 12501) return; // người dùng bấm hủy — không báo lỗi
+                    Toast.makeText(this, AuthRepository.googleErrorMessage(e.getStatusCode()), Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -58,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))

@@ -39,6 +39,36 @@
 
     <style name="Theme.Group3_Final_Project" parent="Base.Theme.Group3_Final_Project" />
 
+    <!-- LA.Profile: ô tiện ích trong grid 2 cột -->
+    <style name="ProfileGridItem">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textColor">@color/color_text_primary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <!-- LA.Profile: dòng trong list hỗ trợ/chính sách (mũi tên phải) -->
+    <style name="ProfileListRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingHorizontal">16dp</item>
+        <item name="android:paddingVertical">14dp</item>
+        <item name="android:textColor">@color/color_text_primary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:drawableEnd">@drawable/ic_chevron_right</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="ProfileRowDivider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/color_divider</item>
+    </style>
+
     <!-- Bảng kích thước sản phẩm (DL_Product Detail): 1 dòng = label xám | value trắng -->
     <style name="SpecRow">
         <item name="android:layout_width">match_parent</item>

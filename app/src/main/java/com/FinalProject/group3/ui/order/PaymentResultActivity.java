@@ -50,6 +50,7 @@ public class PaymentResultActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityPaymentResultBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         String orderCode = getIntent().getStringExtra(EXTRA_ORDER_CODE);
         double amount = getIntent().getDoubleExtra(EXTRA_AMOUNT, 0);

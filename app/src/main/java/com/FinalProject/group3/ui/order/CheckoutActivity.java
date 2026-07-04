@@ -3,23 +3,23 @@ package com.FinalProject.group3.ui.order;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.ActivityCheckoutBinding;
-import com.FinalProject.group3.databinding.DialogVoucherBinding;
 import com.FinalProject.group3.databinding.ItemCheckoutProductBinding;
 import com.FinalProject.group3.model.CartDetail;
 import com.FinalProject.group3.model.Customer;
@@ -31,7 +31,6 @@ import com.FinalProject.group3.repository.OrderRepository;
 import com.FinalProject.group3.repository.ProductRepository;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.bumptech.glide.Glide;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -44,29 +43,23 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * DL_Checkout — màn Thanh toán (Figma frame DL_Checkout / LA.Pay).
+ * DL_Checkout — màn Thanh toán (Figma frame LA.Payment).
  *
  * Luồng BPMN: Nhận items đã chọn từ Giỏ hàng → xác nhận địa chỉ →
  * chọn phương thức vận chuyển → (tùy chọn) áp mã giảm giá →
- * chọn phương thức thanh toán → ĐẶT HÀNG:
- *   1. OrderRepository.createOrder() (order + orderDetails)
- *   2. Ghi payments (trạng thái PENDING)
- *   3. Xóa các item đã mua khỏi Giỏ hàng
- *   4. Mở PaymentResultActivity (COD → thành công / Bank → chờ thanh toán)
+ * (tùy chọn) dùng điểm thành viên → chọn phương thức thanh toán → ĐẶT HÀNG.
  */
 public class CheckoutActivity extends AppCompatActivity {
 
     private static final String EXTRA_CART_DETAIL_IDS = "cart_detail_ids";
     private static final NumberFormat VND_FORMAT = NumberFormat.getInstance(new Locale("vi", "VN"));
 
-    // Phí vận chuyển (Figma LA.Payment: tiêu chuẩn 35k / nhanh 50k)
     private static final double SHIP_STANDARD = 35000;
     private static final double SHIP_FAST = 50000;
 
-    // Voucher demo (LA.Voucher): mã → luật giảm
     private static final String VOUCHER_FREESHIP = "FREESHIP";
-    private static final String VOUCHER_GIAM10 = "GIAM10";   // -10%, tối đa 100k, đơn ≥ 300k
-    private static final String VOUCHER_GIAM50K = "GIAM50K"; // -50k, đơn ≥ 500k
+    private static final String VOUCHER_GIAM10 = "GIAM10";
+    private static final String VOUCHER_GIAM50K = "GIAM50K";
 
     private ActivityCheckoutBinding binding;
     private final CartRepository cartRepo = new CartRepository();
@@ -76,6 +69,42 @@ public class CheckoutActivity extends AppCompatActivity {
     private final List<CartDetail> items = new ArrayList<>();
     private Customer customer;
     private String appliedVoucher = null;
+
+    // Điểm thành viên
+    private int pointsBalance = 0;
+    private boolean usePoints = false;
+
+    // Địa chỉ giao hàng
+    private String shipName, shipPhone, shipFullAddress;
+    private final com.FinalProject.group3.repository.AddressRepository addressRepo =
+            new com.FinalProject.group3.repository.AddressRepository();
+
+    // Mở Sổ địa chỉ → nhận địa chỉ được chọn
+    private final androidx.activity.result.ActivityResultLauncher<Intent> addressLauncher =
+            registerForActivityResult(
+                    new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            shipName = result.getData().getStringExtra(AddressListActivity.RESULT_NAME);
+                            shipPhone = result.getData().getStringExtra(AddressListActivity.RESULT_PHONE);
+                            shipFullAddress = result.getData().getStringExtra(AddressListActivity.RESULT_FULL_ADDRESS);
+                            bindAddress();
+                        } else {
+                            loadDefaultAddress();
+                        }
+                    });
+
+    // Mở màn chọn mã giảm giá → nhận code được chọn
+    private final androidx.activity.result.ActivityResultLauncher<Intent> voucherLauncher =
+            registerForActivityResult(
+                    new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
+                    result -> {
+                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                            String code = result.getData().getStringExtra(CheckoutVoucherActivity.RESULT_CODE);
+                            appliedVoucher = (code == null || code.isEmpty()) ? null : code;
+                            updateSummary();
+                        }
+                    });
 
     public static void start(Context context, ArrayList<String> cartDetailIds) {
         Intent intent = new Intent(context, CheckoutActivity.class);
@@ -88,11 +117,11 @@ public class CheckoutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityCheckoutBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
 
-        // 2 radio vận chuyển nằm ngoài RadioGroup (để canh giá bên phải theo Figma)
-        // → tự quản lý exclusivity
+        // Vận chuyển — 2 radio, exclusivity thủ công
         binding.rbShipStandard.setOnClickListener(v -> {
             binding.rbShipFast.setChecked(false);
             updateSummary();
@@ -102,24 +131,73 @@ public class CheckoutActivity extends AppCompatActivity {
             updateSummary();
         });
 
-        // 2 box phương thức thanh toán (Figma: box viền riêng) — exclusivity thủ công
-        binding.rbCod.setOnClickListener(v -> binding.rbBank.setChecked(false));
-        binding.rbBank.setOnClickListener(v -> binding.rbCod.setChecked(false));
+        // 3 phương thức thanh toán — exclusivity thủ công
+        binding.rbCod.setOnClickListener(v -> {
+            binding.rbBank.setChecked(false);
+            binding.rbWallet.setChecked(false);
+            binding.layoutWalletLogos.setVisibility(View.GONE);
+        });
+        binding.rbBank.setOnClickListener(v -> {
+            binding.rbCod.setChecked(false);
+            binding.rbWallet.setChecked(false);
+            binding.layoutWalletLogos.setVisibility(View.GONE);
+        });
+        binding.rbWallet.setOnClickListener(v -> {
+            binding.rbCod.setChecked(false);
+            binding.rbBank.setChecked(false);
+            binding.layoutWalletLogos.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Tính năng ví điện tử đang phát triển", Toast.LENGTH_SHORT).show();
+        });
 
-        binding.rowVoucher.setOnClickListener(v -> showVoucherSheet());
+        // Điểm thành viên toggle
+        binding.swUsePoints.setOnCheckedChangeListener((btn, checked) -> {
+            usePoints = checked;
+            binding.rowPointsInfo.setVisibility(checked ? View.VISIBLE : View.GONE);
+            updateSummary();
+        });
+
+        // Mã giảm giá → mở CheckoutVoucherActivity
+        binding.rowVoucher.setOnClickListener(v ->
+                voucherLauncher.launch(CheckoutVoucherActivity.intent(this, appliedVoucher)));
+        // Ô nhập mã inline (vẫn giữ như Figma)
         binding.btnApplyVoucherInline.setOnClickListener(v ->
                 applyVoucherCode(binding.etVoucher.getText().toString().trim().toUpperCase(Locale.US)));
-        binding.rowAddress.setOnClickListener(v -> showEditAddressDialog());
-        binding.btnEditAddress.setOnClickListener(v -> showEditAddressDialog());
+
+        binding.rowAddress.setOnClickListener(v ->
+                addressLauncher.launch(AddressListActivity.intent(this)));
+        binding.btnEditAddress.setOnClickListener(v ->
+                addressLauncher.launch(AddressListActivity.intent(this)));
         binding.btnPlaceOrder.setOnClickListener(v -> placeOrder());
 
         binding.rvProducts.setLayoutManager(new LinearLayoutManager(this));
 
+        setupTermsNote();
         loadCustomer();
         loadItems(getIntent().getStringArrayListExtra(EXTRA_CART_DETAIL_IDS));
     }
 
-    // ── 1. Địa chỉ nhận hàng (customers/{uid}) ────────────────────────────────
+    /** Footnote: "Điều khoản Glassity" → Toast (Figma link clickable). */
+    private void setupTermsNote() {
+        String full = getString(R.string.checkout_terms_note);
+        String link = "Điều khoản Glassity";
+        int start = full.indexOf(link);
+        if (start < 0) return;
+        SpannableString span = new SpannableString(full);
+        span.setSpan(new ForegroundColorSpan(0xFF1565C0), start, start + link.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                Toast.makeText(CheckoutActivity.this,
+                        "Điều khoản Glassity — sẽ cập nhật sau", Toast.LENGTH_SHORT).show();
+            }
+        }, start, start + link.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        binding.tvTermsNote.setText(span);
+        binding.tvTermsNote.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.tvTermsNote.setHighlightColor(android.graphics.Color.TRANSPARENT);
+    }
+
+    // ── 1. Địa chỉ nhận hàng ─────────────────────────────────────────────────
     private void loadCustomer() {
         String uid = FirebaseHelper.getCurrentUserId();
         if (uid == null) { finish(); return; }
@@ -128,73 +206,64 @@ public class CheckoutActivity extends AppCompatActivity {
                     try {
                         customer = doc.toObject(Customer.class);
                     } catch (RuntimeException e) {
-                        // Data bẩn (field trùng @DocumentId) → map thủ công, không crash
                         customer = new Customer();
                         customer.setName(doc.getString("name"));
                         customer.setEmail(doc.getString("email"));
                         customer.setPhone(doc.getString("phone"));
                         customer.setAddress(doc.getString("address"));
                     }
-                    bindAddress();
+                    // Đọc điểm thành viên (field "points" trong Firestore)
+                    Long pts = doc.getLong("points");
+                    pointsBalance = (pts != null) ? pts.intValue() : 0;
+                    bindPointsToggle();
+                    loadDefaultAddress();
                 });
     }
 
+    private void bindPointsToggle() {
+        binding.tvPointsBalance.setText(getString(R.string.checkout_points_balance, pointsBalance));
+        // Toggle ẩn/hiện dựa vào có điểm không
+        binding.swUsePoints.setEnabled(pointsBalance > 0);
+    }
+
+    private void loadDefaultAddress() {
+        addressRepo.getAddresses(new com.FinalProject.group3.repository.AddressRepository.ListCallback() {
+            @Override
+            public void onSuccess(List<com.FinalProject.group3.model.Address> list) {
+                if (!list.isEmpty()) {
+                    com.FinalProject.group3.model.Address def = list.get(0);
+                    shipName = def.getName();
+                    shipPhone = def.getPhone();
+                    shipFullAddress = def.fullAddress();
+                } else if (customer != null && customer.getAddress() != null
+                        && !customer.getAddress().isEmpty()) {
+                    shipName = customer.getName();
+                    shipPhone = customer.getPhone();
+                    shipFullAddress = customer.getAddress();
+                }
+                bindAddress();
+            }
+
+            @Override
+            public void onFailure(String error) { bindAddress(); }
+        });
+    }
+
     private void bindAddress() {
-        if (customer == null) return;
-        String phone = customer.getPhone() == null ? "" : customer.getPhone();
-        binding.tvReceiver.setText(customer.getName() + " | " + phone);
-        binding.tvAddress.setText(customer.getAddress() == null || customer.getAddress().isEmpty()
-                ? getString(R.string.checkout_address_empty) : customer.getAddress());
+        if (shipFullAddress != null && !shipFullAddress.isEmpty()) {
+            binding.tvReceiver.setText(shipName + " | " + (shipPhone == null ? "" : shipPhone));
+            binding.tvAddress.setText(shipFullAddress);
+        } else {
+            binding.tvReceiver.setText(customer != null && customer.getName() != null
+                    ? customer.getName() : "");
+            binding.tvAddress.setText(R.string.checkout_address_empty);
+        }
     }
 
-    // Dialog sửa nhanh người nhận / SĐT / địa chỉ (DL_Add address rút gọn)
-    private void showEditAddressDialog() {
-        if (customer == null) return;
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int pad = (int) (16 * getResources().getDisplayMetrics().density);
-        layout.setPadding(pad, pad / 2, pad, 0);
-
-        EditText etName = new EditText(this);
-        etName.setHint("Tên người nhận");
-        etName.setText(customer.getName());
-        EditText etPhone = new EditText(this);
-        etPhone.setHint("Số điện thoại");
-        etPhone.setInputType(InputType.TYPE_CLASS_PHONE);
-        etPhone.setText(customer.getPhone());
-        EditText etAddress = new EditText(this);
-        etAddress.setHint("Địa chỉ nhận hàng");
-        etAddress.setText(customer.getAddress());
-
-        layout.addView(etName);
-        layout.addView(etPhone);
-        layout.addView(etAddress);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.checkout_address_title)
-                .setView(layout)
-                .setPositiveButton("Lưu", (d, w) -> {
-                    customer.setName(etName.getText().toString().trim());
-                    customer.setPhone(etPhone.getText().toString().trim());
-                    customer.setAddress(etAddress.getText().toString().trim());
-                    bindAddress();
-                    // Lưu lại vào Firestore để lần sau không phải nhập lại
-                    Map<String, Object> update = new HashMap<>();
-                    update.put("name", customer.getName());
-                    update.put("phone", customer.getPhone());
-                    update.put("address", customer.getAddress());
-                    FirebaseHelper.getDb().collection(FirebaseHelper.COL_CUSTOMERS)
-                            .document(FirebaseHelper.getCurrentUserId()).update(update);
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
-    }
-
-    // ── 2. Load các item đã chọn từ Giỏ hàng ─────────────────────────────────
+    // ── 2. Load items từ giỏ hàng ────────────────────────────────────────────
     private void loadItems(List<String> selectedIds) {
         if (selectedIds == null || selectedIds.isEmpty()) { finish(); return; }
         binding.progressBar.setVisibility(View.VISIBLE);
-
         cartRepo.getCartItems(new CartRepository.CartDetailCallback() {
             @Override
             public void onSuccess(List<CartDetail> all) {
@@ -221,7 +290,6 @@ public class CheckoutActivity extends AppCompatActivity {
                     item.setProduct(product);
                     if (++loaded[0] == items.size()) bindItems();
                 }
-
                 @Override
                 public void onFailure(String error) {
                     if (++loaded[0] == items.size()) bindItems();
@@ -236,7 +304,7 @@ public class CheckoutActivity extends AppCompatActivity {
         updateSummary();
     }
 
-    // ── 3+4+6. Tính tiền: hàng + ship − voucher ──────────────────────────────
+    // ── 3. Tính tiền ──────────────────────────────────────────────────────────
     private double subtotal() {
         double s = 0;
         for (CartDetail d : items)
@@ -254,12 +322,10 @@ public class CheckoutActivity extends AppCompatActivity {
         return binding.rbShipFast.isChecked() ? SHIP_FAST : SHIP_STANDARD;
     }
 
-    // FREESHIP giảm vào phí ship (Figma: dòng "Giảm giá phí vận chuyển")
     private double shipDiscount() {
         return VOUCHER_FREESHIP.equals(appliedVoucher) ? shippingFee() : 0;
     }
 
-    // GIAM10 / GIAM50K giảm vào tiền hàng (Figma: "Tổng cộng Voucher giảm giá")
     private double voucherDiscount() {
         double sub = subtotal();
         if (VOUCHER_GIAM10.equals(appliedVoucher) && sub >= 300000)
@@ -268,26 +334,36 @@ public class CheckoutActivity extends AppCompatActivity {
         return 0;
     }
 
-    // Nhập mã tay (Figma: ô "Nhập mã giảm giá...")
+    private double pointsDiscount() {
+        if (!usePoints || pointsBalance <= 0) return 0;
+        // 1 điểm = 1đ; không giảm vượt quá tổng tiền trước khi trừ điểm
+        double beforePoints = subtotal() + shippingFee() - shipDiscount() - voucherDiscount();
+        return Math.min(pointsBalance, Math.max(0, beforePoints));
+    }
+
+    private int rewardPointsEarned() {
+        // 1000đ tiền hàng = 1 điểm thưởng
+        return (int) (subtotal() / 1000);
+    }
+
     private void applyVoucherCode(String code) {
-        if (code.isEmpty()) {
-            appliedVoucher = null;
-            updateSummary();
-            return;
-        }
+        if (code.isEmpty()) { appliedVoucher = null; updateSummary(); return; }
         double sub = subtotal();
         switch (code) {
             case VOUCHER_FREESHIP:
-                appliedVoucher = code;
-                break;
+                appliedVoucher = code; break;
             case VOUCHER_GIAM10:
-                if (sub < 300000) { Toast.makeText(this, "GIAM10 chỉ áp dụng cho đơn từ 300.000đ", Toast.LENGTH_SHORT).show(); return; }
-                appliedVoucher = code;
-                break;
+                if (sub < 300000) {
+                    Toast.makeText(this, "GIAM10 chỉ áp dụng cho đơn từ 300.000đ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                appliedVoucher = code; break;
             case VOUCHER_GIAM50K:
-                if (sub < 500000) { Toast.makeText(this, "GIAM50K chỉ áp dụng cho đơn từ 500.000đ", Toast.LENGTH_SHORT).show(); return; }
-                appliedVoucher = code;
-                break;
+                if (sub < 500000) {
+                    Toast.makeText(this, "GIAM50K chỉ áp dụng cho đơn từ 500.000đ", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                appliedVoucher = code; break;
             default:
                 Toast.makeText(this, "Mã giảm giá không hợp lệ", Toast.LENGTH_SHORT).show();
                 return;
@@ -298,13 +374,22 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private void updateSummary() {
         double sub = subtotal(), ship = shippingFee();
-        double shipDisc = shipDiscount(), vDisc = voucherDiscount();
-        double total = Math.max(0, sub + ship - shipDisc - vDisc);
+        double shipDisc = shipDiscount(), vDisc = voucherDiscount(), ptsDisc = pointsDiscount();
+        double total = Math.max(0, sub + ship - shipDisc - vDisc - ptsDisc);
+        int earned = rewardPointsEarned();
 
         binding.tvSubtotalLabel.setText(getString(R.string.checkout_summary_subtotal)
                 + " (" + itemCount() + " sản phẩm)");
         binding.tvSubtotal.setText(VND_FORMAT.format(sub) + "đ");
         binding.tvShippingFee.setText(VND_FORMAT.format(ship) + "đ");
+
+        // Điểm thưởng (info, không trừ tiền)
+        if (earned > 0) {
+            binding.rowRewardPoints.setVisibility(View.VISIBLE);
+            binding.tvRewardPoints.setText("+" + earned);
+        } else {
+            binding.rowRewardPoints.setVisibility(View.GONE);
+        }
 
         binding.rowShipDiscount.setVisibility(shipDisc > 0 ? View.VISIBLE : View.GONE);
         binding.tvShipDiscount.setText("-" + VND_FORMAT.format(shipDisc) + "đ");
@@ -312,46 +397,26 @@ public class CheckoutActivity extends AppCompatActivity {
         binding.rowVoucherDiscount.setVisibility(vDisc > 0 ? View.VISIBLE : View.GONE);
         binding.tvDiscount.setText("-" + VND_FORMAT.format(vDisc) + "đ");
 
+        binding.rowPointsDiscount.setVisibility(ptsDisc > 0 ? View.VISIBLE : View.GONE);
+        binding.tvPointsDiscountSummary.setText("-" + VND_FORMAT.format(ptsDisc) + "đ");
+
+        // Cập nhật dòng info trong toggle điểm
+        binding.tvPointsDiscountAmount.setText("-" + VND_FORMAT.format(Math.min(pointsBalance, sub + ship)) + "đ");
+
         binding.tvGrandTotal.setText(VND_FORMAT.format(total) + "đ");
         binding.tvBottomTotal.setText(VND_FORMAT.format(total) + "đ");
         binding.tvVoucherValue.setText(appliedVoucher == null ? "" : appliedVoucher);
     }
 
-    // ── 4. BottomSheet chọn voucher (LA.Voucher) ─────────────────────────────
-    private void showVoucherSheet() {
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
-        DialogVoucherBinding vb = DialogVoucherBinding.inflate(getLayoutInflater());
-        dialog.setContentView(vb.getRoot());
-
-        // Hiện lại lựa chọn cũ
-        if (VOUCHER_FREESHIP.equals(appliedVoucher)) vb.rbFreeship.setChecked(true);
-        else if (VOUCHER_GIAM10.equals(appliedVoucher)) vb.rbGiam10.setChecked(true);
-        else if (VOUCHER_GIAM50K.equals(appliedVoucher)) vb.rbGiam50k.setChecked(true);
-
-        vb.btnApplyVoucher.setOnClickListener(v -> {
-            double sub = subtotal();
-            if (vb.rbGiam10.isChecked() && sub < 300000) {
-                Toast.makeText(this, "GIAM10 chỉ áp dụng cho đơn từ 300.000đ", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (vb.rbGiam50k.isChecked() && sub < 500000) {
-                Toast.makeText(this, "GIAM50K chỉ áp dụng cho đơn từ 500.000đ", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (vb.rbFreeship.isChecked()) appliedVoucher = VOUCHER_FREESHIP;
-            else if (vb.rbGiam10.isChecked()) appliedVoucher = VOUCHER_GIAM10;
-            else if (vb.rbGiam50k.isChecked()) appliedVoucher = VOUCHER_GIAM50K;
-            else appliedVoucher = null;
-            updateSummary();
-            dialog.dismiss();
-        });
-        dialog.show();
-    }
-
     // ── ĐẶT HÀNG ─────────────────────────────────────────────────────────────
     private void placeOrder() {
-        if (customer == null || customer.getAddress() == null || customer.getAddress().isEmpty()) {
+        if (binding.rbWallet.isChecked()) {
+            Toast.makeText(this, "Tính năng ví điện tử đang phát triển, vui lòng chọn COD hoặc Chuyển khoản", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (shipFullAddress == null || shipFullAddress.isEmpty()) {
             Toast.makeText(this, R.string.checkout_err_no_address, Toast.LENGTH_SHORT).show();
+            addressLauncher.launch(AddressListActivity.intent(this));
             return;
         }
         if (items.isEmpty()) return;
@@ -361,18 +426,13 @@ public class CheckoutActivity extends AppCompatActivity {
 
         String uid = FirebaseHelper.getCurrentUserId();
         String method = binding.rbBank.isChecked() ? "BANK_TRANSFER" : "COD";
-        double total = Math.max(0, subtotal() + shippingFee() - shipDiscount() - voucherDiscount());
+        double total = Math.max(0, subtotal() + shippingFee() - shipDiscount() - voucherDiscount() - pointsDiscount());
 
-        // Mã đơn: GLS-yyMMdd-XXXX (dễ đọc khi CSKH đối chiếu)
         String orderCode = "GLS-" + new SimpleDateFormat("yyMMdd", Locale.US).format(new Date())
                 + "-" + String.format(Locale.US, "%04d", new Random().nextInt(10000));
-
-        // Địa chỉ giao = tên + SĐT + địa chỉ (đủ thông tin cho shipper)
-        String shippingAddress = customer.getName() + " | " + customer.getPhone()
-                + " | " + customer.getAddress();
+        String shippingAddress = shipName + " | " + shipPhone + " | " + shipFullAddress;
 
         Order order = new Order(uid, orderCode, total, method, shippingAddress);
-
         List<OrderDetail> details = new ArrayList<>();
         for (CartDetail d : items) {
             double price = d.getProduct() != null ? d.getProduct().getPrice() : 0;
@@ -397,27 +457,25 @@ public class CheckoutActivity extends AppCompatActivity {
         });
     }
 
-    // Ghi bản ghi payments (PaymentRepository chưa có trong project → ghi trực tiếp)
     private void createPayment(String orderId, String uid, String method, double amount) {
         Map<String, Object> payment = new HashMap<>();
         payment.put("orderId", orderId);
         payment.put("customerId", uid);
         payment.put("method", method);
-        payment.put("status", "PENDING"); // COD & Bank đều chờ xác nhận
+        payment.put("status", "PENDING");
         payment.put("transactionId", null);
         payment.put("amount", amount);
+        payment.put("usedPoints", usePoints ? (long) pointsDiscount() : 0L);
         payment.put("createdAt", new Date());
         FirebaseHelper.getDb().collection(FirebaseHelper.COL_PAYMENTS).add(payment);
     }
 
-    // Chỉ xóa các item ĐÃ MUA — item chưa tick vẫn nằm lại trong giỏ
     private void removeOrderedItemsFromCart() {
-        for (CartDetail d : items) {
+        for (CartDetail d : items)
             cartRepo.removeFromCart(d.getCartDetailId(), new CartRepository.SimpleCallback() {
-                @Override public void onSuccess() { }
-                @Override public void onFailure(String error) { }
+                @Override public void onSuccess() {}
+                @Override public void onFailure(String error) {}
             });
-        }
     }
 
     // ── Adapter danh sách sản phẩm rút gọn ───────────────────────────────────
@@ -442,11 +500,10 @@ public class CheckoutActivity extends AppCompatActivity {
             if (p != null) {
                 holder.binding.tvName.setText(p.getName());
                 holder.binding.tvPrice.setText(VND_FORMAT.format(p.getPrice() * d.getQuantity()) + "đ");
-                if (p.getImages() != null && !p.getImages().isEmpty()) {
+                if (p.getImages() != null && !p.getImages().isEmpty())
                     Glide.with(holder.binding.ivProduct).load(p.getImages().get(0))
                             .placeholder(R.drawable.bg_product_placeholder)
                             .into(holder.binding.ivProduct);
-                }
             }
             holder.binding.tvQty.setText("x" + d.getQuantity());
         }

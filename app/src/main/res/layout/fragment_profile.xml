@@ -1,65 +1,211 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- LA.Profile — THÀNH VIÊN: thẻ barcode + điểm, grid tiện ích, list chính sách -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background"
-    android:paddingBottom="84dp"
-    tools:context=".ui.account.ProfileFragment">
+    android:background="@color/color_background">
 
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:text="Cá nhân"
-        android:textColor="@color/color_text_primary"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:orientation="vertical"
+        android:paddingBottom="90dp">
 
-    <TextView
-        android:id="@+id/tvName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="20dp"
-        android:textColor="@color/color_text_primary"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="Nguyễn Văn A" />
+        <!-- Header: THÀNH VIÊN + search + túi -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="12dp">
 
-    <TextView
-        android:id="@+id/tvEmail"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="20dp"
-        android:textColor="@color/color_text_secondary"
-        android:textSize="14sp"
-        app:layout_constraintTop_toBottomOf="@id/tvName"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:text="a@gmail.com" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="serif"
+                android:letterSpacing="0.15"
+                android:text="THÀNH VIÊN"
+                android:textColor="@color/color_text_primary"
+                android:textSize="16sp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogout"
-        style="@style/Widget.Glassity.Button.Primary"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="32dp"
-        android:backgroundTint="@color/brand_wine"
-        android:text="Đăng xuất"
-        app:layout_constraintTop_toBottomOf="@id/tvEmail"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+            <ImageView
+                android:id="@+id/btnSearch"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Tìm kiếm"
+                android:padding="8dp"
+                android:src="@android:drawable/ic_menu_search"
+                app:tint="@color/color_text_primary" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/btnBag"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Giỏ hàng"
+                android:padding="8dp"
+                android:src="@drawable/ic_nav_cart"
+                app:tint="@color/color_text_primary" />
+        </LinearLayout>
+
+        <!-- Thẻ thành viên: Glassity + barcode + số thẻ | điểm -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/color_divider"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="serif"
+                    android:text="Glassity"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="24sp" />
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="12dp"
+                    android:contentDescription="Mã thành viên"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/img_barcode" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvMemberCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="7253 20774 ⧉"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="8dp"
+                        android:text="|"
+                        android:textColor="@color/color_divider" />
+
+                    <TextView
+                        android:id="@+id/tvPoints"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="1024 điểm"
+                        android:textColor="@color/color_price"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Grid tiện ích 2 cột -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <TextView
+                android:id="@+id/menuOrders"
+                style="@style/ProfileGridItem"
+                android:text="📦  Đơn hàng của bạn" />
+
+            <TextView
+                android:id="@+id/menuPoints"
+                style="@style/ProfileGridItem"
+                android:text="🌟  Lịch sử tích điểm" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <TextView
+                android:id="@+id/menuVouchers"
+                style="@style/ProfileGridItem"
+                android:text="🎫  Mã giảm giá" />
+
+            <TextView
+                android:id="@+id/menuAccount"
+                style="@style/ProfileGridItem"
+                android:text="👤  Thông tin tài khoản" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp">
+
+            <TextView
+                android:id="@+id/menuSettings"
+                style="@style/ProfileGridItem"
+                android:text="⚙️  Cài đặt" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="8dp"
+            android:layout_marginTop="12dp"
+            android:background="@color/color_section_gap" />
+
+        <!-- List hỗ trợ / chính sách -->
+        <TextView android:id="@+id/rowSupport" style="@style/ProfileListRow"
+            android:text="Liên hệ hỗ trợ" />
+        <View style="@style/ProfileRowDivider" />
+
+        <TextView android:id="@+id/rowFaq" style="@style/ProfileListRow"
+            android:text="Câu hỏi thường gặp" />
+        <View style="@style/ProfileRowDivider" />
+
+        <TextView android:id="@+id/rowPrivacy" style="@style/ProfileListRow"
+            android:text="Chính sách bảo mật" />
+        <View style="@style/ProfileRowDivider" />
+
+        <TextView android:id="@+id/rowWarranty" style="@style/ProfileListRow"
+            android:text="Chính sách bảo hành" />
+        <View style="@style/ProfileRowDivider" />
+
+        <TextView android:id="@+id/rowShippingPolicy" style="@style/ProfileListRow"
+            android:text="Chính sách Giao hàng và Kiểm tra sản phẩm" />
+        <View style="@style/ProfileRowDivider" />
+
+        <TextView
+            android:id="@+id/btnLogout"
+            style="@style/ProfileListRow"
+            android:text="Đăng xuất"
+            android:textColor="@color/color_accent"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+</ScrollView>

@@ -33,7 +33,11 @@
     <color name="color_voucher_yellow">#F5A623</color>
 
     <!-- Footer floating pill (dark) -->
-    <color name="nav_pill_dark">#3B3835</color>
+    <color name="nav_pill_dark">#292526</color> <!-- Figma: Foundation/Neutral/grey-13 -->
     <color name="nav_icon_active">#FFFFFF</color>
     <color name="nav_icon_inactive">#B8B3AE</color>
+    <color name="nav_badge_red">#F13658</color>  <!-- Figma: chấm đỏ trên chuông -->
+    <color name="nav_item_circle_selected">#1FFFFFFF</color> <!-- trắng 12% — vòng tròn sau icon tab đang chọn -->
+
+    <!-- Tab chip selector ở res/color/color_tab_text.xml -->
 </resources>

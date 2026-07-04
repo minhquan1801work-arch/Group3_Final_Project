@@ -50,6 +50,7 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityWelcomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         // Seed categories + products mẫu vào Firestore lần đầu chạy app
         SeedDataHelper.seedIfNeeded(this);

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Nền tab footer pill: đang chọn (selected) = vòng tròn trắng mờ -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true">
+        <shape android:shape="oval">
+            <solid android:color="@color/nav_item_circle_selected" />
+        </shape>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

@@ -11,12 +11,10 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.navigation.ui.NavigationUI;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /**
  * Màn hình chính SAU KHI đã đăng nhập/đăng ký/chọn Khách (từ WelcomeActivity).
- * Chứa 4 tab bằng BottomNavigationView + Navigation Component: Trang chủ,
+ * Chứa 4 tab bằng footer pill tự code (layout_bottom_nav) + Navigation Component: Trang chủ,
  * Danh mục, Giỏ hàng, Cá nhân — chuyển tab chỉ swap Fragment, KHÔNG tạo lại
  * Activity, nên MainActivity chỉ trải qua onCreate() một lần khi mở app.
  *
@@ -44,48 +42,69 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: app khởi tạo UI lần đầu");
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(findViewById(R.id.main));
 
         FragmentManager fm = getSupportFragmentManager();
         NavHostFragment navHostFragment = (NavHostFragment) fm.findFragmentById(R.id.navHostFragment);
-        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-        // Footer pill: chỉ đổi màu icon khi chọn, tắt viên indicator mặc định của Material3
-        bottomNav.setItemActiveIndicatorEnabled(false);
         if (navHostFragment != null) {
-            NavController navController = navHostFragment.getNavController();
-            NavigationUI.setupWithNavController(bottomNav, navController);
+            setupBottomNav(navHostFragment.getNavController());
         }
 
-        setupCartBadge(bottomNav);
+        setupNotificationDot();
     }
 
     /**
-     * Badge đỏ trên icon Giỏ hàng (footer pill) — dùng snapshot listener nên
-     * số tự cập nhật realtime khi thêm/xóa sản phẩm, không cần reload.
+     * Footer pill tự code (layout_bottom_nav.xml): bấm icon → navigate tab,
+     * lắng nghe destination đổi → setSelected để icon trắng + vòng tròn sáng.
      */
-    private void setupCartBadge(BottomNavigationView bottomNav) {
+    private void setupBottomNav(NavController navController) {
+        android.widget.ImageView btnHome = findViewById(R.id.btnNavHome);
+        android.widget.ImageView btnCategory = findViewById(R.id.btnNavCategory);
+        android.widget.ImageView btnNotification = findViewById(R.id.btnNavNotification);
+        android.widget.ImageView btnProfile = findViewById(R.id.btnNavProfile);
+
+        btnHome.setOnClickListener(v -> navigateTab(navController, R.id.homeFragment));
+        btnCategory.setOnClickListener(v -> navigateTab(navController, R.id.categoryFragment));
+        btnNotification.setOnClickListener(v -> navigateTab(navController, R.id.notificationFragment));
+        btnProfile.setOnClickListener(v -> navigateTab(navController, R.id.profileFragment));
+
+        navController.addOnDestinationChangedListener((c, destination, args) -> {
+            int id = destination.getId();
+            btnHome.setSelected(id == R.id.homeFragment);
+            btnCategory.setSelected(id == R.id.categoryFragment);
+            btnNotification.setSelected(id == R.id.notificationFragment);
+            btnProfile.setSelected(id == R.id.profileFragment);
+        });
+    }
+
+    private void navigateTab(NavController navController, int destinationId) {
+        if (navController.getCurrentDestination() != null
+                && navController.getCurrentDestination().getId() == destinationId) return;
+        // popUpTo home: back từ tab khác luôn quay về Trang chủ (giống BottomNavigationView)
+        androidx.navigation.NavOptions options = new androidx.navigation.NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .setPopUpTo(R.id.homeFragment, false)
+                .build();
+        navController.navigate(destinationId, null, options);
+    }
+
+    /**
+     * Chấm đỏ trên icon chuông (footer pill, theo Figma) — snapshot listener
+     * nên tự bật/tắt realtime khi có thông báo UNREAD mới.
+     */
+    private void setupNotificationDot() {
+        android.view.View dot = findViewById(R.id.dotNotification);
         String uid = com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId();
         if (uid == null) return; // khách chưa đăng nhập → không có badge
 
-        com.google.android.material.badge.BadgeDrawable badge =
-                bottomNav.getOrCreateBadge(R.id.cartFragment);
-        badge.setBackgroundColor(getColor(R.color.color_price));
-        badge.setBadgeTextColor(getColor(R.color.white));
-        badge.setVisible(false);
-
         com.FinalProject.group3.utils.FirebaseHelper.getDb()
-                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CARTS)
-                .document(uid)
-                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CART_DETAILS)
+                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_NOTIFICATIONS)
+                .whereEqualTo("customerId", uid)
+                .whereEqualTo("status", "UNREAD")
                 .addSnapshotListener((snapshot, e) -> {
                     if (snapshot == null) return;
-                    int count = snapshot.size();
-                    badge.setVisible(count > 0);
-                    badge.setNumber(count);
+                    dot.setVisibility(snapshot.isEmpty()
+                            ? android.view.View.GONE : android.view.View.VISIBLE);
                 });
     }
 

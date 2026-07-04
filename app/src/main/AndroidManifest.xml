@@ -59,6 +59,50 @@
         <activity
             android:name=".ui.order.PaymentResultActivity"
             android:exported="false" />
+
+        <!-- Sổ địa chỉ (LA.Address) + Thêm/Sửa địa chỉ (DL_Add New Address) -->
+        <activity
+            android:name=".ui.order.AddressListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.AddAddressActivity"
+            android:exported="false" />
+
+        <!-- Kho mã giảm giá (LA.Voucher) -->
+        <activity
+            android:name=".ui.account.VoucherActivity"
+            android:exported="false" />
+
+        <!-- Chọn mã giảm giá trong Checkout (LA.Voucher3) -->
+        <activity
+            android:name=".ui.order.CheckoutVoucherActivity"
+            android:exported="false" />
+
+        <!-- Account sub-screens -->
+        <activity
+            android:name=".ui.account.AccountInfoActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.OrderHistoryActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.OrderDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.order.ReviewActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.ContactActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.PointHistoryActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
