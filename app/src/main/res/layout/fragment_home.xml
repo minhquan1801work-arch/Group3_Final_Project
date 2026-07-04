@@ -192,24 +192,36 @@
                 android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:orientation="horizontal">
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/faceTron"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true" android:focusable="true">
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="TRON"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/faceTraiXoan"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true" android:focusable="true">
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="TRAI XOAN"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/faceTraiTim"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true" android:focusable="true">
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
@@ -223,16 +235,24 @@
                 android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:orientation="horizontal">
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/faceKimCuong"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true" android:focusable="true">
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="KIM CUONG"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
                 </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center" android:orientation="vertical">
+                <LinearLayout
+                    android:id="@+id/faceVuong"
+                    android:layout_width="0dp" android:layout_height="wrap_content"
+                    android:layout_weight="1" android:gravity="center" android:orientation="vertical"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true" android:focusable="true">
                     <View android:layout_width="64dp" android:layout_height="64dp"
                         android:background="@drawable/bg_face_circle" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"

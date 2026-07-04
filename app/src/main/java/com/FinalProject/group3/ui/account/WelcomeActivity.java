@@ -12,6 +12,7 @@ import com.FinalProject.group3.MainActivity;
 import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.ActivityWelcomeBinding;
 import com.FinalProject.group3.repository.AuthRepository;
+import com.FinalProject.group3.utils.SeedDataHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -49,6 +50,9 @@ public class WelcomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityWelcomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Seed categories + products mẫu vào Firestore lần đầu chạy app
+        SeedDataHelper.seedIfNeeded(this);
 
         // default_web_client_id được google-services plugin tự sinh ra từ google-services.json.
         // Chỉ hoạt động SAU KHI đã thêm SHA-1 + tải lại google-services.json (xem FIREBASE_SETUP_CHECKLIST.md).

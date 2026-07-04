@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="20dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="32dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sắp xếp theo"
+        android:textColor="@color/color_text_primary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/color_field_border"
+        android:layout_marginBottom="12dp" />
+
+    <RadioGroup
+        android:id="@+id/rgSort"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/rbSortAsc"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Giá từ thấp đến cao"
+            android:textColor="@color/color_text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/brand_wine" />
+
+        <RadioButton
+            android:id="@+id/rbSortDesc"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="Giá từ cao đến thấp"
+            android:textColor="@color/color_text_primary"
+            android:textSize="14sp"
+            android:buttonTint="@color/brand_wine" />
+
+    </RadioGroup>
+
+</LinearLayout>

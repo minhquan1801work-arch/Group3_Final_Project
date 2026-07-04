@@ -68,6 +68,15 @@ public class ProductRepository {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    // ── Lấy sản phẩm theo nhiều categoryId (dùng cho nhóm Shape kính) ─────────
+    public void getProductsByCategories(List<String> categoryIds, ProductListCallback callback) {
+        db.collection(FirebaseHelper.COL_PRODUCTS)
+                .whereIn("categoryId", categoryIds)
+                .get()
+                .addOnSuccessListener(snapshot -> callback.onSuccess(snapshot.toObjects(Product.class)))
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
     // ── Lấy sản phẩm bán chạy (ví dụ: giới hạn 10) ───────────────────────────
     public void getBestSellerProducts(int limit, ProductListCallback callback) {
         db.collection(FirebaseHelper.COL_PRODUCTS)

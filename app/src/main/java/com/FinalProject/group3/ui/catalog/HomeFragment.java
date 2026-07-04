@@ -95,6 +95,18 @@ public class HomeFragment extends Fragment {
 
         binding.btnViewAllProducts.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
+
+        // 5 dạng mặt → mở ProductList filter theo từng shape [B4]
+        binding.faceTron.setOnClickListener(v ->
+                ProductListActivity.start(requireContext(), ProductListActivity.CAT_SHAPE_TRON, "Kính mặt tròn"));
+        binding.faceTraiXoan.setOnClickListener(v ->
+                ProductListActivity.start(requireContext(), ProductListActivity.CAT_SHAPE_TRAI_XOAN, "Kính mặt trái xoan"));
+        binding.faceTraiTim.setOnClickListener(v ->
+                ProductListActivity.start(requireContext(), ProductListActivity.CAT_SHAPE_TRAI_TIM, "Kính mặt trái tim"));
+        binding.faceKimCuong.setOnClickListener(v ->
+                ProductListActivity.start(requireContext(), ProductListActivity.CAT_SHAPE_KIM_CUONG, "Kính mặt kim cương"));
+        binding.faceVuong.setOnClickListener(v ->
+                ProductListActivity.start(requireContext(), ProductListActivity.CAT_SHAPE_VUONG, "Kính mặt vuông"));
     }
 
     private void loadProducts() {
