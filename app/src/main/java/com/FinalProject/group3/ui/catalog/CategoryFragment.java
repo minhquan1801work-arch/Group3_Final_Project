@@ -36,7 +36,7 @@ public class CategoryFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         categoryAdapter = new CategoryAdapter(category ->
-                ProductListActivity.start(requireContext(), category.getCategoryId(), category.getName()));
+                ProductListActivity.start(requireContext(), category.getCategoryId(), null, category.getName()));
         binding.rvCategories.setAdapter(categoryAdapter);
 
         loadCategories();

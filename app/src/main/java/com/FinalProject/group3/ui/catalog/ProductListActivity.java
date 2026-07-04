@@ -23,45 +23,47 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * DL.Product — danh sach san pham theo category hoac tat ca. [Task B3]
+ * DL.Product — danh sach san pham theo category hoac dang mat. [Task B3]
  *
- * Category IDs quy dinh (cập nhật khi seed data Firestore thật):
- *   CAT_KINH_MAT  = "cat_kinh_mat"   — Kính mắt thông thường
- *   CAT_SHAPE     = "cat_shape"      — Shape kính (kính theo dạng mặt)
- *   CAT_PHU_KIEN  = "cat_phu_kien"   — Phụ kiện (hộp, dây, v.v.)
+ * Phan loai san pham dung 2 truong doc lap:
+ *   categoryId  — loai san pham: cat_kinh_mat | cat_kinh_can | cat_phu_kien
+ *   faceShapes  — dang mat phu hop: tron | trai_xoan | trai_tim | kim_cuong | vuong
  *
- * Sort (client-side sau khi load):
- *   SORT_DEFAULT  = 0 — Mặc định (thứ tự Firestore trả về)
- *   SORT_ASC      = 1 — Giá từ thấp đến cao
- *   SORT_DESC     = 2 — Giá từ cao đến thấp
+ * Khi mo man hinh:
+ *   start(ctx, "cat_kinh_mat", null, "Kinh mat")   → loc theo category
+ *   start(ctx, null, "tron", "Kinh mat tron")      → loc theo dang mat
+ *   startAll(ctx)                                  → tat ca san pham
+ *   startAllShapes(ctx)                            → tat ca co dang mat
  */
 public class ProductListActivity extends AppCompatActivity {
 
-    // ── Category ID quy định — cập nhật khi có data thật ─────────────────────
-    // Danh mục chính
-    public static final String CAT_KINH_MAT   = "cat_kinh_mat";
-    public static final String CAT_PHU_KIEN   = "cat_phu_kien";
-    // 5 dạng mặt — mỗi shape có category riêng để filter sản phẩm phù hợp
-    public static final String CAT_SHAPE_TRON      = "cat_shape_tron";
-    public static final String CAT_SHAPE_TRAI_XOAN = "cat_shape_trai_xoan";
-    public static final String CAT_SHAPE_TRAI_TIM  = "cat_shape_trai_tim";
-    public static final String CAT_SHAPE_KIM_CUONG = "cat_shape_kim_cuong";
-    public static final String CAT_SHAPE_VUONG     = "cat_shape_vuong";
+    // ── Category IDs (loai san pham) ─────────────────────────────────────────
+    public static final String CAT_KINH_MAT  = "cat_kinh_mat";
+    public static final String CAT_KINH_CAN  = "cat_kinh_can";
+    public static final String CAT_PHU_KIEN  = "cat_phu_kien";
+
+    // ── Face shape values (dung voi faceShapes array) ──────────────────────
+    public static final String SHAPE_TRON       = "tron";
+    public static final String SHAPE_TRAI_XOAN  = "trai_xoan";
+    public static final String SHAPE_TRAI_TIM   = "trai_tim";
+    public static final String SHAPE_KIM_CUONG  = "kim_cuong";
+    public static final String SHAPE_VUONG      = "vuong";
 
     private static final int SORT_DEFAULT = 0;
     private static final int SORT_ASC     = 1;
     private static final int SORT_DESC    = 2;
 
-    // Mode đặc biệt: load tất cả 5 shape cùng lúc
-    static final String MODE_ALL_SHAPES = "MODE_ALL_SHAPES";
-
     private static final String EXTRA_CATEGORY_ID   = "extra_category_id";
+    private static final String EXTRA_FACE_SHAPE    = "extra_face_shape";
+    private static final String EXTRA_ALL_SHAPES    = "extra_all_shapes";
     private static final String EXTRA_CATEGORY_NAME = "extra_category_name";
 
-    public static void start(Context context, String categoryId, String categoryName) {
+    // ── Static launchers ──────────────────────────────────────────────────────
+    public static void start(Context context, String categoryId, String faceShape, String title) {
         Intent intent = new Intent(context, ProductListActivity.class);
-        intent.putExtra(EXTRA_CATEGORY_ID, categoryId);
-        intent.putExtra(EXTRA_CATEGORY_NAME, categoryName);
+        if (categoryId != null) intent.putExtra(EXTRA_CATEGORY_ID, categoryId);
+        if (faceShape  != null) intent.putExtra(EXTRA_FACE_SHAPE, faceShape);
+        intent.putExtra(EXTRA_CATEGORY_NAME, title);
         context.startActivity(intent);
     }
 
@@ -71,21 +73,23 @@ public class ProductListActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
-    /** Mở danh sách tất cả kính phù hợp với mọi dạng mặt (chip "Shape kính") */
     public static void startAllShapes(Context context) {
         Intent intent = new Intent(context, ProductListActivity.class);
-        intent.putExtra(EXTRA_CATEGORY_ID, MODE_ALL_SHAPES);
+        intent.putExtra(EXTRA_ALL_SHAPES, true);
         intent.putExtra(EXTRA_CATEGORY_NAME, "Shape kính");
         context.startActivity(intent);
     }
 
+    // ── Fields ────────────────────────────────────────────────────────────────
     private ActivityProductListBinding binding;
     private final ProductRepository productRepository = new ProductRepository();
     private ProductAdapter productAdapter;
 
     private List<Product> allProducts = new ArrayList<>();
     private String currentCategoryId = null;
-    private int currentSort = SORT_DEFAULT;
+    private String currentFaceShape  = null;
+    private boolean isAllShapes      = false;
+    private int currentSort          = SORT_DEFAULT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,8 +99,10 @@ public class ProductListActivity extends AppCompatActivity {
         com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         currentCategoryId = getIntent().getStringExtra(EXTRA_CATEGORY_ID);
-        String categoryName = getIntent().getStringExtra(EXTRA_CATEGORY_NAME);
-        binding.tvTitle.setText(categoryName != null ? categoryName : "Sản phẩm");
+        currentFaceShape  = getIntent().getStringExtra(EXTRA_FACE_SHAPE);
+        isAllShapes       = getIntent().getBooleanExtra(EXTRA_ALL_SHAPES, false);
+        String title      = getIntent().getStringExtra(EXTRA_CATEGORY_NAME);
+        binding.tvTitle.setText(title != null ? title : "Sản phẩm");
         binding.btnBack.setOnClickListener(v -> finish());
 
         productAdapter = new ProductAdapter(product ->
@@ -105,39 +111,41 @@ public class ProductListActivity extends AppCompatActivity {
 
         setupChips();
         setupFilterButton();
-
-        if (currentCategoryId == null) loadAllProducts();
-        else if (MODE_ALL_SHAPES.equals(currentCategoryId)) loadAllShapes();
-        else loadProducts(currentCategoryId);
+        loadInitial();
     }
 
-    // ── Chips lọc theo category ───────────────────────────────────────────────
+    // ── Chips ─────────────────────────────────────────────────────────────────
     private void setupChips() {
-        binding.chipKinhMat.setOnClickListener(v -> switchCategory(CAT_KINH_MAT, binding.chipKinhMat));
-        binding.chipShape.setOnClickListener(v -> {
-            // Chip "Shape kính" → load tất cả 5 shape cùng lúc
-            if (MODE_ALL_SHAPES.equals(currentCategoryId)) return;
-            currentCategoryId = MODE_ALL_SHAPES;
-            currentSort = SORT_DEFAULT;
-            resetChips();
-            setActiveChip(binding.chipShape);
-            loadAllShapes();
-        });
-        binding.chipPhuKien.setOnClickListener(v -> switchCategory(CAT_PHU_KIEN, binding.chipPhuKien));
+        binding.chipKinhMat.setOnClickListener(v -> switchToCategory(CAT_KINH_MAT, binding.chipKinhMat));
+        binding.chipShape.setOnClickListener(v -> switchToAllShapes());
+        binding.chipPhuKien.setOnClickListener(v -> switchToCategory(CAT_PHU_KIEN, binding.chipPhuKien));
 
-        // Highlight chip tương ứng nếu mở từ category cụ thể
-        if (CAT_KINH_MAT.equals(currentCategoryId))        setActiveChip(binding.chipKinhMat);
-        else if (MODE_ALL_SHAPES.equals(currentCategoryId)) setActiveChip(binding.chipShape);
-        else if (CAT_PHU_KIEN.equals(currentCategoryId))   setActiveChip(binding.chipPhuKien);
+        // Highlight chip tuong ung khi mo tu ben ngoai
+        if (isAllShapes || currentFaceShape != null) setActiveChip(binding.chipShape);
+        else if (CAT_KINH_MAT.equals(currentCategoryId))  setActiveChip(binding.chipKinhMat);
+        else if (CAT_PHU_KIEN.equals(currentCategoryId))  setActiveChip(binding.chipPhuKien);
     }
 
-    private void switchCategory(String categoryId, TextView chip) {
-        if (categoryId.equals(currentCategoryId) || (currentCategoryId == null && categoryId == null)) return;
+    private void switchToCategory(String categoryId, TextView chip) {
+        if (categoryId.equals(currentCategoryId) && currentFaceShape == null && !isAllShapes) return;
         currentCategoryId = categoryId;
-        currentSort = SORT_DEFAULT;
+        currentFaceShape  = null;
+        isAllShapes       = false;
+        currentSort       = SORT_DEFAULT;
         resetChips();
         setActiveChip(chip);
-        loadProducts(categoryId);
+        loadByCategory(categoryId);
+    }
+
+    private void switchToAllShapes() {
+        if (isAllShapes) return;
+        isAllShapes       = true;
+        currentCategoryId = null;
+        currentFaceShape  = null;
+        currentSort       = SORT_DEFAULT;
+        resetChips();
+        setActiveChip(binding.chipShape);
+        loadAllShapes();
     }
 
     private void setActiveChip(TextView chip) {
@@ -152,7 +160,7 @@ public class ProductListActivity extends AppCompatActivity {
         }
     }
 
-    // ── Nút filter: BottomSheetDialog sắp xếp giá (khớp Figma DL.Product) ────
+    // ── Filter / Sort ─────────────────────────────────────────────────────────
     private void setupFilterButton() {
         binding.btnFilter.setOnClickListener(v -> showSortSheet());
     }
@@ -162,25 +170,20 @@ public class ProductListActivity extends AppCompatActivity {
         View sheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_filter, null);
         sheet.setContentView(sheetView);
 
-        RadioGroup rg = sheetView.findViewById(R.id.rgSort);
-        RadioButton rbAsc  = sheetView.findViewById(R.id.rbSortAsc);
-        RadioButton rbDesc = sheetView.findViewById(R.id.rbSortDesc);
+        RadioGroup rg   = sheetView.findViewById(R.id.rgSort);
+        RadioButton asc = sheetView.findViewById(R.id.rbSortAsc);
+        RadioButton dsc = sheetView.findViewById(R.id.rbSortDesc);
+        if (currentSort == SORT_ASC)  asc.setChecked(true);
+        if (currentSort == SORT_DESC) dsc.setChecked(true);
 
-        // Giữ lại lựa chọn hiện tại
-        if (currentSort == SORT_ASC)  rbAsc.setChecked(true);
-        if (currentSort == SORT_DESC) rbDesc.setChecked(true);
-
-        rg.setOnCheckedChangeListener((group, checkedId) -> {
-            if (checkedId == R.id.rbSortAsc)  currentSort = SORT_ASC;
-            if (checkedId == R.id.rbSortDesc) currentSort = SORT_DESC;
+        rg.setOnCheckedChangeListener((group, id) -> {
+            currentSort = (id == R.id.rbSortAsc) ? SORT_ASC : SORT_DESC;
             applySort();
             sheet.dismiss();
         });
-
         sheet.show();
     }
 
-    // ── Sort client-side ──────────────────────────────────────────────────────
     private void applySort() {
         if (allProducts.isEmpty()) return;
         List<Product> sorted = new ArrayList<>(allProducts);
@@ -191,62 +194,40 @@ public class ProductListActivity extends AppCompatActivity {
         productAdapter.submitList(sorted);
     }
 
-    // ── Load data ─────────────────────────────────────────────────────────────
-    private void loadAllProducts() {
-        binding.progressBar.setVisibility(View.VISIBLE);
-        productRepository.getAllProducts(new ProductRepository.ProductListCallback() {
-            @Override
-            public void onSuccess(List<Product> products) {
-                if (isFinishing() || isDestroyed()) return;
-                binding.progressBar.setVisibility(View.GONE);
-                allProducts = products;
-                applySort();
-                binding.tvEmpty.setVisibility(products.isEmpty() ? View.VISIBLE : View.GONE);
-            }
-
-            @Override
-            public void onFailure(String error) {
-                if (isFinishing() || isDestroyed()) return;
-                binding.progressBar.setVisibility(View.GONE);
-                binding.tvEmpty.setVisibility(View.VISIBLE);
-                Toast.makeText(ProductListActivity.this, "Lỗi tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
+    // ── Load ──────────────────────────────────────────────────────────────────
+    private void loadInitial() {
+        if (currentFaceShape != null)    loadByFaceShape(currentFaceShape);
+        else if (isAllShapes)            loadAllShapes();
+        else if (currentCategoryId != null) loadByCategory(currentCategoryId);
+        else                             loadAll();
     }
 
-    private void loadProducts(String categoryId) {
-        binding.progressBar.setVisibility(View.VISIBLE);
-        productRepository.getProductsByCategory(categoryId, new ProductRepository.ProductListCallback() {
-            @Override
-            public void onSuccess(List<Product> products) {
-                if (isFinishing() || isDestroyed()) return;
-                binding.progressBar.setVisibility(View.GONE);
-                allProducts = products;
-                applySort();
-                binding.tvEmpty.setVisibility(products.isEmpty() ? View.VISIBLE : View.GONE);
-            }
-
-            @Override
-            public void onFailure(String error) {
-                if (isFinishing() || isDestroyed()) return;
-                binding.progressBar.setVisibility(View.GONE);
-                binding.tvEmpty.setVisibility(View.VISIBLE);
-                Toast.makeText(ProductListActivity.this, "Lỗi tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
-            }
-        });
+    private void loadAll() {
+        showLoading();
+        productRepository.getAllProducts(wrap());
     }
 
-    /** Load tất cả sản phẩm thuộc 5 dạng mặt (whereIn Firestore) */
+    private void loadByCategory(String categoryId) {
+        showLoading();
+        productRepository.getProductsByCategory(categoryId, wrap());
+    }
+
+    private void loadByFaceShape(String shape) {
+        showLoading();
+        productRepository.getProductsByFaceShape(shape, wrap());
+    }
+
     private void loadAllShapes() {
-        binding.progressBar.setVisibility(View.VISIBLE);
-        List<String> shapeIds = new ArrayList<>();
-        shapeIds.add(CAT_SHAPE_TRON);
-        shapeIds.add(CAT_SHAPE_TRAI_XOAN);
-        shapeIds.add(CAT_SHAPE_TRAI_TIM);
-        shapeIds.add(CAT_SHAPE_KIM_CUONG);
-        shapeIds.add(CAT_SHAPE_VUONG);
+        showLoading();
+        productRepository.getProductsByFaceShapeAll(wrap());
+    }
 
-        productRepository.getProductsByCategories(shapeIds, new ProductRepository.ProductListCallback() {
+    private void showLoading() {
+        binding.progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private ProductRepository.ProductListCallback wrap() {
+        return new ProductRepository.ProductListCallback() {
             @Override
             public void onSuccess(List<Product> products) {
                 if (isFinishing() || isDestroyed()) return;
@@ -261,8 +242,8 @@ public class ProductListActivity extends AppCompatActivity {
                 if (isFinishing() || isDestroyed()) return;
                 binding.progressBar.setVisibility(View.GONE);
                 binding.tvEmpty.setVisibility(View.VISIBLE);
-                Toast.makeText(ProductListActivity.this, "Lỗi tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProductListActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
             }
-        });
+        };
     }
 }

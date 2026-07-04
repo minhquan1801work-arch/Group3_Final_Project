@@ -13,11 +13,13 @@ public class Product {
     private List<String> colors;
     private List<String> images; // Firebase Storage URLs
     private String categoryId;
+    private List<String> faceShapes; // ["tron","trai_xoan",...] — empty for non-glasses
 
     public Product() {}
 
     public Product(String name, double price, int stock, String description,
-                   List<String> colors, List<String> images, String categoryId) {
+                   List<String> colors, List<String> images, String categoryId,
+                   List<String> faceShapes) {
         this.name = name;
         this.price = price;
         this.stock = stock;
@@ -25,6 +27,7 @@ public class Product {
         this.colors = colors;
         this.images = images;
         this.categoryId = categoryId;
+        this.faceShapes = faceShapes;
     }
 
     public String getProductId() { return productId; }
@@ -50,4 +53,7 @@ public class Product {
 
     public String getCategoryId() { return categoryId; }
     public void setCategoryId(String categoryId) { this.categoryId = categoryId; }
+
+    public List<String> getFaceShapes() { return faceShapes; }
+    public void setFaceShapes(List<String> faceShapes) { this.faceShapes = faceShapes; }
 }

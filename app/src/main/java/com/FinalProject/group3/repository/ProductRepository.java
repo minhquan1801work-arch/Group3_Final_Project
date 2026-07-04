@@ -68,10 +68,21 @@ public class ProductRepository {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
-    // ── Lấy sản phẩm theo nhiều categoryId (dùng cho nhóm Shape kính) ─────────
-    public void getProductsByCategories(List<String> categoryIds, ProductListCallback callback) {
+    // ── Lấy sản phẩm theo dạng mặt cụ thể (array-contains) ──────────────────
+    public void getProductsByFaceShape(String shape, ProductListCallback callback) {
         db.collection(FirebaseHelper.COL_PRODUCTS)
-                .whereIn("categoryId", categoryIds)
+                .whereArrayContains("faceShapes", shape)
+                .get()
+                .addOnSuccessListener(snapshot -> callback.onSuccess(snapshot.toObjects(Product.class)))
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // ── Lấy tất cả sản phẩm có ít nhất 1 dạng mặt (chip "Shape kính") ────────
+    public void getProductsByFaceShapeAll(ProductListCallback callback) {
+        List<String> allShapes = java.util.Arrays.asList(
+                "tron", "trai_xoan", "trai_tim", "kim_cuong", "vuong");
+        db.collection(FirebaseHelper.COL_PRODUCTS)
+                .whereArrayContainsAny("faceShapes", allShapes)
                 .get()
                 .addOnSuccessListener(snapshot -> callback.onSuccess(snapshot.toObjects(Product.class)))
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
