@@ -129,9 +129,20 @@ public class AddressListActivity extends AppCompatActivity {
             holder.binding.rbSelected.setChecked(position == selectedPos);
 
             holder.binding.getRoot().setOnClickListener(v -> {
-                selectedPos = holder.getAdapterPosition();
+                int pos = holder.getAdapterPosition();
+                Address selected = addresses.get(pos);
+                // Cập nhật tag mặc định trong danh sách local ngay (UI responsive)
+                for (int i = 0; i < addresses.size(); i++)
+                    addresses.get(i).setDefault(i == pos);
+                selectedPos = pos;
                 notifyDataSetChanged();
-                returnSelected(addresses.get(selectedPos));
+                // Ghi mặc định mới lên Firestore (async, không block UI)
+                addressRepo.setDefaultAddress(selected.getAddressId(),
+                        new AddressRepository.SimpleCallback() {
+                            @Override public void onSuccess() {}
+                            @Override public void onFailure(String error) {}
+                        });
+                returnSelected(selected);
             });
             holder.binding.btnEdit.setOnClickListener(v ->
                     addEditLauncher.launch(AddAddressActivity.intentEdit(

@@ -85,4 +85,16 @@ public class AddressRepository {
                     .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
         }).addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
+
+    /** Đặt 1 địa chỉ làm mặc định, bỏ cờ mặc định của tất cả địa chỉ còn lại. */
+    public void setDefaultAddress(String addressId, SimpleCallback callback) {
+        col().get().addOnSuccessListener(snapshot -> {
+            WriteBatch batch = FirebaseHelper.getDb().batch();
+            for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments())
+                batch.update(doc.getReference(), "default", doc.getId().equals(addressId));
+            batch.commit()
+                    .addOnSuccessListener(v -> callback.onSuccess())
+                    .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+        }).addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
 }

@@ -73,6 +73,11 @@
         <activity
             android:name=".ui.account.VoucherActivity"
             android:exported="false" />
+
+        <!-- Chọn mã giảm giá trong Checkout (LA.Voucher3) -->
+        <activity
+            android:name=".ui.order.CheckoutVoucherActivity"
+            android:exported="false" />
     </application>
 
 </manifest>
