@@ -123,7 +123,8 @@ public class AddressListActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
             Address a = addresses.get(position);
-            holder.binding.tvNamePhone.setText(a.getName() + "  |  " + a.getPhone());
+            holder.binding.tvName.setText(a.getName());
+            holder.binding.tvPhone.setText(a.getPhone());
             holder.binding.tvFullAddress.setText(a.fullAddress());
             holder.binding.tvDefaultTag.setVisibility(a.isDefault() ? View.VISIBLE : View.GONE);
             holder.binding.rbSelected.setChecked(position == selectedPos);
