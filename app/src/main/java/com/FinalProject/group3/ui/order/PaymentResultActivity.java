@@ -86,9 +86,7 @@ public class PaymentResultActivity extends AppCompatActivity {
         });
 
         binding.btnViewOrder.setOnClickListener(v ->
-                // TODO [A4]: mở OrderHistoryActivity khi hoàn thành
-                Toast.makeText(this, "Lịch sử đơn hàng — đang phát triển (task A4)",
-                        Toast.LENGTH_SHORT).show());
+                startActivity(OrderHistoryActivity.intent(this)));
 
         loadSuggestions();
     }

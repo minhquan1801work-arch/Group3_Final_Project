@@ -2,6 +2,7 @@ package com.FinalProject.group3.ui.order;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +19,13 @@ import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.ActivityOrderHistoryBinding;
 import com.FinalProject.group3.databinding.ItemOrderBinding;
 import com.FinalProject.group3.model.Order;
+import com.FinalProject.group3.model.OrderDetail;
+import com.FinalProject.group3.model.Product;
 import com.FinalProject.group3.repository.OrderRepository;
+import com.FinalProject.group3.repository.ProductRepository;
+import com.FinalProject.group3.utils.FirebaseHelper;
 import com.FinalProject.group3.utils.InsetsUtil;
+import com.bumptech.glide.Glide;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -30,8 +36,15 @@ import java.util.Locale;
 
 public class OrderHistoryActivity extends AppCompatActivity {
 
+    // Có thể truyền vào tab mặc định khi mở từ PaymentResult
+    private static final String EXTRA_TAB = "tab";
+
     public static Intent intent(Context context) {
         return new Intent(context, OrderHistoryActivity.class);
+    }
+
+    public static Intent intentWithTab(Context context, int tab) {
+        return new Intent(context, OrderHistoryActivity.class).putExtra(EXTRA_TAB, tab);
     }
 
     private ActivityOrderHistoryBinding binding;
@@ -39,7 +52,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
     private final List<Order> allOrders = new ArrayList<>();
     private int currentTab = 0;
 
-    private static final String[] TABS = {"Tất cả", "Chờ giao", "Đã giao", "Đã hủy"};
+    private static final String[] TABS = {"Tất cả", "Chờ giao hàng", "Đã giao", "Đã hủy"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,28 +62,29 @@ public class OrderHistoryActivity extends AppCompatActivity {
         InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
-        setupTabs();
+
+        int startTab = getIntent().getIntExtra(EXTRA_TAB, 0);
+        setupTabs(startTab);
         setupRecyclerView();
         loadOrders();
     }
 
-    private void setupTabs() {
+    private void setupTabs(int startTab) {
         for (int i = 0; i < TABS.length; i++) {
             final int index = i;
-            TextView tab = (TextView) getLayoutInflater()
-                    .inflate(R.layout.item_tab_chip, binding.tabLayout, false);
+            TextView tab = (TextView) LayoutInflater.from(this)
+                    .inflate(R.layout.item_tab_chip, binding.tabContainer, false);
             tab.setText(TABS[i]);
             tab.setOnClickListener(v -> selectTab(index));
-            binding.tabLayout.addView(tab);
+            binding.tabContainer.addView(tab);
         }
-        selectTab(0);
+        selectTab(startTab);
     }
 
     private void selectTab(int index) {
         currentTab = index;
-        for (int i = 0; i < binding.tabLayout.getChildCount(); i++) {
-            View child = binding.tabLayout.getChildAt(i);
-            child.setSelected(i == index);
+        for (int i = 0; i < binding.tabContainer.getChildCount(); i++) {
+            binding.tabContainer.getChildAt(i).setSelected(i == index);
         }
         filterOrders();
     }
@@ -112,10 +126,10 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
     private boolean matchesTab(Order o, int tab) {
         if (tab == 0) return true;
-        String status = o.getOrderStatus();
-        if (tab == 1) return Arrays.asList("PENDING", "PROCESSING", "SHIPPED").contains(status);
-        if (tab == 2) return "DELIVERED".equals(status);
-        return "CANCELLED".equals(status);
+        String s = o.getOrderStatus();
+        if (tab == 1) return Arrays.asList("PENDING", "PROCESSING", "SHIPPED").contains(s);
+        if (tab == 2) return "DELIVERED".equals(s);
+        return "CANCELLED".equals(s);
     }
 
     // ── Adapter ──────────────────────────────────────────────────────────────
@@ -156,53 +170,112 @@ public class OrderHistoryActivity extends AppCompatActivity {
             }
 
             void bind(Order o) {
-                b.tvOrderCode.setText(o.getOrderCode() != null ? o.getOrderCode() : o.getOrderId());
-                if (o.getCreatedAt() != null) {
-                    b.tvDate.setText(new SimpleDateFormat("dd/MM/yyyy", Locale.US)
-                            .format(o.getCreatedAt()));
-                }
-                b.tvStatus.setText(statusLabel(o.getOrderStatus()));
-                b.tvStatus.setBackgroundResource(statusBackground(o.getOrderStatus()));
+                String status = o.getOrderStatus();
+                b.tvStatus.setText(statusLabel(status));
+                b.tvStatus.setTextColor(statusColor(status));
 
                 NumberFormat fmt = NumberFormat.getInstance(new Locale("vi", "VN"));
                 b.tvTotal.setText(fmt.format(o.getTotalAmount()) + "đ");
 
-                // Nút hành động
-                boolean isDelivered = "DELIVERED".equals(o.getOrderStatus());
-                boolean isCancellable = Arrays.asList("PENDING", "PROCESSING")
-                        .contains(o.getOrderStatus());
-                b.btnReview.setVisibility(isDelivered ? View.VISIBLE : View.GONE);
-                b.btnReorder.setVisibility(isDelivered ? View.VISIBLE : View.GONE);
+                // Ẩn hết button trước, rồi show theo trạng thái
+                b.btnDetail.setVisibility(View.VISIBLE);
+                b.btnReview.setVisibility(View.GONE);
+                b.btnReorder.setVisibility(View.GONE);
+
+                if ("DELIVERED".equals(status)) {
+                    b.btnDetail.setVisibility(View.GONE);
+                    b.btnReorder.setVisibility(View.VISIBLE);
+                    b.btnReview.setVisibility(View.VISIBLE);
+                } else if ("CANCELLED".equals(status)) {
+                    b.btnReorder.setVisibility(View.VISIBLE);
+                    b.btnDetail.setText("Chi tiết");
+                } else {
+                    b.btnDetail.setText("Xem chi tiết");
+                }
 
                 b.btnDetail.setOnClickListener(v ->
                         startActivity(OrderDetailActivity.intent(
                                 OrderHistoryActivity.this, o.getOrderId())));
-                b.btnReview.setOnClickListener(v ->
-                        Toast.makeText(OrderHistoryActivity.this,
-                                "Vui lòng chọn sản phẩm để đánh giá",
-                                Toast.LENGTH_SHORT).show());
                 b.btnReorder.setOnClickListener(v ->
                         Toast.makeText(OrderHistoryActivity.this,
-                                "Tính năng đặt lại đơn sắp ra mắt",
-                                Toast.LENGTH_SHORT).show());
+                                "Tính năng Mua lại sắp ra mắt", Toast.LENGTH_SHORT).show());
+                b.btnReview.setOnClickListener(v ->
+                        startActivity(ReviewActivity.intent(
+                                OrderHistoryActivity.this,
+                                null, "Sản phẩm trong đơn " + o.getOrderCode(),
+                                null, o.getOrderId())));
+
+                // Load sản phẩm trong đơn (lazy, per item)
+                loadFirstProduct(o.getOrderId(), b);
+            }
+
+            private void loadFirstProduct(String orderId, ItemOrderBinding b) {
+                b.tvProductCount.setText("...");
+                b.tvProductName.setText("");
+                b.tvProductColor.setText("");
+                b.tvQty.setText("");
+                b.tvMoreItems.setVisibility(View.GONE);
+
+                FirebaseHelper.getDb()
+                        .collection(FirebaseHelper.COL_ORDERS)
+                        .document(orderId)
+                        .collection(FirebaseHelper.COL_ORDER_DETAILS)
+                        .get()
+                        .addOnSuccessListener(snapshot -> {
+                            List<OrderDetail> details = snapshot.toObjects(OrderDetail.class);
+                            int count = details.size();
+                            b.tvProductCount.setText(count + " sản phẩm");
+
+                            if (details.isEmpty()) return;
+
+                            OrderDetail first = details.get(0);
+                            b.tvProductColor.setText(first.getColor() != null ? first.getColor() : "");
+                            b.tvQty.setText("x" + first.getQuantity());
+
+                            if (count > 1) {
+                                b.tvMoreItems.setVisibility(View.VISIBLE);
+                                b.tvMoreItems.setText("Xem thêm " + (count - 1) + " sản phẩm");
+                            }
+
+                            // Load tên + ảnh sản phẩm đầu tiên
+                            new ProductRepository().getProductById(first.getProductId(),
+                                    new ProductRepository.ProductCallback() {
+                                        @Override
+                                        public void onSuccess(Product product) {
+                                            b.tvProductName.setText(product.getName());
+                                            List<String> imgs = product.getImages();
+                                            if (imgs != null && !imgs.isEmpty()) {
+                                                Glide.with(b.ivProduct.getContext())
+                                                        .load(imgs.get(0))
+                                                        .centerCrop()
+                                                        .into(b.ivProduct);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(String error) {
+                                            b.tvProductName.setText("Sản phẩm");
+                                        }
+                                    });
+                        });
             }
 
             private String statusLabel(String s) {
                 if (s == null) return "";
                 switch (s) {
-                    case "PENDING": return "Chờ xác nhận";
+                    case "PENDING":    return "Chờ xác nhận";
                     case "PROCESSING": return "Đang xử lý";
-                    case "SHIPPED": return "Đang giao";
-                    case "DELIVERED": return "Đã giao";
-                    case "CANCELLED": return "Đã hủy";
-                    default: return s;
+                    case "SHIPPED":    return "Đang giao";
+                    case "DELIVERED":  return "Hoàn thành";
+                    case "CANCELLED":  return "Đã hủy";
+                    default:           return s;
                 }
             }
 
-            private int statusBackground(String s) {
-                if ("DELIVERED".equals(s)) return R.drawable.bg_status_delivered;
-                if ("CANCELLED".equals(s)) return R.drawable.bg_status_cancelled;
-                return R.drawable.bg_status_pending;
+            private int statusColor(String s) {
+                if ("DELIVERED".equals(s))  return Color.parseColor("#2E7D32"); // xanh
+                if ("CANCELLED".equals(s))  return Color.parseColor("#B3261E"); // đỏ
+                return Color.parseColor("#E65100"); // cam — PENDING/PROCESSING/SHIPPED
             }
         }
     }
