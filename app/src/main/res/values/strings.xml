@@ -27,13 +27,24 @@
 
     <!-- Quên mật khẩu -->
     <string name="forgot_title">Quên Mật Khẩu</string>
-    <string name="forgot_desc">Vui lòng điền Email đã đăng ký để thực hiện khôi phục lại mật khẩu.</string>
+    <string name="forgot_desc">Chọn cách nhận mã xác minh để khôi phục mật khẩu.</string>
     <string name="forgot_btn_continue">Tiếp tục</string>
     <string name="forgot_back_to_login">Quay lại Đăng nhập</string>
-    <string name="forgot_sent_title">Đã gửi email khôi phục</string>
-    <string name="forgot_sent_desc">Glassity vừa gửi cho bạn một email khôi phục mật khẩu, vui lòng kiểm tra hộp thư (kể cả mục Spam).</string>
+    <string name="forgot_sent_title">Xác Thực</string>
+    <string name="forgot_sent_desc">Glassity vừa gửi cho bạn Email mật khẩu mới – hãy lưu lại trong 3 phút, vui lòng kiểm tra hộp thư nhé!</string>
     <string name="forgot_resend">Chưa nhận được email? Gửi lại</string>
     <string name="forgot_btn_back_login">Quay lại Đăng nhập</string>
+    <!-- Phone OTP path -->
+    <string name="forgot_otp_title">Xác Thực</string>
+    <string name="forgot_otp_hint">Nhập mã 6 chữ số</string>
+    <string name="forgot_otp_resend">Nhấn xác đây để gửi lại mã</string>
+    <string name="forgot_btn_verify">Tiếp tục</string>
+    <!-- Reset password screen -->
+    <string name="forgot_reset_title">Đặt Lại Mật Khẩu</string>
+    <string name="forgot_reset_desc">Vui lòng nhập mật khẩu mới</string>
+    <string name="forgot_new_password_hint">Mật khẩu</string>
+    <string name="forgot_confirm_password_hint">Xác nhận mật khẩu</string>
+    <string name="forgot_btn_confirm">Xác nhận</string>
 
     <!-- Lỗi validate dùng chung -->
     <string name="err_required">Không được để trống</string>

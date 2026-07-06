@@ -36,7 +36,7 @@ public class PointHistoryActivity extends AppCompatActivity {
 
     private ActivityPointHistoryBinding binding;
     private PointAdapter adapter;
-    private final List<Order> deliveredOrders = new ArrayList<>();
+    private final List<Order> allOrders = new ArrayList<>();
     private int currentMonth = -1; // -1 = tất cả
 
     @Override
@@ -56,14 +56,28 @@ public class PointHistoryActivity extends AppCompatActivity {
 
     private void loadOrders() {
         binding.progressBar.setVisibility(View.VISIBLE);
+
+        // Load số điểm thực từ Firestore
+        String uid = com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId();
+        if (uid != null) {
+            com.FinalProject.group3.utils.FirebaseHelper.getDb()
+                    .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_CUSTOMERS)
+                    .document(uid).get()
+                    .addOnSuccessListener(doc -> {
+                        if (doc.exists()) {
+                            Long pts = doc.getLong("points");
+                            int p = (pts != null) ? pts.intValue() : 0;
+                            binding.tvTotalPoints.setText("Tổng điểm hiện có: " + p + " điểm");
+                        }
+                    });
+        }
+
         new OrderRepository().getMyOrders(new OrderRepository.OrderListCallback() {
             @Override
             public void onSuccess(List<Order> orders) {
                 binding.progressBar.setVisibility(View.GONE);
-                deliveredOrders.clear();
-                for (Order o : orders) {
-                    if ("DELIVERED".equals(o.getOrderStatus())) deliveredOrders.add(o);
-                }
+                allOrders.clear();
+                allOrders.addAll(orders);
                 buildTabs();
                 filterAndShow(-1);
             }
@@ -79,13 +93,11 @@ public class PointHistoryActivity extends AppCompatActivity {
     private void buildTabs() {
         binding.tabContainer.removeAllViews();
 
-        // Tab "Tất cả"
         addTab("Tất cả", -1);
 
-        // Các tháng xuất hiện trong dữ liệu
         List<String> months = new ArrayList<>();
         SimpleDateFormat sdf = new SimpleDateFormat("MM/yyyy", Locale.US);
-        for (Order o : deliveredOrders) {
+        for (Order o : allOrders) {
             if (o.getCreatedAt() != null) {
                 String m = sdf.format(o.getCreatedAt());
                 if (!months.contains(m)) months.add(m);
@@ -109,7 +121,7 @@ public class PointHistoryActivity extends AppCompatActivity {
     private void filterAndShow(int month) {
         currentMonth = month;
         List<Order> filtered = new ArrayList<>();
-        for (Order o : deliveredOrders) {
+        for (Order o : allOrders) {
             if (month == -1) {
                 filtered.add(o);
             } else if (o.getCreatedAt() != null) {
@@ -118,11 +130,6 @@ public class PointHistoryActivity extends AppCompatActivity {
                 if (c.get(Calendar.MONTH) + 1 == month) filtered.add(o);
             }
         }
-
-        // Tổng điểm
-        int total = 0;
-        for (Order o : filtered) total += (int) (o.getTotalAmount() / 1000);
-        binding.tvTotalPoints.setText("Tổng điểm hiện có: " + total + " điểm");
 
         adapter.setData(filtered);
         binding.tvEmpty.setVisibility(filtered.isEmpty() ? View.VISIBLE : View.GONE);

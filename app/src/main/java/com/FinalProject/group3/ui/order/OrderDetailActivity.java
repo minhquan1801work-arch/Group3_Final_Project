@@ -24,8 +24,6 @@ import com.FinalProject.group3.utils.FirebaseHelper;
 import com.FinalProject.group3.utils.InsetsUtil;
 import com.bumptech.glide.Glide;
 
-import java.util.List;
-
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -94,6 +92,37 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         NumberFormat fmt = NumberFormat.getInstance(new Locale("vi", "VN"));
         binding.tvTotal.setText(fmt.format(o.getTotalAmount()) + "đ");
+
+        // Phí vận chuyển (nếu có lưu, dùng giá trị đó; nếu không thì ẩn)
+        if (o.getShippingFee() > 0) {
+            binding.tvShippingFee.setText(fmt.format(o.getShippingFee()) + "đ");
+        } else {
+            binding.tvShippingFee.setText("—");
+        }
+
+        // Giảm phí ship
+        if (o.getShipDiscount() > 0) {
+            binding.rowShipDiscount.setVisibility(android.view.View.VISIBLE);
+            binding.tvShipDiscount.setText("-" + fmt.format(o.getShipDiscount()) + "đ");
+        }
+
+        // Voucher giảm giá
+        if (o.getVoucherDiscount() > 0) {
+            binding.rowVoucherDiscount.setVisibility(android.view.View.VISIBLE);
+            binding.tvVoucherDiscount.setText("-" + fmt.format(o.getVoucherDiscount()) + "đ");
+        }
+
+        // Điểm đã dùng
+        if (o.getUsedPoints() > 0) {
+            binding.rowPointsUsed.setVisibility(android.view.View.VISIBLE);
+            binding.tvPointsUsed.setText("-" + fmt.format(o.getUsedPoints()) + "đ");
+        }
+
+        // Điểm tích lũy
+        if (o.getEarnedPoints() > 0) {
+            binding.rowEarnedPoints.setVisibility(android.view.View.VISIBLE);
+            binding.tvEarnedPoints.setText("+" + o.getEarnedPoints() + " điểm");
+        }
     }
 
     private void loadDetails(String orderId) {
@@ -144,6 +173,7 @@ public class OrderDetailActivity extends AppCompatActivity {
         for (OrderDetail od : details) sub += od.getPrice() * od.getQuantity();
         NumberFormat fmt = NumberFormat.getInstance(new Locale("vi", "VN"));
         binding.tvSubtotal.setText(fmt.format(sub) + "đ");
+        binding.tvSubtotalLabel.setText("Tổng tiền hàng (" + details.size() + " sản phẩm)");
     }
 
     private String statusLabel(String s) {

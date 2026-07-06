@@ -31,6 +31,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         void onQuantityChanged(CartDetail item, int newQuantity);
         void onDeleteClick(CartDetail item);
         void onSelectionChanged(); // tick/bỏ tick checkbox → tính lại tổng
+        void onVariantClick(CartDetail item, android.view.View anchor); // chọn lại màu
     }
 
     private static final NumberFormat VND_FORMAT = NumberFormat.getInstance(new Locale("vi", "VN"));
@@ -44,11 +45,27 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     }
 
     public void submitList(List<CartDetail> newItems) {
+        submitListWithAutoSelect(newItems, null);
+    }
+
+    /**
+     * Nạp danh sách và tự chọn item vừa thêm.
+     * @param autoSelectId cartDetailId muốn pre-select; null → chọn item cuối cùng (mới nhất).
+     */
+    public void submitListWithAutoSelect(List<CartDetail> newItems, String autoSelectId) {
         items.clear();
         items.addAll(newItems);
-        // Mặc định chọn tất cả (giống Figma: vào giỏ là các item được tick sẵn)
         selectedIds.clear();
-        for (CartDetail d : newItems) selectedIds.add(d.getCartDetailId());
+
+        if (autoSelectId != null) {
+            // Chọn đúng item vừa thêm vào giỏ
+            for (CartDetail d : newItems)
+                if (d.getCartDetailId().equals(autoSelectId)) { selectedIds.add(autoSelectId); break; }
+        }
+        if (selectedIds.isEmpty() && !newItems.isEmpty()) {
+            // Vào giỏ trực tiếp → chọn item cuối trong danh sách (mới nhất)
+            selectedIds.add(newItems.get(newItems.size() - 1).getCartDetailId());
+        }
         notifyDataSetChanged();
     }
 
@@ -98,6 +115,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
         // Chip phân loại (Figma: "Màu: đen ▾")
         b.tvVariant.setText("Màu: " + colorName(item.getColor()) + " ▾");
+        b.tvVariant.setOnClickListener(v -> listener.onVariantClick(item, v));
 
         b.tvQuantity.setText(String.valueOf(item.getQuantity()));
 

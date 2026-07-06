@@ -207,5 +207,17 @@
             android:textColor="@color/color_accent"
             android:textStyle="bold" />
 
+        <!-- Nút tạo đơn test — chỉ dùng khi test -->
+        <TextView
+            android:id="@+id/btnSeedOrders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="14dp"
+            android:text="[DEBUG] Tạo 5 đơn test"
+            android:textColor="@color/color_text_secondary"
+            android:textSize="12sp"
+            android:background="?attr/selectableItemBackground" />
+
     </LinearLayout>
 </ScrollView>

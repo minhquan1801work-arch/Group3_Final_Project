@@ -36,40 +36,34 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+    <!-- Tab strip: Tất cả | Chờ giao hàng | Đã giao | Đã hủy -->
+    <HorizontalScrollView
+        android:id="@+id/tabScroll"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="44dp"
         android:background="@color/white"
+        android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:tabGravity="fill"
-        app:tabIndicatorColor="@color/color_price"
-        app:tabMode="scrollable"
-        app:tabSelectedTextColor="@color/color_price"
-        app:tabTextColor="@color/color_text_secondary">
+        app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <com.google.android.material.tabs.TabItem
+        <LinearLayout
+            android:id="@+id/tabContainer"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tất cả" />
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp" />
+    </HorizontalScrollView>
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Chờ giao" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đã giao" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Đã hủy" />
-    </com.google.android.material.tabs.TabLayout>
+    <View
+        android:id="@+id/tabDivider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/color_divider"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabScroll" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvOrders"
@@ -80,7 +74,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintTop_toBottomOf="@id/tabDivider"
         tools:itemCount="3"
         tools:listitem="@layout/item_order" />
 
@@ -90,11 +84,11 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        android:padding="32dp"
+        android:padding="48dp"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintTop_toBottomOf="@id/tabDivider"
         tools:visibility="visible">
 
         <ImageView

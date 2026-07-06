@@ -2,6 +2,7 @@
 <!-- 1 voucher (LA.Voucher2): ô icon đỏ đô + tiêu đề + đơn tối thiểu + nút hành động
      + dòng "Còn x ngày | Điều kiện áp dụng" -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
@@ -14,6 +15,7 @@
         android:paddingTop="12dp">
 
         <FrameLayout
+            android:id="@+id/flIconBg"
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:background="@color/brand_wine">
@@ -24,7 +26,8 @@
                 android:layout_height="28dp"
                 android:layout_gravity="center"
                 android:contentDescription="Voucher"
-                android:src="@drawable/ic_voucher_discount" />
+                android:src="@drawable/ic_voucher_discount"
+                app:tint="@color/white" />
         </FrameLayout>
 
         <LinearLayout
@@ -68,7 +71,7 @@
             android:paddingHorizontal="10dp"
             android:paddingVertical="4dp"
             android:text="Dùng ngay"
-            android:textColor="@color/color_price"
+            android:textColor="@color/white"
             android:textSize="12sp" />
     </LinearLayout>
 

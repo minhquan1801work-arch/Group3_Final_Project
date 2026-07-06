@@ -238,6 +238,7 @@
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
+                    <!-- Tổng tiền hàng -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -262,6 +263,7 @@
                             tools:text="449.000đ" />
                     </LinearLayout>
 
+                    <!-- Phí vận chuyển -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -285,12 +287,94 @@
                             tools:text="35.000đ" />
                     </LinearLayout>
 
+                    <!-- Giảm giá phí vận chuyển (voucher ship) -->
+                    <LinearLayout
+                        android:id="@+id/rowShipDiscount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Giảm phí vận chuyển"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvShipDiscount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/color_price"
+                            android:textSize="12sp"
+                            tools:text="-35.000đ" />
+                    </LinearLayout>
+
+                    <!-- Voucher giảm giá -->
+                    <LinearLayout
+                        android:id="@+id/rowVoucherDiscount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Voucher giảm giá"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvVoucherDiscount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/color_price"
+                            android:textSize="12sp"
+                            tools:text="-52.480đ" />
+                    </LinearLayout>
+
+                    <!-- Điểm đã dùng -->
+                    <LinearLayout
+                        android:id="@+id/rowPointsUsed"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Điểm đã dùng"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvPointsUsed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/color_price"
+                            android:textSize="12sp"
+                            tools:text="-500đ" />
+                    </LinearLayout>
+
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
                         android:layout_marginVertical="8dp"
                         android:background="@color/color_divider" />
 
+                    <!-- Tổng thanh toán -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -313,6 +397,33 @@
                             android:textSize="15sp"
                             android:textStyle="bold"
                             tools:text="376.520đ" />
+                    </LinearLayout>
+
+                    <!-- Điểm tích lũy được -->
+                    <LinearLayout
+                        android:id="@+id/rowEarnedPoints"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Điểm tích lũy"
+                            android:textColor="@color/color_text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvEarnedPoints"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/color_success"
+                            android:textSize="12sp"
+                            tools:text="+449 điểm" />
                     </LinearLayout>
 
                     <TextView

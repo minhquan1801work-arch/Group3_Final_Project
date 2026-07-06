@@ -357,9 +357,12 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         } else {
-            cartRepo.addToCart(item, new CartRepository.SimpleCallback() {
+            cartRepo.addToCartReturningId(item, new CartRepository.IdCallback() {
                 @Override
-                public void onSuccess() {
+                public void onSuccess(String cartDetailId) {
+                    // Ghi id item vừa thêm để CartFragment auto-select khi user sang tab Giỏ
+                    getSharedPreferences("cart_prefs", MODE_PRIVATE)
+                            .edit().putString("last_added_id", cartDetailId).apply();
                     Toast.makeText(ProductDetailActivity.this,
                             "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
                 }

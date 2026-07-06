@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ô checkbox checked: nền đen + dấu tick trắng, tất cả trong 1 vector -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Nền đen bo góc (rounded rect 3dp) -->
+    <path
+        android:fillColor="#1A1614"
+        android:pathData="M3,5 C3,3.895 3.895,3 5,3 L19,3 C20.105,3 21,3.895 21,5 L21,19 C21,20.105 20.105,21 19,21 L5,21 C3.895,21 3,20.105 3,19 Z" />
+
+    <!-- Dấu tick trắng -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41z" />
+</vector>

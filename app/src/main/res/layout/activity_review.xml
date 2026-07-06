@@ -142,40 +142,29 @@
                 android:textColor="@color/color_price"
                 android:textSize="13sp" />
 
-            <!-- Upload ảnh -->
+            <!-- Upload ảnh (tối đa 5) -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Thêm hình ảnh/video về sản phẩm"
+                android:text="Thêm hình ảnh về sản phẩm"
                 android:textColor="@color/color_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <LinearLayout
-                android:id="@+id/btnAddPhoto"
-                android:layout_width="80dp"
+            <HorizontalScrollView
+                android:layout_width="match_parent"
                 android:layout_height="80dp"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/bg_chip_variant"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:scrollbars="none">
 
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_camera"
-                    app:tint="@color/color_hint" />
-
-                <TextView
+                <LinearLayout
+                    android:id="@+id/llPhotos"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:text="Thêm ảnh"
-                    android:textColor="@color/color_hint"
-                    android:textSize="10sp" />
-            </LinearLayout>
+                    android:layout_height="80dp"
+                    android:orientation="horizontal" />
+
+            </HorizontalScrollView>
 
             <!-- Viết đánh giá -->
             <TextView
@@ -203,6 +192,17 @@
                 android:textSize="13sp" />
         </LinearLayout>
     </ScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminateTint="@color/color_btn_black"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/btnSubmit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider" />
 
     <Button
         android:id="@+id/btnSubmit"

@@ -86,6 +86,13 @@ public class AddressRepository {
         }).addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    /** Xóa địa chỉ theo id. */
+    public void deleteAddress(String addressId, SimpleCallback callback) {
+        col().document(addressId).delete()
+                .addOnSuccessListener(v -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
     /** Đặt 1 địa chỉ làm mặc định, bỏ cờ mặc định của tất cả địa chỉ còn lại. */
     public void setDefaultAddress(String addressId, SimpleCallback callback) {
         col().get().addOnSuccessListener(snapshot -> {
