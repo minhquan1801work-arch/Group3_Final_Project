@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.FinalProject.group3.databinding.ItemProductBinding;
 import com.FinalProject.group3.model.Product;
+import com.FinalProject.group3.model.ProductVariant;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -76,9 +77,16 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.binding.tvName.setText(product.getName());
         holder.binding.tvPrice.setText(VND_FORMAT.format(product.getPrice()) + "d");
 
-        // Anh: load tu Cloudinary URL, fallback ve placeholder den
-        String imageUrl = (product.getImages() != null && !product.getImages().isEmpty())
-                ? product.getImages().get(0) : null;
+        // Anh: uu tien variants[0].images[0], fallback ve images[0] cu
+        String imageUrl = null;
+        List<ProductVariant> variants = product.getVariants();
+        if (variants != null && !variants.isEmpty()) {
+            ProductVariant v0 = variants.get(0);
+            if (v0.getImages() != null && !v0.getImages().isEmpty()) imageUrl = v0.getImages().get(0);
+        }
+        if (imageUrl == null && product.getImages() != null && !product.getImages().isEmpty()) {
+            imageUrl = product.getImages().get(0);
+        }
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
@@ -87,8 +95,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .centerCrop()
                 .into(holder.binding.ivProduct);
 
-        // Color swatches — hien toi da 3 cham mau
-        List<String> colors = product.getColors();
+        // Color swatches — lay mau tu variants, fallback colors cu
+        List<String> colors;
+        if (variants != null && !variants.isEmpty()) {
+            colors = new ArrayList<>();
+            for (ProductVariant v : variants) {
+                String c = v.getColor();
+                if (c != null && !c.isEmpty()) colors.add(c);
+            }
+        } else {
+            colors = product.getColors();
+        }
         View[] dots = {holder.binding.dot1, holder.binding.dot2, holder.binding.dot3};
         for (int i = 0; i < dots.length; i++) {
             if (colors != null && i < colors.size()) {

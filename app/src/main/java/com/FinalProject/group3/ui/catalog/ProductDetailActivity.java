@@ -77,7 +77,9 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     private Product product;
     private int quantity = 1;
-    private int selectedColorIndex = 0;
+    private int selectedVariantIndex = 0;
+    // variantStartIndex[i] = vị trí ảnh đầu tiên của variant i trong flat list
+    private int[] variantStartIndex;
     private ProductAdapter relatedAdapter;
 
     public static void start(Context context, String productId) {
@@ -132,8 +134,7 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void bindProduct() {
         binding.tvName.setText(product.getName());
         binding.tvPrice.setText(VND_FORMAT.format(product.getPrice()) + " đ");
-        binding.tvStock.setText(product.getStock() > 0
-                ? "Còn " + product.getStock() + " sản phẩm" : "Hết hàng");
+        updateStockDisplay();
 
         // Mô tả: Firestore, fallback đoạn mặc định nếu trống
         String desc = product.getDescription();
@@ -150,40 +151,79 @@ public class ProductDetailActivity extends AppCompatActivity {
         binding.tvQty.setText(String.valueOf(quantity));
     }
 
-    // ── Ảnh: ViewPager2 + thumbnail ───────────────────────────────────────────
+    // ── Ảnh + màu: setup đồng thời để sync 2 chiều ────────────────────────────
     private void setupImages() {
-        List<String> images = (product.getImages() != null && !product.getImages().isEmpty())
-                ? product.getImages() : new ArrayList<>();
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        boolean hasVariants = variants != null && !variants.isEmpty();
 
-        ImagePagerAdapter pagerAdapter = new ImagePagerAdapter(images);
+        // Flatten tất cả ảnh, ghi nhớ startIndex của từng variant
+        List<String> flatImages = new ArrayList<>();
+        if (hasVariants) {
+            variantStartIndex = new int[variants.size()];
+            for (int i = 0; i < variants.size(); i++) {
+                variantStartIndex[i] = flatImages.size();
+                List<String> vImgs = variants.get(i).getImages();
+                if (vImgs != null) flatImages.addAll(vImgs);
+            }
+        } else {
+            variantStartIndex = new int[]{0};
+            List<String> imgs = product.getImages();
+            if (imgs != null) flatImages.addAll(imgs);
+        }
+
+        ImagePagerAdapter pagerAdapter = new ImagePagerAdapter(flatImages);
         binding.vpImages.setAdapter(pagerAdapter);
 
-        ThumbAdapter thumbAdapter = new ThumbAdapter(images,
+        ThumbAdapter thumbAdapter = new ThumbAdapter(flatImages,
                 pos -> binding.vpImages.setCurrentItem(pos, true));
         binding.rvThumbs.setAdapter(thumbAdapter);
-        binding.rvThumbs.setVisibility(images.size() > 1 ? View.VISIBLE : View.GONE);
+        binding.rvThumbs.setVisibility(flatImages.size() > 1 ? View.VISIBLE : View.GONE);
 
         binding.vpImages.registerOnPageChangeCallback(
                 new androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback() {
                     @Override public void onPageSelected(int position) {
                         thumbAdapter.setSelected(position);
+                        // Swipe ảnh → tìm variant tương ứng → highlight dot
+                        if (hasVariants) {
+                            int newVariant = variantForImagePosition(position);
+                            if (newVariant != selectedVariantIndex) {
+                                selectedVariantIndex = newVariant;
+                                refreshColorDots();
+                                updateStockDisplay();
+                            }
+                        }
                     }
                 });
     }
 
-    // ── Chọn màu: dot động từ product.colors ─────────────────────────────────
+    private int variantForImagePosition(int imagePos) {
+        int result = 0;
+        for (int i = 0; i < variantStartIndex.length; i++) {
+            if (imagePos >= variantStartIndex[i]) result = i;
+        }
+        return result;
+    }
+
+    // ── Chọn màu ─────────────────────────────────────────────────────────────
     private void setupColors() {
         binding.llColors.removeAllViews();
-        List<String> colors = product.getColors();
-        if (colors == null || colors.isEmpty()) {
+
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        boolean hasVariants = variants != null && !variants.isEmpty();
+
+        // Fallback về colors cũ nếu chưa migrate sang variants
+        List<String> colors = hasVariants ? null : product.getColors();
+
+        if (!hasVariants && (colors == null || colors.isEmpty())) {
             binding.tvVariant.setText("Kiểu dáng: Kính mát");
             return;
         }
 
-        int size = (int) (28 * getResources().getDisplayMetrics().density);
+        int count = hasVariants ? variants.size() : colors.size();
+        int size  = (int) (28 * getResources().getDisplayMetrics().density);
         int margin = (int) (10 * getResources().getDisplayMetrics().density);
 
-        for (int i = 0; i < colors.size(); i++) {
+        for (int i = 0; i < count; i++) {
             final int index = i;
             View dot = new View(this);
             android.widget.LinearLayout.LayoutParams lp =
@@ -191,8 +231,13 @@ public class ProductDetailActivity extends AppCompatActivity {
             lp.setMargins(0, 0, margin, 0);
             dot.setLayoutParams(lp);
             dot.setOnClickListener(v -> {
-                selectedColorIndex = index;
+                selectedVariantIndex = index;
                 refreshColorDots();
+                updateStockDisplay();
+                // Nhảy tới ảnh đầu tiên của variant vừa chọn
+                if (variantStartIndex != null && index < variantStartIndex.length) {
+                    binding.vpImages.setCurrentItem(variantStartIndex[index], true);
+                }
             });
             binding.llColors.addView(dot);
         }
@@ -200,21 +245,60 @@ public class ProductDetailActivity extends AppCompatActivity {
     }
 
     private void refreshColorDots() {
-        List<String> colors = product.getColors();
-        for (int i = 0; i < binding.llColors.getChildCount(); i++) {
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        boolean hasVariants = variants != null && !variants.isEmpty();
+        List<String> colors = hasVariants ? null : product.getColors();
+
+        int count = binding.llColors.getChildCount();
+        for (int i = 0; i < count; i++) {
             View dot = binding.llColors.getChildAt(i);
+            String hex = hasVariants ? variants.get(i).getColor() : colors.get(i);
             GradientDrawable bg = new GradientDrawable();
             bg.setShape(GradientDrawable.OVAL);
-            bg.setColor(parseColorSafe(colors.get(i)));
-            // Dot đang chọn: viền cam (giống thumbnail Figma)
-            bg.setStroke(i == selectedColorIndex ? 4 : 1,
-                    i == selectedColorIndex
+            bg.setColor(parseColorSafe(hex));
+            bg.setStroke(i == selectedVariantIndex ? 4 : 1,
+                    i == selectedVariantIndex
                             ? getColor(R.color.color_price)
                             : getColor(R.color.color_field_border));
             dot.setBackground(bg);
         }
-        binding.tvVariant.setText("Kiểu dáng: Kính mát | Màu sắc: "
-                + colorName(colors.get(selectedColorIndex)));
+
+        String displayName;
+        if (hasVariants) {
+            com.FinalProject.group3.model.ProductVariant sel = variants.get(selectedVariantIndex);
+            displayName = (sel.getColorName() != null && !sel.getColorName().isEmpty())
+                    ? sel.getColorName() : colorName(sel.getColor());
+        } else {
+            String hex = (colors != null && !colors.isEmpty()) ? colors.get(selectedVariantIndex) : "";
+            displayName = colorName(hex);
+        }
+        binding.tvVariant.setText("Kiểu dáng: Kính mát | Màu sắc: " + displayName);
+    }
+
+    private void updateStockDisplay() {
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        int stock;
+        if (variants != null && !variants.isEmpty()) {
+            stock = variants.get(selectedVariantIndex).getStock();
+        } else {
+            stock = product.getStock();
+        }
+        binding.tvStock.setText(stock > 0 ? "Còn " + stock + " sản phẩm" : "Hết hàng");
+    }
+
+    private int currentVariantStock() {
+        if (product == null) return 99;
+        List<com.FinalProject.group3.model.ProductVariant> v = product.getVariants();
+        if (v != null && !v.isEmpty()) return v.get(selectedVariantIndex).getStock();
+        return product.getStock() > 0 ? product.getStock() : 99;
+    }
+
+    private String currentVariantColor() {
+        if (product == null) return null;
+        List<com.FinalProject.group3.model.ProductVariant> v = product.getVariants();
+        if (v != null && !v.isEmpty()) return v.get(selectedVariantIndex).getColor();
+        List<String> colors = product.getColors();
+        return (colors != null && !colors.isEmpty()) ? colors.get(selectedVariantIndex) : null;
     }
 
     private int parseColorSafe(String hex) {
@@ -239,7 +323,7 @@ public class ProductDetailActivity extends AppCompatActivity {
             }
         });
         binding.btnPlus.setOnClickListener(v -> {
-            int max = (product != null && product.getStock() > 0) ? product.getStock() : 99;
+            int max = currentVariantStock();
             if (quantity < max) {
                 quantity++;
                 binding.tvQty.setText(String.valueOf(quantity));
@@ -329,13 +413,12 @@ public class ProductDetailActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             return;
         }
-        if (product.getStock() <= 0) {
+        if (currentVariantStock() <= 0) {
             Toast.makeText(this, "Sản phẩm đã hết hàng", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String color = (product.getColors() != null && !product.getColors().isEmpty())
-                ? product.getColors().get(selectedColorIndex) : null;
+        String color = currentVariantColor();
         CartDetail item = new CartDetail(product.getProductId(), quantity, color);
 
         if (buyNow) {

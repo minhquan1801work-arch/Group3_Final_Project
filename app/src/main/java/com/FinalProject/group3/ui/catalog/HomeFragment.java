@@ -30,12 +30,28 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    // Điền Cloudinary URL vào đây khi có ảnh
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+
+    // Hero: 3 portrait thời trang đeo kính (khớp Figma)
     private static final List<String> HERO_URLS = Arrays.asList(
-            "",   // hero slide 1
-            "",   // hero slide 2
-            ""    // hero slide 3
+            CLOUD + "v1783354469/glassity/site/hero_bg1.png",   // nữ blazer đen, cat-eye
+            CLOUD + "v1783355120/glassity/site/hero_james.jpg", // james — wrap shades
+            CLOUD + "v1783355121/glassity/site/hero_juhoon.jpg" // juhoon — sunglasses đôi
     );
+
+    private static final String URL_PROMO       = CLOUD + "v1783355118/glassity/site/promo_sasalele.jpg";
+    private static final String URL_MONOCHROME = CLOUD + "v1783354469/glassity/site/hero_bg1.png";
+    private static final String URL_ESSENTIAL   = CLOUD + "v1783354477/glassity/site/flatlay_background.png";
+    private static final String URL_SUNLIGHT    = CLOUD + "v1783354471/glassity/site/hero_bg2.png";
+    private static final String URL_KHAM_PHA    = CLOUD + "v1783355119/glassity/site/kham_pha_flowers.jpg";
+    private static final String URL_BLOG_GUIDE  = CLOUD + "v1783354481/glassity/site/guide_diagram.png";
+    private static final String URL_BLOG_TREND  = CLOUD + "v1783355123/glassity/site/blog_login_signup.jpg";
+
+    private static final String URL_SHAPE_TRON       = CLOUD + "v1783354487/glassity/site/shape_tron.png";
+    private static final String URL_SHAPE_TRAI_XOAN  = CLOUD + "v1783354492/glassity/site/shape_trai_xoan.png";
+    private static final String URL_SHAPE_TRAI_TIM   = CLOUD + "v1783354498/glassity/site/shape_trai_tim.png";
+    private static final String URL_SHAPE_KIM_CUONG  = CLOUD + "v1783354502/glassity/site/shape_kim_cuong.png";
+    private static final String URL_SHAPE_VUONG      = CLOUD + "v1783354507/glassity/site/shape_vuong.png";
 
     private FragmentHomeBinding binding;
     private final ProductRepository productRepository = new ProductRepository();
@@ -61,6 +77,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setupAdapters();
         setupHeroCarousel();
+        setupStaticImages();
         setupClickListeners();
         loadProducts();
     }
@@ -153,6 +170,26 @@ public class HomeFragment extends Fragment {
         if (autoScrollRunnable != null) {
             autoScrollHandler.removeCallbacks(autoScrollRunnable);
         }
+    }
+
+    // ── Ảnh tĩnh (tile BST, banner, blog, dáng mặt) ─────────────────────────────
+    private void setupStaticImages() {
+        // Promo banner: clip ảnh theo bo góc của bg_rounded_card
+        binding.layoutPromoBanner.setClipToOutline(true);
+        com.bumptech.glide.Glide.with(this).load(URL_PROMO).centerCrop().into(binding.imgPromo);
+
+        com.bumptech.glide.Glide.with(this).load(URL_MONOCHROME).centerCrop().into(binding.imgMonochrome);
+        com.bumptech.glide.Glide.with(this).load(URL_ESSENTIAL).centerCrop().into(binding.imgEssential);
+        com.bumptech.glide.Glide.with(this).load(URL_SUNLIGHT).centerCrop().into(binding.imgSunlight);
+        com.bumptech.glide.Glide.with(this).load(URL_KHAM_PHA).centerCrop().into(binding.imgKhamPha);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG_GUIDE).centerCrop().into(binding.imgBlog1);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG_TREND).centerCrop().into(binding.imgBlog2);
+
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRON).centerCrop().into(binding.imgFaceTron);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRAI_XOAN).centerCrop().into(binding.imgFaceTraiXoan);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRAI_TIM).centerCrop().into(binding.imgFaceTraiTim);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_KIM_CUONG).centerCrop().into(binding.imgFaceKimCuong);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_VUONG).centerCrop().into(binding.imgFaceVuong);
     }
 
     // ── Click listeners ───────────────────────────────────────────────────────

@@ -20,6 +20,11 @@ public class CollectionActivity extends AppCompatActivity {
 
     public static final String EXTRA_COLLECTION = "extra_collection";
 
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+    private static final String URL_MONOCHROME = CLOUD + "v1783354469/glassity/site/hero_bg1.png";
+    private static final String URL_ESSENTIAL   = CLOUD + "v1783354477/glassity/site/flatlay_background.png";
+    private static final String URL_SUNLIGHT    = CLOUD + "v1783354471/glassity/site/hero_bg2.png";
+
     private ActivityCollectionBinding binding;
     private ProductRepository repo;
 
@@ -41,6 +46,10 @@ public class CollectionActivity extends AppCompatActivity {
         InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         repo = new ProductRepository();
+
+        com.bumptech.glide.Glide.with(this).load(URL_MONOCHROME).centerCrop().into(binding.imgMonochrome);
+        com.bumptech.glide.Glide.with(this).load(URL_ESSENTIAL).centerCrop().into(binding.imgEssential);
+        com.bumptech.glide.Glide.with(this).load(URL_SUNLIGHT).centerCrop().into(binding.imgSunlight);
 
         binding.btnBack.setOnClickListener(v -> finish());
 

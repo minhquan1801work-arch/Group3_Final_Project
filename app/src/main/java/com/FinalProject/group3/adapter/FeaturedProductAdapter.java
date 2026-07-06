@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.FinalProject.group3.databinding.ItemProductFeaturedBinding;
 import com.FinalProject.group3.model.Product;
+import com.FinalProject.group3.model.ProductVariant;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -55,7 +56,13 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
         holder.b.tvName.setText(p.getName());
         holder.b.tvPrice.setText(VND.format(p.getPrice()) + "đ");
 
-        String url = (p.getImages() != null && !p.getImages().isEmpty()) ? p.getImages().get(0) : null;
+        String url = null;
+        List<ProductVariant> variants = p.getVariants();
+        if (variants != null && !variants.isEmpty()) {
+            ProductVariant v0 = variants.get(0);
+            if (v0.getImages() != null && !v0.getImages().isEmpty()) url = v0.getImages().get(0);
+        }
+        if (url == null && p.getImages() != null && !p.getImages().isEmpty()) url = p.getImages().get(0);
         Glide.with(holder.itemView.getContext())
                 .load(url)
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)

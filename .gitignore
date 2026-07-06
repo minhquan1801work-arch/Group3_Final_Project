@@ -9,3 +9,6 @@
 .cxx 
 local.properties 
 service-account.json 
+
+node_modules/
+cloudinary-config.json

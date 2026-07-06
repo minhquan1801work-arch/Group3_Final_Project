@@ -241,7 +241,7 @@ db.collection("col").add(myModel); // model.id = null → lỗi
 | Email | Mật khẩu | Dùng để test |
 |---|---|---|
 | test1@glassity.com | Test@123 | Đơn nhiều trạng thái, giỏ hàng |
-| test2@glassity.com | Test@123 | Đơn bank transfer |
+| test2@glassity.com Test@123| Test@123 | Đơn bank transfer |
 | test3@glassity.com | Test@123 | Đơn cancelled/processing |
 | test4@glassity.com | Test@123 | Giỏ + favorites |
 | test5@glassity.com | Test@123 | Empty states |

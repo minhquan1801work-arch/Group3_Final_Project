@@ -106,15 +106,43 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         if (product != null) {
             b.tvName.setText(product.getName());
             b.tvPrice.setText(VND_FORMAT.format(product.getPrice() * item.getQuantity()) + "VND");
-            if (product.getImages() != null && !product.getImages().isEmpty()) {
-                Glide.with(b.ivProduct).load(product.getImages().get(0))
+            // Ảnh: ưu tiên ảnh của variant khớp màu đã chọn, fallback variant đầu / images cũ
+            String imgUrl = null;
+            if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+                com.FinalProject.group3.model.ProductVariant match = null;
+                for (com.FinalProject.group3.model.ProductVariant pv : product.getVariants()) {
+                    if (pv.getColor() != null && pv.getColor().equalsIgnoreCase(item.getColor())) {
+                        match = pv;
+                        break;
+                    }
+                }
+                if (match == null) match = product.getVariants().get(0);
+                if (match.getImages() != null && !match.getImages().isEmpty()) {
+                    imgUrl = match.getImages().get(0);
+                }
+            }
+            if (imgUrl == null && product.getImages() != null && !product.getImages().isEmpty()) {
+                imgUrl = product.getImages().get(0);
+            }
+            if (imgUrl != null) {
+                Glide.with(b.ivProduct).load(imgUrl)
                         .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                         .into(b.ivProduct);
             }
         }
 
-        // Chip phân loại (Figma: "Màu: đen ▾")
-        b.tvVariant.setText("Màu: " + colorName(item.getColor()) + " ▾");
+        // Chip phân loại (Figma: "Màu: đen ▾") — ưu tiên colorName từ variant
+        String variantName = null;
+        if (product != null && product.getVariants() != null) {
+            for (com.FinalProject.group3.model.ProductVariant pv : product.getVariants()) {
+                if (pv.getColor() != null && pv.getColor().equalsIgnoreCase(item.getColor())
+                        && pv.getColorName() != null && !pv.getColorName().isEmpty()) {
+                    variantName = pv.getColorName();
+                    break;
+                }
+            }
+        }
+        b.tvVariant.setText("Màu: " + (variantName != null ? variantName : colorName(item.getColor())) + " ▾");
         b.tvVariant.setOnClickListener(v -> listener.onVariantClick(item, v));
 
         b.tvQuantity.setText(String.valueOf(item.getQuantity()));
