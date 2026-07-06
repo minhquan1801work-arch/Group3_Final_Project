@@ -1,5 +1,6 @@
 package com.FinalProject.group3.ui.order;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -42,11 +45,38 @@ import java.util.Locale;
 public class CartFragment extends Fragment implements CartAdapter.CartItemListener {
 
     private static final NumberFormat VND_FORMAT = NumberFormat.getInstance(new Locale("vi", "VN"));
+    private static final String CART_PREFS = "cart_prefs";
+    private static final String KEY_LAST_ADDED = "last_added_id";
 
     private FragmentCartBinding binding;
     private CartAdapter adapter;
     private final CartRepository cartRepo = new CartRepository();
     private final ProductRepository productRepo = new ProductRepository();
+
+    private String selectedDiscountCode = null;
+    private String selectedShipCode = null;
+
+    // Launcher để mở màn chọn voucher ngay từ giỏ hàng
+    private ActivityResultLauncher<Intent> voucherLauncher;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        voucherLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == android.app.Activity.RESULT_OK
+                            && result.getData() != null) {
+                        String disc = result.getData()
+                                .getStringExtra(CheckoutVoucherActivity.RESULT_DISCOUNT_CODE);
+                        String ship = result.getData()
+                                .getStringExtra(CheckoutVoucherActivity.RESULT_SHIP_CODE);
+                        selectedDiscountCode = (disc == null || disc.isEmpty()) ? null : disc;
+                        selectedShipCode    = (ship == null || ship.isEmpty()) ? null : ship;
+                        updateVoucherRow();
+                    }
+                });
+    }
 
     @Nullable
     @Override
@@ -63,9 +93,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
 
         binding.btnBuy.setOnClickListener(v -> goToCheckout());
 
-        // Figma: dòng "Mã giảm giá >" — voucher được chọn/nhập ở bước Thanh toán
         binding.rowVoucher.setOnClickListener(v ->
-                Toast.makeText(requireContext(), R.string.cart_voucher_hint, Toast.LENGTH_SHORT).show());
+                voucherLauncher.launch(CheckoutVoucherActivity.intent(
+                        requireContext(), selectedDiscountCode, selectedShipCode)));
 
         return binding.getRoot();
     }
@@ -73,7 +103,6 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
     @Override
     public void onResume() {
         super.onResume();
-        // Load lại mỗi lần quay về tab Giỏ hàng (vd: sau khi thêm từ ProductDetail)
         loadCart();
     }
 
@@ -81,7 +110,6 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
     private void loadCart() {
         if (binding == null) return;
 
-        // Trạng thái 1: khách chưa đăng nhập
         if (FirebaseHelper.getCurrentUserId() == null) {
             showEmpty(getString(R.string.cart_login_msg), getString(R.string.cart_login_btn), true);
             return;
@@ -110,7 +138,6 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         });
     }
 
-    // Giỏ chỉ lưu productId → phải load thêm thông tin Product cho từng item
     private void loadProducts(List<CartDetail> items) {
         final int[] loaded = {0};
         for (CartDetail item : items) {
@@ -123,7 +150,6 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
 
                 @Override
                 public void onFailure(String error) {
-                    // Sản phẩm bị xóa khỏi shop → vẫn hiện item, chỉ thiếu ảnh/tên
                     if (++loaded[0] == items.size()) showCart(items);
                 }
             });
@@ -135,8 +161,15 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         if (binding == null) return;
         setCartVisible(true);
         binding.tvTitle.setText(getString(R.string.cart_title) + "(" + items.size() + ")");
-        adapter.submitList(items);
-        binding.cbSelectAll.setChecked(true);
+
+        // Auto-select: nếu vừa thêm vào giỏ → chọn item đó; ngược lại chọn item mới nhất
+        String lastAddedId = requireContext()
+                .getSharedPreferences(CART_PREFS, Context.MODE_PRIVATE)
+                .getString(KEY_LAST_ADDED, null);
+        requireContext().getSharedPreferences(CART_PREFS, Context.MODE_PRIVATE)
+                .edit().remove(KEY_LAST_ADDED).apply();
+
+        adapter.submitListWithAutoSelect(items, lastAddedId);
         updateTotal();
     }
 
@@ -149,7 +182,6 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             if (needLogin) {
                 startActivity(new Intent(requireContext(), LoginActivity.class));
             } else {
-                // Chuyển về tab Trang chủ để tiếp tục mua sắm
                 androidx.navigation.fragment.NavHostFragment.findNavController(this)
                         .navigate(R.id.homeFragment);
             }
@@ -172,9 +204,24 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         for (CartDetail d : selected)
             if (d.getProduct() != null) total += d.getProduct().getPrice() * d.getQuantity();
         binding.tvTotal.setText(VND_FORMAT.format(total) + "VND");
-        // Figma: "MUA HÀNG (3)" — số item đang được tick
         binding.btnBuy.setText(getString(R.string.cart_buy_btn) + " (" + selected.size() + ")");
         binding.btnBuy.setEnabled(!selected.isEmpty());
+    }
+
+    private void updateVoucherRow() {
+        if (binding == null) return;
+        StringBuilder sb = new StringBuilder();
+        if (selectedDiscountCode != null) sb.append(selectedDiscountCode);
+        if (selectedShipCode != null) {
+            if (sb.length() > 0) sb.append(" · ");
+            sb.append(selectedShipCode);
+        }
+        if (sb.length() > 0) {
+            binding.tvVoucherValue.setText(sb.toString());
+            binding.tvVoucherValue.setVisibility(View.VISIBLE);
+        } else {
+            binding.tvVoucherValue.setVisibility(View.GONE);
+        }
     }
 
     // ── CartAdapter.CartItemListener ─────────────────────────────────────────
@@ -183,12 +230,11 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         item.setQuantity(newQuantity);
         adapter.notifyDataSetChanged();
         updateTotal();
-        // Optimistic update: UI đổi ngay, Firestore ghi ngầm phía sau
         cartRepo.updateQuantity(item.getCartDetailId(), newQuantity, new CartRepository.SimpleCallback() {
             @Override public void onSuccess() { }
             @Override public void onFailure(String error) {
                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
-                loadCart(); // ghi lỗi → load lại cho khớp server
+                loadCart();
             }
         });
     }
@@ -215,6 +261,59 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         updateTotal();
     }
 
+    @Override
+    public void onVariantClick(CartDetail item, View anchor) {
+        Product product = item.getProduct();
+        if (product == null || product.getColors() == null || product.getColors().isEmpty()) return;
+
+        java.util.List<String> colors = product.getColors();
+        String[] colorNames = new String[colors.size()];
+        for (int i = 0; i < colors.size(); i++)
+            colorNames[i] = colorNamePublic(colors.get(i));
+
+        android.widget.ArrayAdapter<String> arrAdapter = new android.widget.ArrayAdapter<>(
+                requireContext(), R.layout.item_color_popup, colorNames);
+
+        android.widget.ListPopupWindow popup = new android.widget.ListPopupWindow(requireContext());
+        popup.setAnchorView(anchor);
+        popup.setAdapter(arrAdapter);
+        popup.setWidth(anchor.getWidth() > 0 ? anchor.getWidth() * 3 : 200);
+        popup.setModal(true);
+        popup.setBackgroundDrawable(
+                new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
+        popup.setOnItemClickListener((parent, view, which, id) -> {
+            String newColor = colors.get(which);
+            item.setColor(newColor);
+            adapter.notifyDataSetChanged();
+            popup.dismiss();
+            cartRepo.updateColor(item.getCartDetailId(), newColor,
+                    new CartRepository.SimpleCallback() {
+                        @Override public void onSuccess() { }
+                        @Override public void onFailure(String error) {
+                            Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
+                            loadCart();
+                        }
+                    });
+        });
+        popup.show();
+    }
+
+    private static String colorNamePublic(String hex) {
+        if (hex == null) return "đen";
+        switch (hex.toUpperCase(Locale.US)) {
+            case "#1A1614": case "#111111": case "#000000": return "đen";
+            case "#FFFFFF": return "trắng";
+            case "#C0C0C0": return "bạc";
+            case "#C8A96E": return "vàng đồng";
+            case "#C88B3A": return "hổ phách";
+            case "#8B6914": case "#72383D": return "nâu đô";
+            case "#AC9C8D": return "be";
+            case "#4A90D9": return "xanh";
+            case "#4A4A4A": return "xám";
+            default: return hex;
+        }
+    }
+
     // ── MUA HÀNG → Checkout ───────────────────────────────────────────────────
     private void goToCheckout() {
         List<CartDetail> selected = adapter.getSelectedItems();
@@ -224,7 +323,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         }
         ArrayList<String> ids = new ArrayList<>();
         for (CartDetail d : selected) ids.add(d.getCartDetailId());
-        CheckoutActivity.start(requireContext(), ids);
+        CheckoutActivity.start(requireContext(), ids, selectedDiscountCode, selectedShipCode);
     }
 
     @Override

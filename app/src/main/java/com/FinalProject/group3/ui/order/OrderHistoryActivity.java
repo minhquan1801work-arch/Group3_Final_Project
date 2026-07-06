@@ -64,8 +64,8 @@ public class OrderHistoryActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(v -> finish());
 
         int startTab = getIntent().getIntExtra(EXTRA_TAB, 0);
+        setupRecyclerView();   // phải trước setupTabs vì selectTab() gọi filterOrders() → adapter
         setupTabs(startTab);
-        setupRecyclerView();
         loadOrders();
     }
 
@@ -186,6 +186,15 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     b.btnDetail.setVisibility(View.GONE);
                     b.btnReorder.setVisibility(View.VISIBLE);
                     b.btnReview.setVisibility(View.VISIBLE);
+                    if (o.isReviewed()) {
+                        b.btnReview.setText("Đã đánh giá");
+                        b.btnReview.setEnabled(false);
+                        b.btnReview.setAlpha(0.5f);
+                    } else {
+                        b.btnReview.setText("Đánh giá");
+                        b.btnReview.setEnabled(true);
+                        b.btnReview.setAlpha(1f);
+                    }
                 } else if ("CANCELLED".equals(status)) {
                     b.btnReorder.setVisibility(View.VISIBLE);
                     b.btnDetail.setText("Chi tiết");

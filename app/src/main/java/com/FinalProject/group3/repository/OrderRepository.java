@@ -55,10 +55,17 @@ public class OrderRepository {
 
         db.collection(FirebaseHelper.COL_ORDERS)
                 .whereEqualTo("customerId", uid)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
-                .addOnSuccessListener(snapshot ->
-                        callback.onSuccess(snapshot.toObjects(Order.class)))
+                .addOnSuccessListener(snapshot -> {
+                    java.util.List<Order> orders = snapshot.toObjects(Order.class);
+                    // Sort mới nhất trước (tránh cần composite index Firestore)
+                    orders.sort((a, b) -> {
+                        if (a.getCreatedAt() == null) return 1;
+                        if (b.getCreatedAt() == null) return -1;
+                        return b.getCreatedAt().compareTo(a.getCreatedAt());
+                    });
+                    callback.onSuccess(orders);
+                })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 

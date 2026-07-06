@@ -30,6 +30,10 @@ public class AuthRepository {
     public interface AuthCallback {
         void onSuccess();
         void onFailure(String error);
+        /** Lỗi liên quan đến field email (tài khoản không tồn tại, bị khóa…). */
+        default void onEmailError(String error) { onFailure(error); }
+        /** Lỗi liên quan đến field mật khẩu (sai mật khẩu). */
+        default void onPasswordError(String error) { onFailure(error); }
     }
 
     private final FirebaseFirestore db = FirebaseHelper.getDb();
@@ -40,7 +44,7 @@ public class AuthRepository {
             return "Tài khoản không tồn tại hoặc đã bị vô hiệu hóa";
         }
         if (e instanceof FirebaseAuthInvalidCredentialsException) {
-            return "Email hoặc mật khẩu không đúng";
+            return "Mật khẩu không đúng";
         }
         if (e instanceof FirebaseAuthUserCollisionException) {
             return "Email này đã được đăng ký, hãy đăng nhập";
@@ -52,6 +56,27 @@ public class AuthRepository {
             return "Không có kết nối mạng, kiểm tra Internet của thiết bị";
         }
         return "Có lỗi xảy ra: " + e.getMessage();
+    }
+
+    /**
+     * Dispatch lỗi đăng nhập đến đúng field:
+     *  - Tài khoản không tồn tại / bị khóa → onEmailError
+     *  - Sai mật khẩu → onPasswordError
+     *  - Còn lại → onFailure
+     */
+    private static void dispatchLoginError(Exception e, AuthCallback callback) {
+        if (e instanceof FirebaseAuthInvalidUserException) {
+            String code = ((FirebaseAuthInvalidUserException) e).getErrorCode();
+            if ("ERROR_USER_DISABLED".equals(code)) {
+                callback.onEmailError("Tài khoản đã bị vô hiệu hóa");
+            } else {
+                callback.onEmailError("Tài khoản không tồn tại");
+            }
+        } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
+            callback.onPasswordError("Mật khẩu không đúng");
+        } else {
+            callback.onFailure(toVietnameseError(e));
+        }
     }
 
     /** Giải thích mã lỗi Google Sign-In (ApiException.getStatusCode()). */
@@ -73,7 +98,7 @@ public class AuthRepository {
         FirebaseHelper.getAuth()
                 .signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> callback.onSuccess())
-                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(e)));
+                .addOnFailureListener(e -> dispatchLoginError(e, callback));
     }
 
     // ── Đăng ký ────────────────────────────────────────────────────────────────

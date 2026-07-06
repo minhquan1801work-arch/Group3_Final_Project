@@ -57,8 +57,13 @@ public class VoucherAdapter extends RecyclerView.Adapter<VoucherAdapter.VH> {
         holder.binding.tvMinOrder.setText(v.getMinOrder() > 0
                 ? "Đơn tối thiểu " + VND.format(v.getMinOrder()) + "đ"
                 : "Không cần đơn tối thiểu");
-        holder.binding.ivIcon.setImageResource("SHIPPING".equals(v.getType())
-                ? R.drawable.ic_voucher_ship : R.drawable.ic_voucher_discount);
+        if ("SHIPPING".equals(v.getType())) {
+            holder.binding.ivIcon.setImageResource(R.drawable.ic_voucher_ship);
+            holder.binding.flIconBg.setBackgroundColor(0xFF1E6B4A); // xanh lá — miễn ship
+        } else {
+            holder.binding.ivIcon.setImageResource(R.drawable.ic_voucher_discount);
+            holder.binding.flIconBg.setBackgroundColor(0xFF72383D); // wine — giảm giá
+        }
         holder.binding.btnAction.setText(actionText);
         holder.binding.btnAction.setOnClickListener(view -> listener.onAction(v));
 

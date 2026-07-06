@@ -154,11 +154,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_btn_black_outline"
+                android:background="@drawable/bg_btn_black_filled"
                 android:minWidth="0dp"
                 android:paddingHorizontal="14dp"
                 android:text="Mua lại"
-                android:textColor="@color/color_btn_black"
+                android:textColor="@color/white"
                 android:textSize="12sp"
                 android:visibility="gone"
                 tools:visibility="visible" />
@@ -182,11 +182,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_btn_black_outline"
+                android:background="@drawable/bg_btn_black_filled"
                 android:minWidth="0dp"
                 android:paddingHorizontal="14dp"
                 android:text="Xem chi tiết"
-                android:textColor="@color/color_btn_black"
+                android:textColor="@color/white"
                 android:textSize="12sp" />
         </LinearLayout>
     </LinearLayout>

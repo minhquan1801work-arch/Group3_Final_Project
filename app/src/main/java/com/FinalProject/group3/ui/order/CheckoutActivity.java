@@ -68,14 +68,15 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private final List<CartDetail> items = new ArrayList<>();
     private Customer customer;
-    private String appliedVoucher = null;
+    private String appliedDiscountVoucher = null;
+    private String appliedShipVoucher = null;
 
     // Điểm thành viên
     private int pointsBalance = 0;
     private boolean usePoints = false;
 
     // Địa chỉ giao hàng
-    private String shipName, shipPhone, shipFullAddress;
+    private String shipName, shipPhone, shipFullAddress, shipAddressId;
     private final com.FinalProject.group3.repository.AddressRepository addressRepo =
             new com.FinalProject.group3.repository.AddressRepository();
 
@@ -88,27 +89,43 @@ public class CheckoutActivity extends AppCompatActivity {
                             shipName = result.getData().getStringExtra(AddressListActivity.RESULT_NAME);
                             shipPhone = result.getData().getStringExtra(AddressListActivity.RESULT_PHONE);
                             shipFullAddress = result.getData().getStringExtra(AddressListActivity.RESULT_FULL_ADDRESS);
+                            shipAddressId = result.getData().getStringExtra(AddressListActivity.RESULT_ADDRESS_ID);
                             bindAddress();
                         } else {
                             loadDefaultAddress();
                         }
                     });
 
-    // Mở màn chọn mã giảm giá → nhận code được chọn
+    // Mở màn chọn voucher — nhận cả discount + ship code cùng lúc
     private final androidx.activity.result.ActivityResultLauncher<Intent> voucherLauncher =
             registerForActivityResult(
                     new androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult(),
                     result -> {
                         if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            String code = result.getData().getStringExtra(CheckoutVoucherActivity.RESULT_CODE);
-                            appliedVoucher = (code == null || code.isEmpty()) ? null : code;
+                            String disc = result.getData().getStringExtra(CheckoutVoucherActivity.RESULT_DISCOUNT_CODE);
+                            String ship = result.getData().getStringExtra(CheckoutVoucherActivity.RESULT_SHIP_CODE);
+                            appliedDiscountVoucher = (disc == null || disc.isEmpty()) ? null : disc;
+                            appliedShipVoucher = (ship == null || ship.isEmpty()) ? null : ship;
                             updateSummary();
                         }
                     });
 
+    private static final String EXTRA_INIT_DISCOUNT_CODE = "init_discount_code";
+    private static final String EXTRA_INIT_SHIP_CODE = "init_ship_code";
+
     public static void start(Context context, ArrayList<String> cartDetailIds) {
-        Intent intent = new Intent(context, CheckoutActivity.class);
-        intent.putStringArrayListExtra(EXTRA_CART_DETAIL_IDS, cartDetailIds);
+        context.startActivity(new Intent(context, CheckoutActivity.class)
+                .putStringArrayListExtra(EXTRA_CART_DETAIL_IDS, cartDetailIds));
+    }
+
+    public static void start(Context context, ArrayList<String> cartDetailIds,
+                             String discountCode, String shipCode) {
+        Intent intent = new Intent(context, CheckoutActivity.class)
+                .putStringArrayListExtra(EXTRA_CART_DETAIL_IDS, cartDetailIds);
+        if (discountCode != null && !discountCode.isEmpty())
+            intent.putExtra(EXTRA_INIT_DISCOUNT_CODE, discountCode);
+        if (shipCode != null && !shipCode.isEmpty())
+            intent.putExtra(EXTRA_INIT_SHIP_CODE, shipCode);
         context.startActivity(intent);
     }
 
@@ -149,27 +166,40 @@ public class CheckoutActivity extends AppCompatActivity {
             Toast.makeText(this, "Tính năng ví điện tử đang phát triển", Toast.LENGTH_SHORT).show();
         });
 
-        // Điểm thành viên toggle
+        // Điểm thành viên toggle — snap back nếu không có điểm
         binding.swUsePoints.setOnCheckedChangeListener((btn, checked) -> {
+            if (checked && pointsBalance <= 0) {
+                btn.setChecked(false);
+                binding.tvPointsError.setVisibility(View.VISIBLE);
+                return;
+            }
+            binding.tvPointsError.setVisibility(View.GONE);
             usePoints = checked;
             binding.rowPointsInfo.setVisibility(checked ? View.VISIBLE : View.GONE);
             updateSummary();
         });
 
-        // Mã giảm giá → mở CheckoutVoucherActivity
+        // Mã giảm giá / vận chuyển → 1 picker, chọn được cả 2 loại độc lập
         binding.rowVoucher.setOnClickListener(v ->
-                voucherLauncher.launch(CheckoutVoucherActivity.intent(this, appliedVoucher)));
-        // Ô nhập mã inline (vẫn giữ như Figma)
+                voucherLauncher.launch(
+                        CheckoutVoucherActivity.intent(this, appliedDiscountVoucher, appliedShipVoucher)));
+        // Ô nhập mã inline
         binding.btnApplyVoucherInline.setOnClickListener(v ->
                 applyVoucherCode(binding.etVoucher.getText().toString().trim().toUpperCase(Locale.US)));
 
         binding.rowAddress.setOnClickListener(v ->
-                addressLauncher.launch(AddressListActivity.intent(this)));
+                addressLauncher.launch(AddressListActivity.intentWithSelected(this, shipAddressId)));
         binding.btnEditAddress.setOnClickListener(v ->
-                addressLauncher.launch(AddressListActivity.intent(this)));
+                addressLauncher.launch(AddressListActivity.intentWithSelected(this, shipAddressId)));
         binding.btnPlaceOrder.setOnClickListener(v -> placeOrder());
 
         binding.rvProducts.setLayoutManager(new LinearLayoutManager(this));
+
+        // Pre-fill vouchers nếu được truyền từ CartFragment
+        String initDiscount = getIntent().getStringExtra(EXTRA_INIT_DISCOUNT_CODE);
+        String initShip = getIntent().getStringExtra(EXTRA_INIT_SHIP_CODE);
+        if (initDiscount != null) appliedDiscountVoucher = initDiscount;
+        if (initShip != null) appliedShipVoucher = initShip;
 
         setupTermsNote();
         loadCustomer();
@@ -221,8 +251,10 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void bindPointsToggle() {
+        binding.tvPointsLabel.setText(pointsBalance > 0
+                ? "Sử dụng " + pointsBalance + " điểm thành viên"
+                : "Sử dụng Điểm thành viên");
         binding.tvPointsBalance.setText(getString(R.string.checkout_points_balance, pointsBalance));
-        // Toggle ẩn/hiện dựa vào có điểm không
         binding.swUsePoints.setEnabled(pointsBalance > 0);
     }
 
@@ -235,6 +267,7 @@ public class CheckoutActivity extends AppCompatActivity {
                     shipName = def.getName();
                     shipPhone = def.getPhone();
                     shipFullAddress = def.fullAddress();
+                    shipAddressId = def.getAddressId();
                 } else if (customer != null && customer.getAddress() != null
                         && !customer.getAddress().isEmpty()) {
                     shipName = customer.getName();
@@ -250,13 +283,16 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private void bindAddress() {
+        binding.tvAddressError.setVisibility(View.GONE);
         if (shipFullAddress != null && !shipFullAddress.isEmpty()) {
-            binding.tvReceiver.setText(shipName + " | " + (shipPhone == null ? "" : shipPhone));
-            binding.tvAddress.setText(shipFullAddress);
+            binding.tvReceiver.setText(shipName != null ? shipName : "");
+            binding.tvReceiver.setVisibility(View.VISIBLE);
+            binding.tvAddress.setText((shipPhone != null ? shipPhone + "\n" : "") + shipFullAddress);
+            binding.tvAddress.setTextColor(getColor(R.color.color_text_secondary));
         } else {
-            binding.tvReceiver.setText(customer != null && customer.getName() != null
-                    ? customer.getName() : "");
-            binding.tvAddress.setText(R.string.checkout_address_empty);
+            binding.tvReceiver.setVisibility(View.GONE);
+            binding.tvAddress.setText("Nhấn để thêm địa chỉ nhận hàng");
+            binding.tvAddress.setTextColor(getColor(R.color.color_hint));
         }
     }
 
@@ -323,49 +359,52 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private double shipDiscount() {
-        return VOUCHER_FREESHIP.equals(appliedVoucher) ? shippingFee() : 0;
+        return VOUCHER_FREESHIP.equals(appliedShipVoucher) ? shippingFee() : 0;
     }
 
     private double voucherDiscount() {
         double sub = subtotal();
-        if (VOUCHER_GIAM10.equals(appliedVoucher) && sub >= 300000)
+        if (VOUCHER_GIAM10.equals(appliedDiscountVoucher) && sub >= 300000)
             return Math.min(sub * 0.10, 100000);
-        if (VOUCHER_GIAM50K.equals(appliedVoucher) && sub >= 500000) return 50000;
+        if (VOUCHER_GIAM50K.equals(appliedDiscountVoucher) && sub >= 500000) return 50000;
         return 0;
     }
 
     private double pointsDiscount() {
         if (!usePoints || pointsBalance <= 0) return 0;
-        // 1 điểm = 1đ; không giảm vượt quá tổng tiền trước khi trừ điểm
         double beforePoints = subtotal() + shippingFee() - shipDiscount() - voucherDiscount();
         return Math.min(pointsBalance, Math.max(0, beforePoints));
     }
 
     private int rewardPointsEarned() {
-        // 1000đ tiền hàng = 1 điểm thưởng
         return (int) (subtotal() / 1000);
     }
 
     private void applyVoucherCode(String code) {
-        if (code.isEmpty()) { appliedVoucher = null; updateSummary(); return; }
+        if (code.isEmpty()) {
+            appliedDiscountVoucher = null;
+            appliedShipVoucher = null;
+            updateSummary();
+            return;
+        }
         double sub = subtotal();
         switch (code) {
             case VOUCHER_FREESHIP:
-                appliedVoucher = code; break;
+                appliedShipVoucher = code; break;
             case VOUCHER_GIAM10:
                 if (sub < 300000) {
                     Toast.makeText(this, "GIAM10 chỉ áp dụng cho đơn từ 300.000đ", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                appliedVoucher = code; break;
+                appliedDiscountVoucher = code; break;
             case VOUCHER_GIAM50K:
                 if (sub < 500000) {
                     Toast.makeText(this, "GIAM50K chỉ áp dụng cho đơn từ 500.000đ", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                appliedVoucher = code; break;
+                appliedDiscountVoucher = code; break;
             default:
-                Toast.makeText(this, "Mã giảm giá không hợp lệ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Mã không hợp lệ", Toast.LENGTH_SHORT).show();
                 return;
         }
         Toast.makeText(this, "Đã áp dụng mã " + code, Toast.LENGTH_SHORT).show();
@@ -405,7 +444,27 @@ public class CheckoutActivity extends AppCompatActivity {
 
         binding.tvGrandTotal.setText(VND_FORMAT.format(total) + "đ");
         binding.tvBottomTotal.setText(VND_FORMAT.format(total) + "đ");
-        binding.tvVoucherValue.setText(appliedVoucher == null ? "" : appliedVoucher);
+
+        // Row mã giảm giá (1 dòng hiện cả discount + ship)
+        StringBuilder voucherText = new StringBuilder();
+        boolean hasDiscount = false, hasShip = false;
+        if (appliedDiscountVoucher != null) {
+            if (vDisc > 0) { voucherText.append("-").append(VND_FORMAT.format(vDisc)).append("đ"); hasDiscount = true; }
+            else { voucherText.append(appliedDiscountVoucher).append(" (chưa đủ ĐK)"); }
+        }
+        if (appliedShipVoucher != null) {
+            if (voucherText.length() > 0) voucherText.append(" · ");
+            if (shipDisc > 0) { voucherText.append("Miễn phí vận chuyển"); hasShip = true; }
+            else voucherText.append(appliedShipVoucher).append(" (chưa đủ ĐK)");
+        }
+        if (voucherText.length() == 0) {
+            binding.tvVoucherValue.setText("Chọn mã");
+            binding.tvVoucherValue.setTextColor(getColor(R.color.color_hint));
+        } else {
+            binding.tvVoucherValue.setText(voucherText.toString());
+            binding.tvVoucherValue.setTextColor((hasDiscount || hasShip)
+                    ? getColor(R.color.color_price) : getColor(R.color.color_hint));
+        }
     }
 
     // ── ĐẶT HÀNG ─────────────────────────────────────────────────────────────
@@ -415,8 +474,8 @@ public class CheckoutActivity extends AppCompatActivity {
             return;
         }
         if (shipFullAddress == null || shipFullAddress.isEmpty()) {
-            Toast.makeText(this, R.string.checkout_err_no_address, Toast.LENGTH_SHORT).show();
-            addressLauncher.launch(AddressListActivity.intent(this));
+            binding.tvAddressError.setVisibility(View.VISIBLE);
+            binding.nestedScroll.post(() -> binding.nestedScroll.smoothScrollTo(0, 0));
             return;
         }
         if (items.isEmpty()) return;
@@ -439,12 +498,22 @@ public class CheckoutActivity extends AppCompatActivity {
             details.add(new OrderDetail(d.getProductId(), d.getQuantity(), price, d.getColor()));
         }
 
+        int earnedPoints = rewardPointsEarned();
+        int usedPoints2 = usePoints ? (int) pointsDiscount() : 0;
+
+        order.setShippingFee(shippingFee());
+        order.setShipDiscount(shipDiscount());
+        order.setVoucherDiscount(voucherDiscount());
+        order.setUsedPoints(usedPoints2);
+        order.setEarnedPoints(earnedPoints);
+
         orderRepo.createOrder(order, details, new OrderRepository.SimpleCallback() {
             @Override
             public void onSuccess(String orderId) {
                 createPayment(orderId, uid, method, total);
                 removeOrderedItemsFromCart();
-                PaymentResultActivity.start(CheckoutActivity.this, orderCode, total, method);
+                updateCustomerPoints(uid, earnedPoints, usedPoints2);
+                PaymentResultActivity.start(CheckoutActivity.this, orderCode, orderId, total, method);
                 finish();
             }
 
@@ -478,8 +547,16 @@ public class CheckoutActivity extends AppCompatActivity {
             });
     }
 
+    private void updateCustomerPoints(String uid, int earned, int used) {
+        long delta = earned - used;
+        if (delta == 0) return;
+        FirebaseHelper.getDb().collection(FirebaseHelper.COL_CUSTOMERS)
+                .document(uid)
+                .update("points", com.google.firebase.firestore.FieldValue.increment(delta));
+    }
+
     // ── Adapter danh sách sản phẩm rút gọn ───────────────────────────────────
-    private static class CheckoutProductAdapter
+    private class CheckoutProductAdapter
             extends RecyclerView.Adapter<CheckoutProductAdapter.VH> {
 
         private final List<CartDetail> items;
@@ -505,13 +582,87 @@ public class CheckoutActivity extends AppCompatActivity {
                             .placeholder(R.drawable.bg_product_placeholder)
                             .into(holder.binding.ivProduct);
             }
-            holder.binding.tvQty.setText("x" + d.getQuantity());
+            holder.binding.tvQty.setText(String.valueOf(d.getQuantity()));
+
+            // Color chip
+            String color = d.getColor();
+            holder.binding.tvColor.setText(color != null && !color.isEmpty() ? color : "Mặc định");
+
+            // Stepper
+            holder.binding.btnMinus.setOnClickListener(v -> {
+                if (d.getQuantity() <= 1) return;
+                d.setQuantity(d.getQuantity() - 1);
+                notifyItemChanged(holder.getAdapterPosition());
+                updateSummary();
+            });
+            holder.binding.btnPlus.setOnClickListener(v -> {
+                int maxStock = (p != null) ? p.getStock() : 99;
+                if (d.getQuantity() >= maxStock) {
+                    Toast.makeText(CheckoutActivity.this, "Đã đạt số lượng tối đa trong kho", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                d.setQuantity(d.getQuantity() + 1);
+                notifyItemChanged(holder.getAdapterPosition());
+                updateSummary();
+            });
+
+            holder.binding.layoutColorPicker.setOnClickListener(v -> showColorPicker(d, p, holder));
+            holder.binding.tvQty.setOnClickListener(v -> showQtyEditor(d, p, holder));
+        }
+
+        private void showColorPicker(CartDetail d, Product p, VH holder) {
+            if (p == null || p.getColors() == null || p.getColors().isEmpty()) return;
+            List<String> colors = p.getColors();
+            android.widget.ArrayAdapter<String> arrAdapter = new android.widget.ArrayAdapter<>(
+                    CheckoutActivity.this,
+                    R.layout.item_color_popup, colors);
+            android.widget.ListPopupWindow popup = new android.widget.ListPopupWindow(CheckoutActivity.this);
+            popup.setAnchorView(holder.binding.layoutColorPicker);
+            popup.setAdapter(arrAdapter);
+            popup.setWidth(holder.binding.layoutColorPicker.getWidth());
+            popup.setModal(true);
+            popup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
+            popup.setOnItemClickListener((parent, view, which, id) -> {
+                d.setColor(colors.get(which));
+                notifyItemChanged(holder.getAdapterPosition());
+                popup.dismiss();
+            });
+            popup.show();
+        }
+
+        private void showQtyEditor(CartDetail d, Product p, VH holder) {
+            android.widget.EditText et = new android.widget.EditText(CheckoutActivity.this);
+            et.setInputType(android.text.InputType.TYPE_CLASS_NUMBER);
+            et.setText(String.valueOf(d.getQuantity()));
+            et.setSelectAllOnFocus(true);
+            et.setPadding(48, 24, 48, 24);
+            new androidx.appcompat.app.AlertDialog.Builder(CheckoutActivity.this)
+                    .setTitle("Số lượng")
+                    .setView(et)
+                    .setPositiveButton("OK", (dlg, which) -> {
+                        try {
+                            int qty = Integer.parseInt(et.getText().toString().trim());
+                            int maxStock = (p != null) ? p.getStock() : 99;
+                            if (qty < 1) qty = 1;
+                            if (qty > maxStock) {
+                                Toast.makeText(CheckoutActivity.this,
+                                        "Tối đa " + maxStock + " sản phẩm trong kho",
+                                        Toast.LENGTH_SHORT).show();
+                                qty = maxStock;
+                            }
+                            d.setQuantity(qty);
+                            notifyItemChanged(holder.getAdapterPosition());
+                            updateSummary();
+                        } catch (NumberFormatException ignored) {}
+                    })
+                    .setNegativeButton("Hủy", null)
+                    .show();
         }
 
         @Override
         public int getItemCount() { return items.size(); }
 
-        static class VH extends RecyclerView.ViewHolder {
+        class VH extends RecyclerView.ViewHolder {
             final ItemCheckoutProductBinding binding;
             VH(ItemCheckoutProductBinding binding) {
                 super(binding.getRoot());

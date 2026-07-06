@@ -120,6 +120,20 @@ public class CartRepository {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    // ── Cập nhật màu sắc (variant) ────────────────────────────────────────────
+    public void updateColor(String cartDetailId, String newColor, SimpleCallback callback) {
+        String cartId = getCartId();
+        if (cartId == null) { callback.onFailure("Chưa đăng nhập"); return; }
+
+        db.collection(FirebaseHelper.COL_CARTS)
+                .document(cartId)
+                .collection(FirebaseHelper.COL_CART_DETAILS)
+                .document(cartDetailId)
+                .update("color", newColor)
+                .addOnSuccessListener(v -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
     // ── Xóa item khỏi giỏ ─────────────────────────────────────────────────────
     public void removeFromCart(String cartDetailId, SimpleCallback callback) {
         String cartId = getCartId();

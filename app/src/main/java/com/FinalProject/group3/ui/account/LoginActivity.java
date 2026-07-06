@@ -112,6 +112,20 @@ public class LoginActivity extends AppCompatActivity {
                 setLoading(false);
                 Toast.makeText(LoginActivity.this, error, Toast.LENGTH_SHORT).show();
             }
+
+            @Override
+            public void onEmailError(String error) {
+                setLoading(false);
+                binding.tilEmail.setError(error);
+                binding.tilEmail.requestFocus();
+            }
+
+            @Override
+            public void onPasswordError(String error) {
+                setLoading(false);
+                binding.tilPassword.setError(error);
+                binding.tilPassword.requestFocus();
+            }
         });
     }
 

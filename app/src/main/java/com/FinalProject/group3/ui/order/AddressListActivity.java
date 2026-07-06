@@ -3,6 +3,10 @@ package com.FinalProject.group3.ui.order;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +16,9 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,17 +32,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * LA.Address — Sổ địa chỉ.
- * Luồng logic chọn:
- *  - Người mới (0 địa chỉ) → tự mở form Thêm địa chỉ mới, địa chỉ đầu = mặc định.
- *  - Đã có địa chỉ → tick sẵn địa chỉ mặc định.
- *  - Bấm chọn 1 địa chỉ → trả kết quả về Checkout (RESULT_OK + dữ liệu địa chỉ).
+ * LA.Address — Lựa chọn địa chỉ.
+ * - Nút "Thêm địa chỉ mới" (outline) ở trên.
+ * - Swipe trái → xác nhận xóa địa chỉ.
+ * - Nút "Tiếp tục thanh toán" (đen) ở dưới → trả kết quả về Checkout.
  */
 public class AddressListActivity extends AppCompatActivity {
 
-    public static final String RESULT_NAME = "name";
-    public static final String RESULT_PHONE = "phone";
+    public static final String RESULT_NAME         = "name";
+    public static final String RESULT_PHONE        = "phone";
     public static final String RESULT_FULL_ADDRESS = "full_address";
+    public static final String RESULT_ADDRESS_ID   = "address_id";
+    private static final String EXTRA_SELECTED_ID  = "selected_id";
 
     private ActivityAddressListBinding binding;
     private final AddressRepository addressRepo = new AddressRepository();
@@ -54,6 +61,11 @@ public class AddressListActivity extends AppCompatActivity {
         return new Intent(context, AddressListActivity.class);
     }
 
+    public static Intent intentWithSelected(Context context, String selectedAddressId) {
+        return new Intent(context, AddressListActivity.class)
+                .putExtra(EXTRA_SELECTED_ID, selectedAddressId);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,10 +76,14 @@ public class AddressListActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(v -> finish());
         binding.btnAddAddress.setOnClickListener(v ->
                 addEditLauncher.launch(AddAddressActivity.intentAdd(this)));
+        binding.btnConfirm.setOnClickListener(v -> confirmSelection());
 
         adapter = new AddressAdapter();
         binding.rvAddresses.setLayoutManager(new LinearLayoutManager(this));
         binding.rvAddresses.setAdapter(adapter);
+
+        // Swipe trái → xóa địa chỉ
+        new ItemTouchHelper(new SwipeToDeleteCallback()).attachToRecyclerView(binding.rvAddresses);
 
         loadAddresses();
     }
@@ -81,13 +97,23 @@ public class AddressListActivity extends AppCompatActivity {
                 addresses.clear();
                 addresses.addAll(list);
 
-                // Tick sẵn địa chỉ mặc định (repo đã xếp mặc định lên đầu)
-                selectedPos = addresses.isEmpty() ? -1 : 0;
+                String preId = getIntent().getStringExtra(EXTRA_SELECTED_ID);
+                selectedPos = -1;
+                if (preId != null) {
+                    for (int i = 0; i < addresses.size(); i++) {
+                        if (preId.equals(addresses.get(i).getAddressId())) {
+                            selectedPos = i; break;
+                        }
+                    }
+                }
+                if (selectedPos == -1 && !addresses.isEmpty()) selectedPos = 0;
                 adapter.notifyDataSetChanged();
-                binding.tvEmpty.setVisibility(addresses.isEmpty() ? View.VISIBLE : View.GONE);
 
-                // Người mới chưa có địa chỉ → mở luôn form thêm (chỉ tự mở 1 lần)
-                if (addresses.isEmpty() && !autoOpenedAddForm) {
+                boolean empty = addresses.isEmpty();
+                binding.tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+                binding.btnConfirm.setVisibility(empty ? View.GONE : View.VISIBLE);
+
+                if (empty && !autoOpenedAddForm) {
                     autoOpenedAddForm = true;
                     addEditLauncher.launch(AddAddressActivity.intentAdd(AddressListActivity.this));
                 }
@@ -101,16 +127,88 @@ public class AddressListActivity extends AppCompatActivity {
         });
     }
 
-    /** Chọn địa chỉ → trả về Checkout. */
+    private void confirmSelection() {
+        if (selectedPos < 0 || selectedPos >= addresses.size()) {
+            Toast.makeText(this, "Vui lòng chọn địa chỉ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        returnSelected(addresses.get(selectedPos));
+    }
+
     private void returnSelected(Address a) {
         Intent data = new Intent()
                 .putExtra(RESULT_NAME, a.getName())
                 .putExtra(RESULT_PHONE, a.getPhone())
-                .putExtra(RESULT_FULL_ADDRESS, a.fullAddress());
+                .putExtra(RESULT_FULL_ADDRESS, a.fullAddress())
+                .putExtra(RESULT_ADDRESS_ID, a.getAddressId());
         setResult(Activity.RESULT_OK, data);
         finish();
     }
 
+    // ── Swipe-to-delete ───────────────────────────────────────────────────────
+    private class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
+
+        private final Paint paint = new Paint();
+
+        SwipeToDeleteCallback() {
+            super(0, ItemTouchHelper.LEFT);
+            paint.setColor(Color.parseColor("#D32F2F")); // đỏ
+            paint.setAntiAlias(true);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh,
+                              @NonNull RecyclerView.ViewHolder target) { return false; }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int pos = viewHolder.getAdapterPosition();
+            Address a = addresses.get(pos);
+            // Khôi phục item ngay để tránh blank row trong lúc user chưa xác nhận
+            adapter.notifyItemChanged(pos);
+            new AlertDialog.Builder(AddressListActivity.this)
+                    .setTitle("Xóa địa chỉ")
+                    .setMessage("Xóa địa chỉ \"" + a.getName() + "\"?")
+                    .setPositiveButton("Xóa", (d, w) ->
+                            addressRepo.deleteAddress(a.getAddressId(),
+                                    new AddressRepository.SimpleCallback() {
+                                        @Override public void onSuccess() { loadAddresses(); }
+                                        @Override public void onFailure(String error) {
+                                            Toast.makeText(AddressListActivity.this,
+                                                    error, Toast.LENGTH_SHORT).show();
+                                        }
+                                    }))
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView rv,
+                                @NonNull RecyclerView.ViewHolder vh,
+                                float dX, float dY, int actionState, boolean isActive) {
+            View item = vh.itemView;
+            // Vẽ nền đỏ phía sau khi kéo trái
+            if (dX < 0) {
+                RectF bg = new RectF(item.getRight() + dX, item.getTop(),
+                        item.getRight(), item.getBottom());
+                c.drawRect(bg, paint);
+
+                // Chữ "Xóa"
+                Paint textPaint = new Paint();
+                textPaint.setColor(Color.WHITE);
+                textPaint.setTextSize(36f);
+                textPaint.setAntiAlias(true);
+                textPaint.setTextAlign(Paint.Align.CENTER);
+                float cx = item.getRight() + dX / 2f;
+                float cy = (item.getTop() + item.getBottom()) / 2f
+                        - (textPaint.descent() + textPaint.ascent()) / 2f;
+                c.drawText("Xóa", cx, cy, textPaint);
+            }
+            super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive);
+        }
+    }
+
+    // ── Adapter ───────────────────────────────────────────────────────────────
     private class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.VH> {
 
         @NonNull
@@ -131,19 +229,8 @@ public class AddressListActivity extends AppCompatActivity {
 
             holder.binding.getRoot().setOnClickListener(v -> {
                 int pos = holder.getAdapterPosition();
-                Address selected = addresses.get(pos);
-                // Cập nhật tag mặc định trong danh sách local ngay (UI responsive)
-                for (int i = 0; i < addresses.size(); i++)
-                    addresses.get(i).setDefault(i == pos);
                 selectedPos = pos;
                 notifyDataSetChanged();
-                // Ghi mặc định mới lên Firestore (async, không block UI)
-                addressRepo.setDefaultAddress(selected.getAddressId(),
-                        new AddressRepository.SimpleCallback() {
-                            @Override public void onSuccess() {}
-                            @Override public void onFailure(String error) {}
-                        });
-                returnSelected(selected);
             });
             holder.binding.btnEdit.setOnClickListener(v ->
                     addEditLauncher.launch(AddAddressActivity.intentEdit(

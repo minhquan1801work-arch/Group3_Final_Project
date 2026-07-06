@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.ActivityCheckoutVoucherBinding;
 import com.FinalProject.group3.databinding.ItemCheckoutVoucherBinding;
 import com.FinalProject.group3.model.Voucher;
@@ -28,13 +29,16 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * LA.Voucher3 — Chọn mã giảm giá cho đơn hàng đang thanh toán.
- * Mở từ CheckoutActivity qua ActivityResultLauncher, trả về mã đã chọn.
+ * Chọn mã giảm giá + mã vận chuyển cho đơn hàng.
+ * Hai loại được chọn độc lập: 1 DISCOUNT + 1 SHIPPING cùng lúc.
+ * Icon SHIPPING màu xanh lam, DISCOUNT màu vàng.
  */
 public class CheckoutVoucherActivity extends AppCompatActivity {
 
-    public static final String EXTRA_CURRENT_CODE = "current_code";
-    public static final String RESULT_CODE = "code";
+    public static final String EXTRA_DISCOUNT_CODE = "discount_code";
+    public static final String EXTRA_SHIP_CODE = "ship_code";
+    public static final String RESULT_DISCOUNT_CODE = "result_discount_code";
+    public static final String RESULT_SHIP_CODE = "result_ship_code";
 
     private static final NumberFormat VND = NumberFormat.getInstance(new Locale("vi", "VN"));
 
@@ -50,15 +54,17 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
         return list;
     }
 
-    public static Intent intent(Context context, String currentCode) {
+    public static Intent intent(Context context, String discountCode, String shipCode) {
         return new Intent(context, CheckoutVoucherActivity.class)
-                .putExtra(EXTRA_CURRENT_CODE, currentCode);
+                .putExtra(EXTRA_DISCOUNT_CODE, discountCode)
+                .putExtra(EXTRA_SHIP_CODE, shipCode);
     }
 
     private ActivityCheckoutVoucherBinding binding;
     private final List<Voucher> allVouchers = new ArrayList<>();
     private VoucherSelectAdapter adapter;
-    private String selectedCode;
+    private String checkedDiscountCode;
+    private String checkedShipCode;
     private int currentTab = 0;
 
     @Override
@@ -68,7 +74,8 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
         InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
-        selectedCode = getIntent().getStringExtra(EXTRA_CURRENT_CODE);
+        checkedDiscountCode = getIntent().getStringExtra(EXTRA_DISCOUNT_CODE);
+        checkedShipCode = getIntent().getStringExtra(EXTRA_SHIP_CODE);
 
         binding.btnBack.setOnClickListener(v -> finish());
 
@@ -76,9 +83,9 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
         binding.rvVouchers.setLayoutManager(new LinearLayoutManager(this));
         binding.rvVouchers.setAdapter(adapter);
 
-        // "Không dùng mã" → clear voucher và trả về
-        binding.rowNoVoucher.setOnClickListener(v -> returnCode(null));
-        binding.rbNoVoucher.setChecked(selectedCode == null);
+        // "Không dùng mã" đã bỏ — người dùng bấm lại voucher đang chọn để deselect
+
+        binding.btnConfirmVoucher.setOnClickListener(v -> returnCodes());
 
         binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -96,17 +103,21 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
                 Toast.makeText(this, "Nhập mã giảm giá trước", Toast.LENGTH_SHORT).show();
                 return;
             }
-            returnCode(code);
+            // Find type in known vouchers, default to DISCOUNT
+            boolean isShip = false;
+            for (Voucher vch : allVouchers)
+                if (vch.getCode().equals(code) && "SHIPPING".equals(vch.getType())) { isShip = true; break; }
+            if (isShip) checkedShipCode = code;
+            else checkedDiscountCode = code;
+            returnCodes();
         });
 
         loadVouchers();
     }
 
-    /** Load từ Firestore (vouchers đã claim) + brand vouchers luôn có sẵn. */
     private void loadVouchers() {
         String uid = FirebaseHelper.getCurrentUserId();
         if (uid == null) {
-            // Khách chưa đăng nhập → chỉ hiện brand
             mergeAndShow(new ArrayList<>());
             return;
         }
@@ -115,8 +126,7 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
                 .document(uid).collection("vouchers").get()
                 .addOnSuccessListener(snapshot -> {
                     binding.progressBar.setVisibility(View.GONE);
-                    List<Voucher> claimed = snapshot.toObjects(Voucher.class);
-                    mergeAndShow(claimed);
+                    mergeAndShow(snapshot.toObjects(Voucher.class));
                 })
                 .addOnFailureListener(e -> {
                     binding.progressBar.setVisibility(View.GONE);
@@ -124,7 +134,6 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
                 });
     }
 
-    /** Gộp claimed + brand (không trùng code). */
     private void mergeAndShow(List<Voucher> claimed) {
         allVouchers.clear();
         allVouchers.addAll(claimed);
@@ -134,8 +143,32 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
                 if (c.getCode().equals(brand.getCode())) { owned = true; break; }
             if (!owned) allVouchers.add(brand);
         }
+
+        // Auto-select best per type if not already set
+        if (checkedDiscountCode == null) {
+            for (Voucher v : allVouchers)
+                if (!"SHIPPING".equals(v.getType())) { checkedDiscountCode = v.getCode(); break; }
+        }
+        if (checkedShipCode == null) {
+            for (Voucher v : allVouchers)
+                if ("SHIPPING".equals(v.getType())) { checkedShipCode = v.getCode(); break; }
+        }
+
         updateTabCounts();
         showTab();
+    }
+
+    private List<Voucher> currentShown() {
+        if (currentTab == 1) {
+            List<Voucher> r = new ArrayList<>();
+            for (Voucher v : allVouchers) if (!"SHIPPING".equals(v.getType())) r.add(v);
+            return r;
+        } else if (currentTab == 2) {
+            List<Voucher> r = new ArrayList<>();
+            for (Voucher v : allVouchers) if ("SHIPPING".equals(v.getType())) r.add(v);
+            return r;
+        }
+        return new ArrayList<>(allVouchers);
     }
 
     private void updateTabCounts() {
@@ -148,20 +181,10 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
     }
 
     private void showTab() {
-        List<Voucher> show;
-        if (currentTab == 1) {
-            show = new ArrayList<>();
-            for (Voucher v : allVouchers) if (!"SHIPPING".equals(v.getType())) show.add(v);
-        } else if (currentTab == 2) {
-            show = new ArrayList<>();
-            for (Voucher v : allVouchers) if ("SHIPPING".equals(v.getType())) show.add(v);
-        } else {
-            show = new ArrayList<>(allVouchers);
-        }
-        adapter.setItems(show, selectedCode);
+        List<Voucher> show = currentShown();
+        adapter.setItems(show);
         binding.rvVouchers.setVisibility(show.isEmpty() ? View.GONE : View.VISIBLE);
         binding.tvEmpty.setVisibility(show.isEmpty() ? View.VISIBLE : View.GONE);
-        binding.rbNoVoucher.setChecked(selectedCode == null);
     }
 
     private void setTabText(int index, String text) {
@@ -169,12 +192,11 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
         if (tab != null) tab.setText(text);
     }
 
-    private void returnCode(String code) {
-        if (code == null) {
-            setResult(Activity.RESULT_OK, new Intent().putExtra(RESULT_CODE, ""));
-        } else {
-            setResult(Activity.RESULT_OK, new Intent().putExtra(RESULT_CODE, code));
-        }
+    private void returnCodes() {
+        Intent result = new Intent();
+        result.putExtra(RESULT_DISCOUNT_CODE, checkedDiscountCode != null ? checkedDiscountCode : "");
+        result.putExtra(RESULT_SHIP_CODE, checkedShipCode != null ? checkedShipCode : "");
+        setResult(Activity.RESULT_OK, result);
         finish();
     }
 
@@ -182,12 +204,10 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
     private class VoucherSelectAdapter extends RecyclerView.Adapter<VoucherSelectAdapter.VH> {
 
         private final List<Voucher> items = new ArrayList<>();
-        private String checkedCode;
 
-        void setItems(List<Voucher> vouchers, String checked) {
+        void setItems(List<Voucher> vouchers) {
             items.clear();
             items.addAll(vouchers);
-            checkedCode = checked;
             notifyDataSetChanged();
         }
 
@@ -205,10 +225,20 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
             holder.binding.tvMinOrder.setText(v.getMinOrder() > 0
                     ? "Đơn tối thiểu " + VND.format(v.getMinOrder()) + "đ"
                     : "Không cần đơn tối thiểu");
-            holder.binding.ivIcon.setImageResource("SHIPPING".equals(v.getType())
-                    ? com.FinalProject.group3.R.drawable.ic_voucher_ship
-                    : com.FinalProject.group3.R.drawable.ic_voucher_discount);
-            holder.binding.rbVoucher.setChecked(v.getCode().equals(checkedCode));
+
+            boolean isShip = "SHIPPING".equals(v.getType());
+            holder.binding.ivIcon.setImageResource(isShip
+                    ? R.drawable.ic_voucher_ship
+                    : R.drawable.ic_voucher_discount);
+            // SHIPPING = xanh lam, DISCOUNT = vàng
+            holder.binding.ivIcon.setImageTintList(
+                    android.content.res.ColorStateList.valueOf(
+                            isShip ? 0xFF2196F3 : getColor(R.color.color_voucher_yellow)));
+
+            boolean checked = isShip
+                    ? v.getCode().equals(checkedShipCode)
+                    : v.getCode().equals(checkedDiscountCode);
+            holder.binding.rbVoucher.setChecked(checked);
 
             String days = "Còn " + v.daysLeft() + " ngày";
             android.text.SpannableString span =
@@ -220,10 +250,13 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
             holder.binding.tvFooter.setText(span);
 
             holder.itemView.setOnClickListener(v2 -> {
-                checkedCode = v.getCode();
+                if (isShip) {
+                    // Bấm lại voucher đang chọn → deselect
+                    checkedShipCode = v.getCode().equals(checkedShipCode) ? null : v.getCode();
+                } else {
+                    checkedDiscountCode = v.getCode().equals(checkedDiscountCode) ? null : v.getCode();
+                }
                 notifyDataSetChanged();
-                binding.rbNoVoucher.setChecked(false);
-                returnCode(v.getCode());
             });
         }
 

@@ -48,6 +48,7 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
     <ScrollView
+        android:id="@+id/nestedScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
@@ -110,6 +111,16 @@
                         android:textColor="@color/color_text_secondary"
                         android:textSize="12sp"
                         tools:text="C4/07, Tổ 17, Khu phố 3, Phường Long Bình, Đồng Nai" />
+
+                    <TextView
+                        android:id="@+id/tvAddressError"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Vui lòng thêm địa chỉ nhận hàng"
+                        android:textColor="#D32F2F"
+                        android:textSize="11sp"
+                        android:visibility="gone" />
                 </LinearLayout>
 
                 <ImageView
@@ -124,13 +135,13 @@
 
             <View android:layout_width="match_parent" android:layout_height="6dp" android:background="@color/color_section_gap" />
 
-            <!-- ═══ 2. Sản phẩm & Vận chuyển ═══ -->
+            <!-- ═══ 2. Sản phẩm ═══ -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="12dp"
                 android:paddingTop="12dp"
-                android:text="@string/checkout_products_title"
+                android:text="Sản phẩm"
                 android:textColor="@color/color_text_primary"
                 android:textSize="13sp"
                 android:textStyle="bold" />
@@ -143,72 +154,95 @@
                 tools:itemCount="1"
                 tools:listitem="@layout/item_checkout_product" />
 
-            <!-- Phương pháp vận chuyển -->
+            <!-- Gray gap trước ô vận chuyển -->
+            <View android:layout_width="match_parent" android:layout_height="6dp" android:background="@color/color_section_gap" />
+
+            <!-- Phương thức vận chuyển — section riêng -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="12dp"
-                android:paddingTop="6dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="4dp"
                 android:text="@string/checkout_shipping_title"
-                android:textColor="@color/color_text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="12dp">
+                android:layout_marginHorizontal="12dp"
+                android:layout_marginTop="4dp"
+                android:orientation="vertical">
 
-                <RadioButton
-                    android:id="@+id/rbShipStandard"
-                    android:layout_width="0dp"
+                <!-- Giao hàng tiêu chuẩn -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:buttonTint="@color/color_btn_black"
-                    android:checked="true"
-                    android:text="@string/checkout_ship_saving"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="13sp" />
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp">
 
-                <TextView
-                    android:id="@+id/tvShipStandardFee"
-                    android:layout_width="wrap_content"
+                    <RadioButton
+                        android:id="@+id/rbShipStandard"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:buttonTint="@color/color_btn_black"
+                        android:checked="true"
+                        android:text="@string/checkout_ship_saving"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvShipStandardFee"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="35.000đ"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Divider xám -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/color_section_gap" />
+
+                <!-- Giao hàng nhanh -->
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="35.000đ"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="12sp" />
-            </LinearLayout>
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="12dp"
+                    android:paddingVertical="4dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="12dp">
+                    <RadioButton
+                        android:id="@+id/rbShipFast"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:buttonTint="@color/color_btn_black"
+                        android:text="@string/checkout_ship_fast"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="13sp" />
 
-                <RadioButton
-                    android:id="@+id/rbShipFast"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:buttonTint="@color/color_btn_black"
-                    android:text="@string/checkout_ship_fast"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:id="@+id/tvShipFastFee"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="50.000đ"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="12sp" />
+                    <TextView
+                        android:id="@+id/tvShipFastFee"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="50.000đ"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
             </LinearLayout>
 
             <View android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="6dp" android:background="@color/color_section_gap" />
 
-            <!-- ═══ 3. Mã giảm giá ═══ -->
+            <!-- ═══ 3. Mã giảm giá (1 row, chọn được cả discount + ship) ═══ -->
             <LinearLayout
                 android:id="@+id/rowVoucher"
                 android:layout_width="match_parent"
@@ -230,7 +264,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:text="@string/checkout_voucher_title"
+                    android:text="Mã giảm giá"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp"
                     android:textStyle="bold" />
@@ -241,7 +275,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/color_price"
                     android:textSize="12sp"
-                    tools:text="FREESHIP" />
+                    tools:text="-100.000đ · Miễn phí VC" />
 
                 <ImageView
                     android:layout_width="16dp"
@@ -326,6 +360,7 @@
                         app:tint="@color/color_price" />
 
                     <TextView
+                        android:id="@+id/tvPointsLabel"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
@@ -340,6 +375,16 @@
                         android:layout_height="wrap_content"
                         android:checked="false" />
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvPointsError"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Bạn chưa có điểm thành viên"
+                    android:textColor="#D32F2F"
+                    android:textSize="11sp"
+                    android:visibility="gone" />
 
                 <!-- Hiện khi switch bật -->
                 <LinearLayout

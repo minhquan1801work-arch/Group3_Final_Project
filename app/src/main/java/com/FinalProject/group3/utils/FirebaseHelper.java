@@ -27,6 +27,7 @@ public class FirebaseHelper {
     public static final String COL_FAVORITES     = "favorites";
     public static final String COL_NOTIFICATIONS = "notifications";
     public static final String COL_PAYMENTS      = "payments";
+    public static final String COL_REVIEWS       = "reviews";
 
     private FirebaseHelper() {}
 
