@@ -210,9 +210,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                 "Tính năng Mua lại sắp ra mắt", Toast.LENGTH_SHORT).show());
                 b.btnReview.setOnClickListener(v ->
                         startActivity(ReviewActivity.intent(
-                                OrderHistoryActivity.this,
-                                null, "Sản phẩm trong đơn " + o.getOrderCode(),
-                                null, o.getOrderId())));
+                                OrderHistoryActivity.this, o.getOrderId())));
 
                 // Load sản phẩm trong đơn (lazy, per item)
                 loadFirstProduct(o.getOrderId(), b);
