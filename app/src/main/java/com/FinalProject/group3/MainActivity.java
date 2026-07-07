@@ -17,6 +17,9 @@ import com.FinalProject.group3.utils.InsetsUtil;
 
 public class MainActivity extends AppCompatActivity {
 
+    /** Extra: mở thẳng tab Giỏ hàng (icon giỏ ở header ProductDetail dùng) */
+    public static final String EXTRA_OPEN_CART = "open_cart";
+
     private DrawerLayout drawerLayout;
 
     @Override
@@ -35,6 +38,38 @@ public class MainActivity extends AppCompatActivity {
 
         setupDrawer();
         setupNotificationDot();
+        handleOpenCartIntent(getIntent());
+        claimGuestOrders();
+    }
+
+    /** Đơn đặt lúc chưa đăng nhập (customerId="GUEST") → gán về tài khoản theo email */
+    private void claimGuestOrders() {
+        com.google.firebase.auth.FirebaseUser user =
+                com.FinalProject.group3.utils.FirebaseHelper.getAuth().getCurrentUser();
+        if (user == null) return;
+        new com.FinalProject.group3.repository.OrderRepository()
+                .claimGuestOrders(user.getUid(), user.getEmail());
+    }
+
+    @Override
+    protected void onNewIntent(android.content.Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleOpenCartIntent(intent);
+    }
+
+    /** Nếu intent yêu cầu mở giỏ (từ icon giỏ ở ProductDetail) → navigate tab Giỏ */
+    private void handleOpenCartIntent(android.content.Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_OPEN_CART, false)) return;
+        intent.removeExtra(EXTRA_OPEN_CART); // tránh mở lại khi rotate
+        if (com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId() == null) {
+            com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                    this, "Đăng nhập để xem giỏ hàng của bạn");
+            return;
+        }
+        NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.navHostFragment);
+        if (navHost != null) navHost.getNavController().navigate(R.id.cartFragment);
     }
 
     public void openDrawer() {
@@ -54,6 +89,11 @@ public class MainActivity extends AppCompatActivity {
 
         drawerView.findViewById(R.id.btnDrawerCart).setOnClickListener(v -> {
             drawerLayout.closeDrawer(Gravity.START);
+            if (com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId() == null) {
+                com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                        this, "Đăng nhập để xem giỏ hàng của bạn");
+                return;
+            }
             NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.navHostFragment);
             if (navHost != null) navHost.getNavController().navigate(R.id.cartFragment);
@@ -102,8 +142,10 @@ public class MainActivity extends AppCompatActivity {
         drawerView.findViewById(R.id.menuVeGlassity).setOnClickListener(v ->
                 drawerLayout.closeDrawer(Gravity.START));
 
-        drawerView.findViewById(R.id.menuBlogChonKinh).setOnClickListener(v ->
-                drawerLayout.closeDrawer(Gravity.START));
+        drawerView.findViewById(R.id.menuBlogChonKinh).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            com.FinalProject.group3.ui.catalog.BlogActivity.start(this, 1);
+        });
     }
 
     private void navigate(android.view.View root, int viewId, String catId, String shape, String title) {

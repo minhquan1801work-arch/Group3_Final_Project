@@ -43,8 +43,14 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Số thẻ demo sinh từ uid — mỗi user 1 số ổn định
+        // ── Guest (chưa đăng nhập): ẩn thẻ barcode, các nút yêu cầu đăng nhập ──
         FirebaseUser user = FirebaseHelper.getAuth().getCurrentUser();
+        if (user == null) {
+            setupGuestMode();
+            return;
+        }
+
+        // Số thẻ demo sinh từ uid — mỗi user 1 số ổn định
         if (user != null) {
             int hash = Math.abs(user.getUid().hashCode()) % 1000000000;
             String digits = String.format(java.util.Locale.US, "%09d", hash);
@@ -75,9 +81,11 @@ public class ProfileFragment extends Fragment {
                 startActivity(AccountInfoActivity.intent(requireContext())));
         binding.menuSettings.setOnClickListener(v ->
                 startActivity(SettingsActivity.intent(requireContext())));
+        binding.menuFavorites.setOnClickListener(v ->
+                startActivity(FavoriteActivity.intent(requireContext())));
 
         // Header
-        binding.btnSearch.setOnClickListener(v -> toast("Tìm kiếm — sắp ra mắt"));
+        binding.btnSearch.setOnClickListener(v -> startActivity(new Intent(requireContext(), com.FinalProject.group3.ui.catalog.SearchActivity.class)));
         binding.btnBag.setOnClickListener(v ->
                 androidx.navigation.fragment.NavHostFragment.findNavController(this)
                         .navigate(R.id.cartFragment));
@@ -85,11 +93,7 @@ public class ProfileFragment extends Fragment {
         // List hỗ trợ / chính sách
         binding.rowSupport.setOnClickListener(v ->
                 startActivity(ContactActivity.intent(requireContext())));
-        binding.rowFaq.setOnClickListener(v -> toast("Câu hỏi thường gặp — sắp ra mắt"));
-        binding.rowPrivacy.setOnClickListener(v -> toast("Chính sách bảo mật — sắp ra mắt"));
-        binding.rowWarranty.setOnClickListener(v -> toast("Chính sách bảo hành — sắp ra mắt"));
-        binding.rowShippingPolicy.setOnClickListener(v ->
-                toast("Chính sách Giao hàng và Kiểm tra sản phẩm — sắp ra mắt"));
+        setupPolicyRows();
 
         binding.btnLogout.setOnClickListener(v -> {
             FirebaseHelper.signOut();
@@ -99,6 +103,56 @@ public class ProfileFragment extends Fragment {
         });
 
         binding.btnSeedOrders.setOnClickListener(v -> seedTestOrders());
+    }
+
+    // ── Guest mode (Figma LA.Personal2): không barcode, nút nào cần tài khoản
+    //    thì hiện dialog yêu cầu đăng nhập — trừ Cài đặt + hỗ trợ/chính sách ──
+    private void setupGuestMode() {
+        binding.cardMember.setVisibility(View.GONE);
+        binding.btnSeedOrders.setVisibility(View.GONE);
+
+        // Các mục cần tài khoản → dialog đăng nhập
+        binding.menuOrders.setOnClickListener(v -> showLoginRequired());
+        binding.menuPoints.setOnClickListener(v -> showLoginRequired());
+        binding.menuVouchers.setOnClickListener(v -> showLoginRequired());
+        binding.menuAccount.setOnClickListener(v -> showLoginRequired());
+
+        // Cài đặt vẫn mở bình thường; Yêu thích cần tài khoản
+        binding.menuSettings.setOnClickListener(v ->
+                startActivity(SettingsActivity.intent(requireContext())));
+        binding.menuFavorites.setOnClickListener(v -> showLoginRequired());
+
+        // Header
+        binding.btnSearch.setOnClickListener(v -> startActivity(new Intent(requireContext(), com.FinalProject.group3.ui.catalog.SearchActivity.class)));
+        binding.btnBag.setOnClickListener(v -> showLoginRequired());
+
+        // Hỗ trợ / chính sách là thông tin công khai — mở bình thường
+        binding.rowSupport.setOnClickListener(v ->
+                startActivity(ContactActivity.intent(requireContext())));
+        setupPolicyRows();
+
+        // Nút Đăng xuất → thành Đăng nhập / Đăng ký
+        binding.btnLogout.setText("Đăng nhập / Đăng ký");
+        binding.btnLogout.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), LoginActivity.class)));
+    }
+
+    /** 4 trang chính sách tĩnh (Figma DL_FAQ / DL_Warranty / DL_Policy) */
+    private void setupPolicyRows() {
+        binding.rowFaq.setOnClickListener(v -> startActivity(
+                PolicyActivity.intent(requireContext(), PolicyActivity.TYPE_FAQ)));
+        binding.rowPrivacy.setOnClickListener(v -> startActivity(
+                PolicyActivity.intent(requireContext(), PolicyActivity.TYPE_PRIVACY)));
+        binding.rowWarranty.setOnClickListener(v -> startActivity(
+                PolicyActivity.intent(requireContext(), PolicyActivity.TYPE_WARRANTY)));
+        binding.rowShippingPolicy.setOnClickListener(v -> startActivity(
+                PolicyActivity.intent(requireContext(), PolicyActivity.TYPE_SHIPPING)));
+    }
+
+    /** Dialog "Bạn cần đăng nhập..." (Figma LA.Personal2) */
+    private void showLoginRequired() {
+        com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                requireContext(), "Đăng nhập để sử dụng tính năng dành riêng cho thành viên");
     }
 
     private void seedTestOrders() {

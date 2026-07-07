@@ -36,7 +36,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     public interface OnAddToCartListener {
-        void onAddToCart(Product product);
+        void onAddToCart(Product product, View itemThumbnailView);
     }
 
     public interface OnBuyNowListener {
@@ -106,7 +106,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         // Nut "Them vao gio"
         holder.binding.btnAddToCart.setOnClickListener(v -> {
-            if (addToCartListener != null) addToCartListener.onAddToCart(product);
+            if (addToCartListener != null) addToCartListener.onAddToCart(product, holder.binding.ivProduct);
             else Toast.makeText(v.getContext(), "Da them: " + product.getName(), Toast.LENGTH_SHORT).show();
         });
 
@@ -116,9 +116,31 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             else Toast.makeText(v.getContext(), "Mua ngay: " + product.getName(), Toast.LENGTH_SHORT).show();
         });
 
-        // Heart / favorite (UI toggle — logic Firestore lam o buoc tiep theo)
-        holder.binding.ivFavorite.setOnClickListener(v ->
-                Toast.makeText(v.getContext(), "Yeu thich: " + product.getName(), Toast.LENGTH_SHORT).show());
+        // Heart / favorite — toggle len Firestore (LA.Favor)
+        holder.binding.ivFavorite.setOnClickListener(v -> {
+            if (com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId() == null) {
+                Toast.makeText(v.getContext(), "Vui lòng đăng nhập để dùng Yêu thích",
+                        Toast.LENGTH_SHORT).show();
+                v.getContext().startActivity(new android.content.Intent(v.getContext(),
+                        com.FinalProject.group3.ui.account.LoginActivity.class));
+                return;
+            }
+            new com.FinalProject.group3.repository.FavoriteRepository().toggleFavorite(
+                    product.getProductId(),
+                    new com.FinalProject.group3.repository.FavoriteRepository.ToggleCallback() {
+                        @Override public void onSuccess(boolean nowFavorite) {
+                            ((android.widget.ImageView) v).setImageResource(nowFavorite
+                                    ? com.FinalProject.group3.R.drawable.ic_heart_filled
+                                    : com.FinalProject.group3.R.drawable.ic_heart_outline);
+                            Toast.makeText(v.getContext(), nowFavorite
+                                    ? "Đã thêm vào Yêu thích" : "Đã bỏ Yêu thích",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        @Override public void onFailure(String error) {
+                            Toast.makeText(v.getContext(), error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        });
     }
 
     /** Dat mau cho dot: thu parse hex, neu khong duoc thi dung brand_dark */

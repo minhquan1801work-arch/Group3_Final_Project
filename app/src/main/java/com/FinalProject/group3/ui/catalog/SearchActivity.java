@@ -86,6 +86,7 @@ public class SearchActivity extends AppCompatActivity {
     private void setupResultsGrid() {
         adapter = new ProductAdapter(
                 product -> ProductDetailActivity.start(this, product.getProductId()));
+        com.FinalProject.group3.utils.CartQuickActions.wire(adapter, this);
         binding.rvResults.setLayoutManager(new GridLayoutManager(this, 2));
         binding.rvResults.setAdapter(adapter);
     }

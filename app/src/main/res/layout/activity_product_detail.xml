@@ -51,6 +51,22 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/color_text_primary" />
 
+    <!-- Badge số lượng giỏ hàng — góc trên phải của icon -->
+    <TextView
+        android:id="@+id/tvCartBadge"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="7dp"
+        android:background="@drawable/bg_dot_red"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="9sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@id/btnCartHeader"
+        app:layout_constraintTop_toTopOf="@id/btnCartHeader" />
+
     <View
         android:id="@+id/dividerHeader"
         android:layout_width="match_parent"

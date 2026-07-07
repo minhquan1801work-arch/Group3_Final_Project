@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.adapter.NotificationAdapter;
 import com.FinalProject.group3.databinding.FragmentNotificationBinding;
 import com.FinalProject.group3.model.Notification;
@@ -39,9 +40,33 @@ public class NotificationFragment extends Fragment {
         binding.rvNotifications.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvNotifications.setAdapter(adapter);
 
+        // Bấm thông báo UNREAD → mark READ trên Firestore + ẩn chấm đỏ ngay
+        adapter.setOnNotificationClickListener(n -> {
+            if (!"UNREAD".equals(n.getStatus())) return;
+            n.setStatus("READ");
+            adapter.notifyDataSetChanged();
+            FirebaseHelper.getDb()
+                    .collection(FirebaseHelper.COL_NOTIFICATIONS)
+                    .document(n.getNotificationId())
+                    .update("status", "READ");
+        });
+
         String uid = FirebaseHelper.getCurrentUserId();
         if (uid == null) {
             showEmpty(true);
+            binding.getRoot().post(() -> {
+                if (!isAdded() || getActivity() == null) return;
+                com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                        requireActivity(),
+                        "Đăng nhập để xem thông báo từ Glassity",
+                        () -> {
+                            if (isAdded()) {
+                                androidx.navigation.fragment.NavHostFragment
+                                        .findNavController(NotificationFragment.this)
+                                        .navigate(R.id.homeFragment);
+                            }
+                        });
+            });
             return;
         }
 

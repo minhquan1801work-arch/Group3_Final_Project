@@ -54,6 +54,7 @@
 
         <!-- Thẻ thành viên: Glassity + barcode + số thẻ | điểm -->
         <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardMember"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
@@ -167,10 +168,10 @@
                 style="@style/ProfileGridItem"
                 android:text="⚙️  Cài đặt" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1" />
+            <TextView
+                android:id="@+id/menuFavorites"
+                style="@style/ProfileGridItem"
+                android:text="❤️  Sản phẩm yêu thích" />
         </LinearLayout>
 
         <View

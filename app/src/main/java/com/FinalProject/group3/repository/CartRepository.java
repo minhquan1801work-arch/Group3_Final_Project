@@ -65,8 +65,12 @@ public class CartRepository {
                                 doc.getLong("quantity") != null ? doc.getLong("quantity").intValue() : 1,
                                 doc.getString("color"));
                         d.setCartDetailId(doc.getId());
+                        d.setAddedAt(doc.getLong("addedAt") != null ? doc.getLong("addedAt") : 0L);
                         items.add(d);
                     }
+                    // Sắp xếp cũ → mới để "item cuối danh sách" luôn là item mới thêm nhất
+                    java.util.Collections.sort(items,
+                            (a, b) -> Long.compare(a.getAddedAt(), b.getAddedAt()));
                     callback.onSuccess(items);
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
@@ -74,23 +78,14 @@ public class CartRepository {
 
     // ── Thêm sản phẩm vào giỏ ─────────────────────────────────────────────────
     public void addToCart(CartDetail item, SimpleCallback callback) {
-        String cartId = getCartId();
-        if (cartId == null) { callback.onFailure("Chưa đăng nhập"); return; }
-
-        // Tạo cart document nếu chưa có
-        Cart cart = new Cart(cartId);
-        db.collection(FirebaseHelper.COL_CARTS).document(cartId).set(cart);
-
-        // Thêm item vào subcollection
-        db.collection(FirebaseHelper.COL_CARTS)
-                .document(cartId)
-                .collection(FirebaseHelper.COL_CART_DETAILS)
-                .add(item)
-                .addOnSuccessListener(ref -> callback.onSuccess())
-                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+        addToCartReturningId(item, new IdCallback() {
+            @Override public void onSuccess(String cartDetailId) { callback.onSuccess(); }
+            @Override public void onFailure(String error) { callback.onFailure(error); }
+        });
     }
 
-    // ── Thêm sản phẩm vào giỏ, trả về id item vừa tạo (luồng Mua ngay) ────────
+    // ── Thêm sản phẩm vào giỏ, trả về id item (luồng Mua ngay / auto-tick) ────
+    // Nếu giỏ đã có cùng productId + màu → cộng dồn số lượng thay vì tạo dòng mới.
     public void addToCartReturningId(CartDetail item, IdCallback callback) {
         String cartId = getCartId();
         if (cartId == null) { callback.onFailure("Chưa đăng nhập"); return; }
@@ -101,8 +96,34 @@ public class CartRepository {
         db.collection(FirebaseHelper.COL_CARTS)
                 .document(cartId)
                 .collection(FirebaseHelper.COL_CART_DETAILS)
-                .add(item)
-                .addOnSuccessListener(ref -> callback.onSuccess(ref.getId()))
+                .whereEqualTo("productId", item.getProductId())
+                .whereEqualTo("color", item.getColor())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.isEmpty()) {
+                        // Đã có → cộng dồn quantity + đẩy addedAt lên mới nhất
+                        DocumentSnapshot doc = snapshot.getDocuments().get(0);
+                        long oldQty = doc.getLong("quantity") != null ? doc.getLong("quantity") : 1;
+                        doc.getReference()
+                                .update("quantity", oldQty + item.getQuantity(),
+                                        "addedAt", System.currentTimeMillis())
+                                .addOnSuccessListener(v -> callback.onSuccess(doc.getId()))
+                                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                    } else {
+                        // Chưa có → tạo mới. Ghi bằng Map (quy tắc @DocumentId của dự án)
+                        java.util.Map<String, Object> data = new java.util.HashMap<>();
+                        data.put("productId", item.getProductId());
+                        data.put("quantity", item.getQuantity());
+                        data.put("color", item.getColor());
+                        data.put("addedAt", System.currentTimeMillis());
+                        db.collection(FirebaseHelper.COL_CARTS)
+                                .document(cartId)
+                                .collection(FirebaseHelper.COL_CART_DETAILS)
+                                .add(data)
+                                .addOnSuccessListener(ref -> callback.onSuccess(ref.getId()))
+                                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+                    }
+                })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
@@ -130,6 +151,20 @@ public class CartRepository {
                 .collection(FirebaseHelper.COL_CART_DETAILS)
                 .document(cartDetailId)
                 .update("color", newColor)
+                .addOnSuccessListener(v -> callback.onSuccess())
+                .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
+    }
+
+    // ── Cập nhật màu + số lượng cùng lúc (BottomSheet chỉnh variant) ──────────
+    public void updateItem(String cartDetailId, String newColor, int newQuantity, SimpleCallback callback) {
+        String cartId = getCartId();
+        if (cartId == null) { callback.onFailure("Chưa đăng nhập"); return; }
+
+        db.collection(FirebaseHelper.COL_CARTS)
+                .document(cartId)
+                .collection(FirebaseHelper.COL_CART_DETAILS)
+                .document(cartDetailId)
+                .update("color", newColor, "quantity", newQuantity)
                 .addOnSuccessListener(v -> callback.onSuccess())
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }

@@ -24,7 +24,6 @@ import com.FinalProject.group3.model.CartDetail;
 import com.FinalProject.group3.model.Product;
 import com.FinalProject.group3.repository.CartRepository;
 import com.FinalProject.group3.repository.ProductRepository;
-import com.FinalProject.group3.ui.account.LoginActivity;
 import com.FinalProject.group3.ui.order.CheckoutActivity;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.bumptech.glide.Glide;
@@ -43,7 +42,7 @@ import java.util.Map;
  *   - "Thêm vào giỏ hàng" → CartRepository.addToCart() → ở lại trang (đi tiếp qua tab Giỏ)
  *   - "MUA NGAY"          → addToCartReturningId() → CheckoutActivity.start(item vừa thêm)
  *     (item vẫn nằm trong giỏ; Checkout đặt hàng xong sẽ tự xóa item đã mua — đúng BPMN)
- * Cả 2 nút đều yêu cầu đăng nhập — khách (guest) sẽ được đưa về LoginActivity.
+ * "Thêm giỏ" yêu cầu đăng nhập; "Mua ngay" khách vẫn được dùng qua CheckoutActivity.startDirect().
  */
 public class ProductDetailActivity extends AppCompatActivity {
 
@@ -94,7 +93,18 @@ public class ProductDetailActivity extends AppCompatActivity {
         com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
-        binding.btnCartHeader.setOnClickListener(v -> finish()); // quay về app, user tự qua tab Giỏ
+        // Icon giỏ header → mở tab Giỏ hàng (khách cần đăng nhập trước)
+        binding.btnCartHeader.setOnClickListener(v -> {
+            if (FirebaseHelper.getCurrentUserId() == null) {
+                com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                        this, "Đăng nhập để xem giỏ hàng của bạn");
+                return;
+            }
+            Intent i = new Intent(this, com.FinalProject.group3.MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_CART, true);
+            startActivity(i);
+        });
 
         setupQtyStepper();
         setupTabs();
@@ -108,6 +118,13 @@ public class ProductDetailActivity extends AppCompatActivity {
         String productId = getIntent().getStringExtra(EXTRA_PRODUCT_ID);
         if (productId == null) { finish(); return; }
         loadProduct(productId);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (binding != null)
+            com.FinalProject.group3.utils.CartQuickActions.refreshBadge(binding.tvCartBadge);
     }
 
     // ── Load & bind sản phẩm ──────────────────────────────────────────────────
@@ -300,6 +317,8 @@ public class ProductDetailActivity extends AppCompatActivity {
     // ── Sản phẩm liên quan: cùng category, trừ chính nó ───────────────────────
     private void loadRelated() {
         relatedAdapter = new ProductAdapter(p -> ProductDetailActivity.start(this, p.getProductId()));
+        com.FinalProject.group3.utils.CartQuickActions.wire(
+                relatedAdapter, this, binding.btnCartHeader, binding.tvCartBadge);
         binding.rvRelated.setAdapter(relatedAdapter);
 
         productRepo.getProductsByCategory(product.getCategoryId(),
@@ -323,19 +342,24 @@ public class ProductDetailActivity extends AppCompatActivity {
     private void addToCart(boolean buyNow) {
         if (product == null) return;
 
-        // Guest → bắt đăng nhập (BPMN: mua hàng yêu cầu tài khoản)
-        if (FirebaseHelper.getCurrentUserId() == null) {
-            Toast.makeText(this, "Vui lòng đăng nhập để mua hàng", Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(this, LoginActivity.class));
-            return;
-        }
-        if (product.getStock() <= 0) {
+        if (currentVariantStock() <= 0) {
             Toast.makeText(this, "Sản phẩm đã hết hàng", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String color = (product.getColors() != null && !product.getColors().isEmpty())
-                ? product.getColors().get(selectedColorIndex) : null;
+        // Guest: Thêm giỏ → dialog đăng nhập; Mua ngay → Checkout trực tiếp không qua giỏ
+        if (FirebaseHelper.getCurrentUserId() == null) {
+            if (buyNow) {
+                CheckoutActivity.startDirect(this, product.getProductId(),
+                        currentVariantColor(), quantity);
+            } else {
+                com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                        this, "Đăng nhập để thêm sản phẩm vào giỏ hàng");
+            }
+            return;
+        }
+
+        String color = currentVariantColor();
         CartDetail item = new CartDetail(product.getProductId(), quantity, color);
 
         if (buyNow) {
@@ -357,14 +381,25 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         } else {
+            // Fly animation: lấy ImageView hiện tại từ ViewPager2
+            ImageView fromImage = getCurrentPagerImageView();
+            if (fromImage != null) {
+                com.FinalProject.group3.utils.CartQuickActions.flyToCart(
+                        this, fromImage, binding.btnCartHeader, () -> {
+                            com.FinalProject.group3.utils.CartQuickActions.animateCartIcon(binding.btnCartHeader);
+                            com.FinalProject.group3.utils.CartQuickActions.refreshBadge(binding.tvCartBadge);
+                        });
+            }
             cartRepo.addToCartReturningId(item, new CartRepository.IdCallback() {
                 @Override
                 public void onSuccess(String cartDetailId) {
-                    // Ghi id item vừa thêm để CartFragment auto-select khi user sang tab Giỏ
                     getSharedPreferences("cart_prefs", MODE_PRIVATE)
                             .edit().putString("last_added_id", cartDetailId).apply();
-                    Toast.makeText(ProductDetailActivity.this,
-                            "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
+                    // Nếu không fly được, bounce + badge tại đây
+                    if (fromImage == null) {
+                        com.FinalProject.group3.utils.CartQuickActions.animateCartIcon(binding.btnCartHeader);
+                        com.FinalProject.group3.utils.CartQuickActions.refreshBadge(binding.tvCartBadge);
+                    }
                 }
 
                 @Override
@@ -372,6 +407,19 @@ public class ProductDetailActivity extends AppCompatActivity {
                     Toast.makeText(ProductDetailActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    /** Lấy ImageView của trang hiện tại trong ViewPager2 để dùng làm nguồn fly animation. */
+    private ImageView getCurrentPagerImageView() {
+        try {
+            androidx.recyclerview.widget.RecyclerView rv =
+                    (androidx.recyclerview.widget.RecyclerView) binding.vpImages.getChildAt(0);
+            if (rv == null) return null;
+            View page = rv.getLayoutManager().findViewByPosition(binding.vpImages.getCurrentItem());
+            return (page instanceof ImageView) ? (ImageView) page : null;
+        } catch (Exception e) {
+            return null;
         }
     }
 

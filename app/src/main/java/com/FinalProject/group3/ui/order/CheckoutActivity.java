@@ -113,6 +113,21 @@ public class CheckoutActivity extends AppCompatActivity {
     private static final String EXTRA_INIT_DISCOUNT_CODE = "init_discount_code";
     private static final String EXTRA_INIT_SHIP_CODE = "init_ship_code";
 
+    // Chế độ "mua trực tiếp" cho KHÁCH chưa đăng nhập — không đi qua giỏ hàng
+    private static final String EXTRA_DIRECT_PRODUCT_ID = "direct_product_id";
+    private static final String EXTRA_DIRECT_COLOR = "direct_color";
+    private static final String EXTRA_DIRECT_QTY = "direct_qty";
+
+    private boolean isGuest = false;
+
+    /** Mua ngay không cần tài khoản: truyền thẳng sản phẩm, không qua cart. */
+    public static void startDirect(Context context, String productId, String color, int quantity) {
+        context.startActivity(new Intent(context, CheckoutActivity.class)
+                .putExtra(EXTRA_DIRECT_PRODUCT_ID, productId)
+                .putExtra(EXTRA_DIRECT_COLOR, color)
+                .putExtra(EXTRA_DIRECT_QTY, quantity));
+    }
+
     public static void start(Context context, ArrayList<String> cartDetailIds) {
         context.startActivity(new Intent(context, CheckoutActivity.class)
                 .putStringArrayListExtra(EXTRA_CART_DETAIL_IDS, cartDetailIds));
@@ -202,8 +217,37 @@ public class CheckoutActivity extends AppCompatActivity {
         if (initShip != null) appliedShipVoucher = initShip;
 
         setupTermsNote();
-        loadCustomer();
-        loadItems(getIntent().getStringArrayListExtra(EXTRA_CART_DETAIL_IDS));
+
+        isGuest = FirebaseHelper.getCurrentUserId() == null;
+        if (isGuest) setupGuestUi();
+        else loadCustomer();
+
+        String directProductId = getIntent().getStringExtra(EXTRA_DIRECT_PRODUCT_ID);
+        if (directProductId != null) {
+            loadDirectItem(directProductId,
+                    getIntent().getStringExtra(EXTRA_DIRECT_COLOR),
+                    getIntent().getIntExtra(EXTRA_DIRECT_QTY, 1));
+        } else {
+            loadItems(getIntent().getStringArrayListExtra(EXTRA_CART_DETAIL_IDS));
+        }
+    }
+
+    // ── Chế độ KHÁCH: form nhập tay, ẩn voucher + điểm + sổ địa chỉ ───────────
+    private void setupGuestUi() {
+        binding.rowAddress.setVisibility(View.GONE);
+        binding.layoutGuestAddress.setVisibility(View.VISIBLE);
+        binding.rowVoucher.setVisibility(View.GONE);
+        binding.layoutVoucherInline.setVisibility(View.GONE);
+        binding.layoutPointsSection.setVisibility(View.GONE);
+    }
+
+    // ── Mua trực tiếp: dựng CartDetail từ Intent, không đọc giỏ ───────────────
+    private void loadDirectItem(String productId, String color, int quantity) {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        CartDetail item = new CartDetail(productId, quantity, color);
+        items.clear();
+        items.add(item);
+        loadProducts();
     }
 
     /** Footnote: "Điều khoản Glassity" → Toast (Figma link clickable). */
@@ -377,6 +421,7 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private int rewardPointsEarned() {
+        if (isGuest) return 0; // khách không có tài khoản tích điểm
         return (int) (subtotal() / 1000);
     }
 
@@ -473,7 +518,26 @@ public class CheckoutActivity extends AppCompatActivity {
             Toast.makeText(this, "Tính năng ví điện tử đang phát triển, vui lòng chọn COD hoặc Chuyển khoản", Toast.LENGTH_LONG).show();
             return;
         }
-        if (shipFullAddress == null || shipFullAddress.isEmpty()) {
+
+        String guestEmail = null;
+        if (isGuest) {
+            // Khách: validate form nhập tay (tối thiểu tên, SĐT, email, địa chỉ)
+            String name  = binding.etGuestName.getText().toString().trim();
+            String phone = binding.etGuestPhone.getText().toString().trim();
+            String email = binding.etGuestEmail.getText().toString().trim();
+            String addr  = binding.etGuestAddress.getText().toString().trim();
+            if (name.isEmpty() || phone.isEmpty() || addr.isEmpty()
+                    || email.isEmpty() || !email.contains("@")) {
+                binding.tvGuestAddressError.setVisibility(View.VISIBLE);
+                binding.nestedScroll.post(() -> binding.nestedScroll.smoothScrollTo(0, 0));
+                return;
+            }
+            binding.tvGuestAddressError.setVisibility(View.GONE);
+            shipName = name;
+            shipPhone = phone;
+            shipFullAddress = addr;
+            guestEmail = email;
+        } else if (shipFullAddress == null || shipFullAddress.isEmpty()) {
             binding.tvAddressError.setVisibility(View.VISIBLE);
             binding.nestedScroll.post(() -> binding.nestedScroll.smoothScrollTo(0, 0));
             return;
@@ -483,7 +547,9 @@ public class CheckoutActivity extends AppCompatActivity {
         binding.btnPlaceOrder.setEnabled(false);
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        String uid = FirebaseHelper.getCurrentUserId();
+        String uid = isGuest ? "GUEST" : FirebaseHelper.getCurrentUserId();
+        final String finalGuestEmail = guestEmail;
+        final String finalGuestPhone = isGuest ? shipPhone : null;
         String method = binding.rbBank.isChecked() ? "BANK_TRANSFER" : "COD";
         double total = Math.max(0, subtotal() + shippingFee() - shipDiscount() - voucherDiscount() - pointsDiscount());
 
@@ -510,9 +576,18 @@ public class CheckoutActivity extends AppCompatActivity {
         orderRepo.createOrder(order, details, new OrderRepository.SimpleCallback() {
             @Override
             public void onSuccess(String orderId) {
+                if (isGuest) {
+                    // Lưu email/SĐT khách vào đơn — để claim về tài khoản nếu họ đăng ký sau
+                    Map<String, Object> guestInfo = new HashMap<>();
+                    guestInfo.put("guestEmail", finalGuestEmail);
+                    guestInfo.put("guestPhone", finalGuestPhone);
+                    FirebaseHelper.getDb().collection(FirebaseHelper.COL_ORDERS)
+                            .document(orderId).update(guestInfo);
+                } else {
+                    removeOrderedItemsFromCart();
+                    updateCustomerPoints(uid, earnedPoints, usedPoints2);
+                }
                 createPayment(orderId, uid, method, total);
-                removeOrderedItemsFromCart();
-                updateCustomerPoints(uid, earnedPoints, usedPoints2);
                 PaymentResultActivity.start(CheckoutActivity.this, orderCode, orderId, total, method);
                 finish();
             }
@@ -577,16 +652,28 @@ public class CheckoutActivity extends AppCompatActivity {
             if (p != null) {
                 holder.binding.tvName.setText(p.getName());
                 holder.binding.tvPrice.setText(VND_FORMAT.format(p.getPrice() * d.getQuantity()) + "đ");
-                if (p.getImages() != null && !p.getImages().isEmpty())
-                    Glide.with(holder.binding.ivProduct).load(p.getImages().get(0))
+                // Ảnh: ưu tiên ảnh của variant khớp màu đang chọn
+                String imgUrl = null;
+                if (p.getVariants() != null && !p.getVariants().isEmpty()) {
+                    for (com.FinalProject.group3.model.ProductVariant v : p.getVariants()) {
+                        if (v.getColor() != null && v.getColor().equalsIgnoreCase(d.getColor())
+                                && v.getImages() != null && !v.getImages().isEmpty()) {
+                            imgUrl = v.getImages().get(0);
+                            break;
+                        }
+                    }
+                }
+                if (imgUrl == null && p.getImages() != null && !p.getImages().isEmpty())
+                    imgUrl = p.getImages().get(0);
+                if (imgUrl != null)
+                    Glide.with(holder.binding.ivProduct).load(imgUrl)
                             .placeholder(R.drawable.bg_product_placeholder)
                             .into(holder.binding.ivProduct);
             }
             holder.binding.tvQty.setText(String.valueOf(d.getQuantity()));
 
-            // Color chip
-            String color = d.getColor();
-            holder.binding.tvColor.setText(color != null && !color.isEmpty() ? color : "Mặc định");
+            // Color chip — hiện tên màu tiếng Việt từ variant thay vì mã hex
+            holder.binding.tvColor.setText(displayColorName(p, d.getColor()));
 
             // Stepper
             holder.binding.btnMinus.setOnClickListener(v -> {
@@ -611,23 +698,50 @@ public class CheckoutActivity extends AppCompatActivity {
         }
 
         private void showColorPicker(CartDetail d, Product p, VH holder) {
-            if (p == null || p.getColors() == null || p.getColors().isEmpty()) return;
-            List<String> colors = p.getColors();
+            if (p == null) return;
+
+            // Ưu tiên variants (data mới): value = hex, label = colorName tiếng Việt
+            final List<String> colorValues = new ArrayList<>();
+            final List<String> colorLabels = new ArrayList<>();
+            if (p.getVariants() != null && !p.getVariants().isEmpty()) {
+                for (com.FinalProject.group3.model.ProductVariant v : p.getVariants()) {
+                    if (v.getColor() == null || v.getColor().isEmpty()) continue;
+                    colorValues.add(v.getColor());
+                    colorLabels.add((v.getColorName() != null && !v.getColorName().isEmpty())
+                            ? v.getColorName() : v.getColor());
+                }
+            } else if (p.getColors() != null) {
+                for (String c : p.getColors()) { colorValues.add(c); colorLabels.add(c); }
+            }
+            if (colorValues.isEmpty()) return;
+
             android.widget.ArrayAdapter<String> arrAdapter = new android.widget.ArrayAdapter<>(
                     CheckoutActivity.this,
-                    R.layout.item_color_popup, colors);
+                    R.layout.item_color_popup, colorLabels);
             android.widget.ListPopupWindow popup = new android.widget.ListPopupWindow(CheckoutActivity.this);
             popup.setAnchorView(holder.binding.layoutColorPicker);
             popup.setAdapter(arrAdapter);
-            popup.setWidth(holder.binding.layoutColorPicker.getWidth());
+            popup.setWidth(Math.max(holder.binding.layoutColorPicker.getWidth(), 360));
             popup.setModal(true);
             popup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
             popup.setOnItemClickListener((parent, view, which, id) -> {
-                d.setColor(colors.get(which));
+                d.setColor(colorValues.get(which));
                 notifyItemChanged(holder.getAdapterPosition());
                 popup.dismiss();
             });
             popup.show();
+        }
+
+        /** Tên màu hiển thị: tra colorName trong variants theo hex đang chọn */
+        private String displayColorName(Product p, String colorHex) {
+            if (p != null && p.getVariants() != null) {
+                for (com.FinalProject.group3.model.ProductVariant v : p.getVariants()) {
+                    if (v.getColor() != null && v.getColor().equalsIgnoreCase(colorHex)
+                            && v.getColorName() != null && !v.getColorName().isEmpty())
+                        return v.getColorName();
+                }
+            }
+            return (colorHex != null && !colorHex.isEmpty()) ? colorHex : "Mặc định";
         }
 
         private void showQtyEditor(CartDetail d, Product p, VH holder) {

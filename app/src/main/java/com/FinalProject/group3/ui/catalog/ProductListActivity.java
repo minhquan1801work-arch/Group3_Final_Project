@@ -108,6 +108,7 @@ public class ProductListActivity extends AppCompatActivity {
 
         productAdapter = new ProductAdapter(product ->
                 ProductDetailActivity.start(this, product.getProductId()));
+        com.FinalProject.group3.utils.CartQuickActions.wire(productAdapter, this);
         binding.rvProducts.setAdapter(productAdapter);
 
         setupChips();

@@ -1,8 +1,12 @@
 package com.FinalProject.group3.ui.order;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -72,13 +76,8 @@ public class PaymentResultActivity extends AppCompatActivity {
             binding.ivStatus.setImageResource(R.drawable.ic_clock);
             binding.tvStatusTitle.setText(R.string.payment_pending_title);
             binding.tvStatusDesc.setText(R.string.payment_pending_desc);
-            binding.llBankInfo.setVisibility(android.view.View.VISIBLE);
-            binding.tvBankDetail.setText(
-                    "Ngân hàng: Vietcombank\n" +
-                    "Số tài khoản: 0123456789\n" +
-                    "Chủ tài khoản: GLASSITY STORE\n" +
-                    "Số tiền: " + VND_FORMAT.format(amount) + "đ\n" +
-                    "Nội dung CK: " + orderCode);
+            binding.llBankInfo.setVisibility(View.VISIBLE);
+            setupVietQR(orderCode, amount);
         } else {
             // Biến thể 2: COD đặt hàng thành công
             binding.ivStatus.setImageResource(R.drawable.ic_check_circle);
@@ -112,25 +111,9 @@ public class PaymentResultActivity extends AppCompatActivity {
                 com.FinalProject.group3.ui.catalog.ProductDetailActivity
                         .start(this, product.getProductId()));
 
-        // "Thêm vào giỏ" — thêm với màu đầu tiên, qty=1
-        adapter.setOnAddToCartListener(product -> {
-            if (FirebaseHelper.getCurrentUserId() == null) {
-                Toast.makeText(this, "Vui lòng đăng nhập để thêm vào giỏ", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            String defaultColor = (product.getColors() != null && !product.getColors().isEmpty())
-                    ? product.getColors().get(0) : "";
-            CartDetail item = new CartDetail(product.getProductId(), 1, defaultColor);
-            new CartRepository().addToCart(item, new CartRepository.SimpleCallback() {
-                @Override public void onSuccess() {
-                    Toast.makeText(PaymentResultActivity.this,
-                            "Đã thêm vào giỏ: " + product.getName(), Toast.LENGTH_SHORT).show();
-                }
-                @Override public void onFailure(String error) {
-                    Toast.makeText(PaymentResultActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
-                }
-            });
-        });
+        // "Thêm vào giỏ" — dùng CartQuickActions để thống nhất luồng (không Toast)
+        adapter.setOnAddToCartListener((product, itemThumbnailView) ->
+                com.FinalProject.group3.utils.CartQuickActions.addToCart(this, product));
 
         // "Mua ngay" → thêm cart với qty=1 + màu đầu tiên → thẳng Checkout
         adapter.setOnBuyNowListener(product -> {
@@ -158,6 +141,42 @@ public class PaymentResultActivity extends AppCompatActivity {
         new ProductRepository().getBestSellerProducts(6, new ProductRepository.ProductListCallback() {
             @Override public void onSuccess(List<Product> products) { adapter.submitList(products); }
             @Override public void onFailure(String error) { }
+        });
+    }
+
+    private void setupVietQR(String orderCode, double amount) {
+        // Nội dung chuyển khoản: "GLASSITY <mã đơn>" — dễ đối soát
+        String transferContent = "GLASSITY " + (orderCode != null ? orderCode : "");
+        String amountText = VND_FORMAT.format((long) amount) + "đ";
+
+        // Điền text
+        binding.tvBankAmount.setText(amountText);
+        binding.tvBankContent.setText(transferContent);
+
+        // VietQR URL — MB Bank, tài khoản Nguyen Minh Quan, template compact2
+        // compact2: hiển thị logo ngân hàng + QR + tên TK trong một ảnh duy nhất
+        String qrUrl = "https://img.vietqr.io/image/MB-0977780173-compact2.jpg"
+                + "?amount=" + (long) amount
+                + "&addInfo=" + Uri.encode(transferContent)
+                + "&accountName=Nguyen%20Minh%20Quan";
+
+        com.bumptech.glide.Glide.with(this)
+                .load(qrUrl)
+                .placeholder(android.R.drawable.ic_menu_gallery)
+                .into(binding.ivVietQR);
+
+        // Copy nội dung CK
+        binding.btnCopyContent.setOnClickListener(v -> {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            clipboard.setPrimaryClip(ClipData.newPlainText("nội dung CK", transferContent));
+            Toast.makeText(this, "Đã copy nội dung CK", Toast.LENGTH_SHORT).show();
+        });
+
+        // Copy STK
+        binding.btnCopyAccount.setOnClickListener(v -> {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            clipboard.setPrimaryClip(ClipData.newPlainText("STK", "0977780173"));
+            Toast.makeText(this, "Đã copy số tài khoản", Toast.LENGTH_SHORT).show();
         });
     }
 }

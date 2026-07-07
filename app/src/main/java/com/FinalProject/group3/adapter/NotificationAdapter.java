@@ -15,8 +15,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/** Adapter list thông báo — chấm đỏ hiện khi status = UNREAD. */
+/** Adapter list thông báo — chấm đỏ hiện khi status = UNREAD, bấm → mark READ. */
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
+
+    public interface OnNotificationClickListener {
+        void onNotificationClick(Notification notification);
+    }
+
+    private OnNotificationClickListener clickListener;
+
+    public void setOnNotificationClickListener(OnNotificationClickListener l) {
+        this.clickListener = l;
+    }
 
     private final List<Notification> items = new ArrayList<>();
     private final SimpleDateFormat timeFormat =
@@ -43,6 +53,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 ? timeFormat.format(n.getCreatedAt()) : "");
         holder.binding.dotUnread.setVisibility(
                 "UNREAD".equals(n.getStatus()) ? View.VISIBLE : View.INVISIBLE);
+
+        holder.itemView.setOnClickListener(v -> {
+            if (clickListener != null) clickListener.onNotificationClick(n);
+        });
     }
 
     @Override

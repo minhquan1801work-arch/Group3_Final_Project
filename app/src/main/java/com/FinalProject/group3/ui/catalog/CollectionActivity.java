@@ -85,6 +85,7 @@ public class CollectionActivity extends AppCompatActivity {
             androidx.recyclerview.widget.RecyclerView rv) {
         ProductAdapter adapter = new ProductAdapter(
                 p -> ProductDetailActivity.start(this, p.getProductId()));
+        com.FinalProject.group3.utils.CartQuickActions.wire(adapter, this);
         rv.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rv.setAdapter(adapter);
 

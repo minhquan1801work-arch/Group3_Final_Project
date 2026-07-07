@@ -31,7 +31,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         void onQuantityChanged(CartDetail item, int newQuantity);
         void onDeleteClick(CartDetail item);
         void onSelectionChanged(); // tick/bỏ tick checkbox → tính lại tổng
-        void onVariantClick(CartDetail item, android.view.View anchor); // chọn lại màu
+        void onVariantClick(CartDetail item); // mở BottomSheet chỉnh màu + số lượng
     }
 
     private static final NumberFormat VND_FORMAT = NumberFormat.getInstance(new Locale("vi", "VN"));
@@ -113,9 +113,19 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             }
         }
 
-        // Chip phân loại (Figma: "Màu: đen ▾")
-        b.tvVariant.setText("Màu: " + colorName(item.getColor()) + " ▾");
-        b.tvVariant.setOnClickListener(v -> listener.onVariantClick(item, v));
+        // Chip phân loại (Figma: "Màu: đen ▾") — ưu tiên colorName từ variant
+        String variantName = null;
+        if (product != null && product.getVariants() != null) {
+            for (com.FinalProject.group3.model.ProductVariant pv : product.getVariants()) {
+                if (pv.getColor() != null && pv.getColor().equalsIgnoreCase(item.getColor())
+                        && pv.getColorName() != null && !pv.getColorName().isEmpty()) {
+                    variantName = pv.getColorName();
+                    break;
+                }
+            }
+        }
+        b.tvVariant.setText("Màu: " + (variantName != null ? variantName : colorName(item.getColor())) + " ▾");
+        b.tvVariant.setOnClickListener(v -> listener.onVariantClick(item));
 
         b.tvQuantity.setText(String.valueOf(item.getQuantity()));
 

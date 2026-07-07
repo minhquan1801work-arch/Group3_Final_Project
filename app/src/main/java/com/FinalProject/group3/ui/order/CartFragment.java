@@ -111,7 +111,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         if (binding == null) return;
 
         if (FirebaseHelper.getCurrentUserId() == null) {
-            showEmpty(getString(R.string.cart_login_msg), getString(R.string.cart_login_btn), true);
+            showGuestDialog();
             return;
         }
 
@@ -145,15 +145,65 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
                 @Override
                 public void onSuccess(Product product) {
                     item.setProduct(product);
-                    if (++loaded[0] == items.size()) showCart(items);
+                    if (++loaded[0] == items.size()) showValidItems(items);
                 }
 
                 @Override
                 public void onFailure(String error) {
-                    if (++loaded[0] == items.size()) showCart(items);
+                    if (++loaded[0] == items.size()) showValidItems(items);
                 }
             });
         }
+    }
+
+    /**
+     * Lọc bỏ item "mồ côi" — cart detail trỏ tới sản phẩm đã bị xóa khỏi Firestore
+     * (data seed cũ). Tự xóa luôn document đó để lần sau không hiện lại ô đen.
+     */
+    private void showValidItems(List<CartDetail> items) {
+        if (binding == null) return;
+        List<CartDetail> valid = new ArrayList<>();
+        for (CartDetail item : items) {
+            if (item.getProduct() != null) {
+                valid.add(item);
+            } else {
+                cartRepo.removeFromCart(item.getCartDetailId(), new CartRepository.SimpleCallback() {
+                    @Override public void onSuccess() { }
+                    @Override public void onFailure(String error) { }
+                });
+            }
+        }
+        if (valid.isEmpty()) {
+            showEmpty(getString(R.string.cart_empty_msg),
+                    getString(R.string.cart_continue_shopping), false);
+        } else {
+            showCart(valid);
+        }
+    }
+
+    // ── Dialog khi khách chưa đăng nhập ──────────────────────────────────────
+    private void showGuestDialog() {
+        if (binding == null || !isAdded()) return;
+        // Ẩn hết nội dung giỏ, để nền trắng sau dialog
+        setCartVisible(false);
+        binding.tvTitle.setText(R.string.cart_title);
+        binding.llEmpty.setVisibility(View.GONE);
+        binding.btnContinueShopping.setVisibility(View.GONE);
+
+        binding.getRoot().post(() -> {
+            if (!isAdded() || getActivity() == null) return;
+            com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                    requireActivity(),
+                    "Đăng nhập để xem và quản lý giỏ hàng của bạn",
+                    () -> {
+                        // Bấm "Để sau" → quay về Home
+                        if (isAdded()) {
+                            androidx.navigation.fragment.NavHostFragment
+                                    .findNavController(CartFragment.this)
+                                    .navigate(R.id.homeFragment);
+                        }
+                    });
+        });
     }
 
     // ── Hiển thị ──────────────────────────────────────────────────────────────
@@ -261,32 +311,118 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         updateTotal();
     }
 
+    // ── BottomSheet chỉnh variant + số lượng (Figma DL_Choose product) ────────
     @Override
-    public void onVariantClick(CartDetail item, View anchor) {
+    public void onVariantClick(CartDetail item) {
         Product product = item.getProduct();
-        if (product == null || product.getColors() == null || product.getColors().isEmpty()) return;
+        if (product == null) return;
 
-        java.util.List<String> colors = product.getColors();
-        String[] colorNames = new String[colors.size()];
-        for (int i = 0; i < colors.size(); i++)
-            colorNames[i] = colorNamePublic(colors.get(i));
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        boolean hasVariants = variants != null && !variants.isEmpty();
+        List<String> oldColors = product.getColors();
+        if (!hasVariants && (oldColors == null || oldColors.isEmpty())) return;
 
-        android.widget.ArrayAdapter<String> arrAdapter = new android.widget.ArrayAdapter<>(
-                requireContext(), R.layout.item_color_popup, colorNames);
+        com.google.android.material.bottomsheet.BottomSheetDialog dialog =
+                new com.google.android.material.bottomsheet.BottomSheetDialog(requireContext());
+        View sheet = getLayoutInflater().inflate(R.layout.bottom_sheet_cart_variant, null);
+        dialog.setContentView(sheet);
 
-        android.widget.ListPopupWindow popup = new android.widget.ListPopupWindow(requireContext());
-        popup.setAnchorView(anchor);
-        popup.setAdapter(arrAdapter);
-        popup.setWidth(anchor.getWidth() > 0 ? anchor.getWidth() * 3 : 200);
-        popup.setModal(true);
-        popup.setBackgroundDrawable(
-                new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
-        popup.setOnItemClickListener((parent, view, which, id) -> {
-            String newColor = colors.get(which);
+        android.widget.ImageView ivProduct = sheet.findViewById(R.id.ivSheetProduct);
+        android.widget.TextView tvPrice  = sheet.findViewById(R.id.tvSheetPrice);
+        android.widget.TextView tvStock  = sheet.findViewById(R.id.tvSheetStock);
+        android.widget.LinearLayout llColors = sheet.findViewById(R.id.llSheetColors);
+        android.widget.TextView tvQty    = sheet.findViewById(R.id.tvSheetQty);
+
+        int count = hasVariants ? variants.size() : oldColors.size();
+
+        // Vị trí variant đang chọn = variant khớp màu hiện tại của item
+        int selectedNow = 0;
+        for (int i = 0; i < count; i++) {
+            String hex = hasVariants ? variants.get(i).getColor() : oldColors.get(i);
+            if (hex != null && hex.equalsIgnoreCase(item.getColor())) { selectedNow = i; break; }
+        }
+        final int[] selected = { selectedNow };
+        final int[] qty = { item.getQuantity() };
+
+        tvPrice.setText(VND_FORMAT.format(product.getPrice()) + "VND");
+        tvQty.setText(String.valueOf(qty[0]));
+
+        // Cập nhật ảnh + kho theo variant đang chọn
+        Runnable refreshInfo = () -> {
+            String imgUrl = null;
+            int stock = product.getStock();
+            if (hasVariants) {
+                com.FinalProject.group3.model.ProductVariant v = variants.get(selected[0]);
+                stock = v.getStock();
+                if (v.getImages() != null && !v.getImages().isEmpty()) imgUrl = v.getImages().get(0);
+            }
+            if (imgUrl == null && product.getImages() != null && !product.getImages().isEmpty())
+                imgUrl = product.getImages().get(0);
+            if (imgUrl != null)
+                com.bumptech.glide.Glide.with(ivProduct).load(imgUrl)
+                        .placeholder(R.drawable.bg_product_placeholder).into(ivProduct);
+            tvStock.setText("Kho: " + stock);
+            // Kẹp số lượng theo kho của variant mới
+            int max = stock > 0 ? stock : 99;
+            if (qty[0] > max) { qty[0] = max; tvQty.setText(String.valueOf(qty[0])); }
+        };
+
+        // Dựng dãy chip màu
+        int padH = (int) (12 * getResources().getDisplayMetrics().density);
+        int padV = (int) (6  * getResources().getDisplayMetrics().density);
+        int marginEnd = (int) (8 * getResources().getDisplayMetrics().density);
+        for (int i = 0; i < count; i++) {
+            final int index = i;
+            android.widget.TextView chip = new android.widget.TextView(requireContext());
+            String label;
+            if (hasVariants) {
+                com.FinalProject.group3.model.ProductVariant v = variants.get(i);
+                label = (v.getColorName() != null && !v.getColorName().isEmpty())
+                        ? v.getColorName() : colorNameOf(v.getColor());
+            } else {
+                label = colorNameOf(oldColors.get(i));
+            }
+            chip.setText(label);
+            chip.setTextSize(13);
+            chip.setPadding(padH, padV, padH, padV);
+            android.widget.LinearLayout.LayoutParams lp =
+                    new android.widget.LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.setMarginEnd(marginEnd);
+            chip.setLayoutParams(lp);
+            chip.setOnClickListener(v -> {
+                selected[0] = index;
+                for (int c = 0; c < llColors.getChildCount(); c++)
+                    styleChip((android.widget.TextView) llColors.getChildAt(c), c == index);
+                refreshInfo.run();
+            });
+            styleChip(chip, i == selectedNow);
+            llColors.addView(chip);
+        }
+        refreshInfo.run();
+
+        // Stepper trong sheet
+        sheet.findViewById(R.id.btnSheetMinus).setOnClickListener(v -> {
+            if (qty[0] > 1) tvQty.setText(String.valueOf(--qty[0]));
+        });
+        sheet.findViewById(R.id.btnSheetPlus).setOnClickListener(v -> {
+            int stock = hasVariants ? variants.get(selected[0]).getStock() : product.getStock();
+            int max = stock > 0 ? stock : 99;
+            if (qty[0] < max) tvQty.setText(String.valueOf(++qty[0]));
+            else Toast.makeText(requireContext(), "Chỉ còn " + max + " sản phẩm trong kho",
+                    Toast.LENGTH_SHORT).show();
+        });
+
+        // XÁC NHẬN → ghi Firestore cả màu + số lượng, refresh UI
+        sheet.findViewById(R.id.btnSheetConfirm).setOnClickListener(v -> {
+            String newColor = hasVariants
+                    ? variants.get(selected[0]).getColor() : oldColors.get(selected[0]);
             item.setColor(newColor);
+            item.setQuantity(qty[0]);
             adapter.notifyDataSetChanged();
-            popup.dismiss();
-            cartRepo.updateColor(item.getCartDetailId(), newColor,
+            updateTotal();
+            dialog.dismiss();
+            cartRepo.updateItem(item.getCartDetailId(), newColor, qty[0],
                     new CartRepository.SimpleCallback() {
                         @Override public void onSuccess() { }
                         @Override public void onFailure(String error) {
@@ -295,10 +431,20 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
                         }
                     });
         });
-        popup.show();
+
+        dialog.show();
     }
 
-    private static String colorNamePublic(String hex) {
+    private void styleChip(android.widget.TextView chip, boolean isSelected) {
+        chip.setBackgroundResource(isSelected
+                ? R.drawable.bg_chip_variant_selected : R.drawable.bg_chip_variant);
+        chip.setTextColor(getResources().getColor(isSelected
+                ? R.color.color_text_primary : R.color.color_text_secondary, null));
+        chip.setTypeface(null, isSelected
+                ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
+    }
+
+    private static String colorNameOf(String hex) {
         if (hex == null) return "đen";
         switch (hex.toUpperCase(Locale.US)) {
             case "#1A1614": case "#111111": case "#000000": return "đen";

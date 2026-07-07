@@ -69,6 +69,8 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         startAutoScroll();
+        if (binding != null)
+            com.FinalProject.group3.utils.CartQuickActions.refreshBadge(binding.tvCartBadge);
     }
 
     @Override
@@ -95,6 +97,8 @@ public class HomeFragment extends Fragment {
 
         productAdapter = new ProductAdapter(product ->
                 ProductDetailActivity.start(requireContext(), product.getProductId()));
+        com.FinalProject.group3.utils.CartQuickActions.wire(
+                productAdapter, requireActivity(), binding.btnCart, binding.tvCartBadge);
         binding.rvProducts.setAdapter(productAdapter);
     }
 
@@ -204,11 +208,9 @@ public class HomeFragment extends Fragment {
         binding.bannerKhamPha.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
 
-        // Blog → placeholder Toast (chưa có BlogActivity)
-        binding.blogCard1.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Blog sắp ra mắt", Toast.LENGTH_SHORT).show());
-        binding.blogCard2.setOnClickListener(v ->
-                Toast.makeText(requireContext(), "Blog sắp ra mắt", Toast.LENGTH_SHORT).show());
+        // Blog cards → LA.Blog1 (chọn kính theo dáng mặt) / LA.Blog2 (retro)
+        binding.blogCard1.setOnClickListener(v -> BlogActivity.start(requireContext(), 1));
+        binding.blogCard2.setOnClickListener(v -> BlogActivity.start(requireContext(), 2));
     }
 
     // ── Load data ─────────────────────────────────────────────────────────────

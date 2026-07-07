@@ -48,6 +48,22 @@ public class OrderRepository {
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));
     }
 
+    // ── Nhận đơn khách vãng lai về tài khoản ──────────────────────────────────
+    // Khách đặt hàng không đăng nhập → đơn lưu customerId="GUEST" + guestEmail.
+    // Khi đăng nhập/đăng ký bằng đúng email đó, gán đơn về tài khoản để hiện
+    // trong Lịch sử đơn hàng. Fire-and-forget — gọi mỗi lần mở app đã đăng nhập.
+    public void claimGuestOrders(String uid, String email) {
+        if (uid == null || email == null || email.isEmpty()) return;
+        db.collection(FirebaseHelper.COL_ORDERS)
+                .whereEqualTo("customerId", "GUEST")
+                .whereEqualTo("guestEmail", email)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : snapshot.getDocuments())
+                        doc.getReference().update("customerId", uid);
+                });
+    }
+
     // ── Lấy danh sách đơn hàng của user ───────────────────────────────────────
     public void getMyOrders(OrderListCallback callback) {
         String uid = FirebaseHelper.getCurrentUserId();

@@ -41,6 +41,18 @@
             android:name=".ui.account.ForgotPasswordActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.account.PolicyActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.catalog.BlogActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.account.FavoriteActivity"
+            android:exported="false" />
+
         <!-- MainActivity không còn là màn khởi động — chỉ mở SAU khi đăng nhập/đăng ký/khách thành công -->
         <activity
             android:name=".MainActivity"
