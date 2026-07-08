@@ -76,9 +76,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         holder.binding.tvName.setText(product.getName());
         holder.binding.tvPrice.setText(VND_FORMAT.format(product.getPrice()) + "d");
 
-        // Anh: load tu Cloudinary URL, fallback ve placeholder den
-        String imageUrl = (product.getImages() != null && !product.getImages().isEmpty())
-                ? product.getImages().get(0) : null;
+        // Anh: uu tien anh cua variant dau tien (san pham moi luu anh theo mau),
+        // fallback ve field images cu (san pham cu chua co variants)
+        String imageUrl = resolveThumbnailUrl(product);
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
@@ -141,6 +141,18 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                         }
                     });
         });
+    }
+
+    /** Anh dai dien card: variants[0].images[0] neu co, khong thi fallback images[0] cu. */
+    private static String resolveThumbnailUrl(Product product) {
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        if (variants != null && !variants.isEmpty()) {
+            for (com.FinalProject.group3.model.ProductVariant v : variants) {
+                if (v.getImages() != null && !v.getImages().isEmpty()) return v.getImages().get(0);
+            }
+        }
+        return (product.getImages() != null && !product.getImages().isEmpty())
+                ? product.getImages().get(0) : null;
     }
 
     /** Dat mau cho dot: thu parse hex, neu khong duoc thi dung brand_dark */

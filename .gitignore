@@ -8,4 +8,9 @@
 .externalNativeBuild 
 .cxx 
 local.properties 
-service-account.json 
+service-account*.json
+service-account*.js
+cloudinary-config.json
+*.pem
+*.p12
+

@@ -160,6 +160,12 @@ public class AddressListActivity extends AppCompatActivity {
         public boolean onMove(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh,
                               @NonNull RecyclerView.ViewHolder target) { return false; }
 
+        // Kéo quá 30% chiều rộng là tính swipe (mặc định 50% — hơi khó kéo bằng chuột trên emulator)
+        @Override
+        public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
+            return 0.3f;
+        }
+
         @Override
         public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
             int pos = viewHolder.getAdapterPosition();

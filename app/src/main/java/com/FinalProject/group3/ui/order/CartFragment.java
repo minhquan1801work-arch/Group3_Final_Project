@@ -2,6 +2,10 @@ package com.FinalProject.group3.ui.order;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +18,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.FinalProject.group3.R;
 import com.FinalProject.group3.adapter.CartAdapter;
@@ -88,6 +94,10 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         binding.rvCart.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvCart.setAdapter(adapter);
 
+        binding.btnBack.setOnClickListener(v ->
+                androidx.navigation.fragment.NavHostFragment.findNavController(this)
+                        .popBackStack());
+
         binding.cbSelectAll.setOnClickListener(v ->
                 adapter.setAllSelected(binding.cbSelectAll.isChecked()));
 
@@ -96,6 +106,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         binding.rowVoucher.setOnClickListener(v ->
                 voucherLauncher.launch(CheckoutVoucherActivity.intent(
                         requireContext(), selectedDiscountCode, selectedShipCode)));
+
+        // Kéo item sang trái → xác nhận xóa (giống màn Lựa chọn địa chỉ)
+        new ItemTouchHelper(new SwipeToDeleteCallback()).attachToRecyclerView(binding.rvCart);
 
         return binding.getRoot();
     }
@@ -470,6 +483,59 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         ArrayList<String> ids = new ArrayList<>();
         for (CartDetail d : selected) ids.add(d.getCartDetailId());
         CheckoutActivity.start(requireContext(), ids, selectedDiscountCode, selectedShipCode);
+    }
+
+    // ── Swipe-to-delete: kéo item sang trái → dialog xác nhận (tái dùng onDeleteClick) ──
+    private class SwipeToDeleteCallback extends ItemTouchHelper.SimpleCallback {
+
+        private final Paint paint = new Paint();
+
+        SwipeToDeleteCallback() {
+            super(0, ItemTouchHelper.LEFT);
+            paint.setColor(Color.parseColor("#D32F2F"));
+            paint.setAntiAlias(true);
+        }
+
+        @Override
+        public boolean onMove(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh,
+                              @NonNull RecyclerView.ViewHolder target) { return false; }
+
+        @Override
+        public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
+            return 0.3f;
+        }
+
+        @Override
+        public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            int pos = viewHolder.getAdapterPosition();
+            CartDetail item = adapter.getItemAt(pos);
+            // Khôi phục item ngay — chỉ xóa thật sau khi user xác nhận trong dialog
+            adapter.notifyItemChanged(pos);
+            if (item != null) onDeleteClick(item);
+        }
+
+        @Override
+        public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView rv,
+                                @NonNull RecyclerView.ViewHolder vh,
+                                float dX, float dY, int actionState, boolean isActive) {
+            View item = vh.itemView;
+            if (dX < 0) {
+                RectF bg = new RectF(item.getRight() + dX, item.getTop(),
+                        item.getRight(), item.getBottom());
+                c.drawRect(bg, paint);
+
+                Paint textPaint = new Paint();
+                textPaint.setColor(Color.WHITE);
+                textPaint.setTextSize(36f);
+                textPaint.setAntiAlias(true);
+                textPaint.setTextAlign(Paint.Align.CENTER);
+                float cx = item.getRight() + dX / 2f;
+                float cy = (item.getTop() + item.getBottom()) / 2f
+                        - (textPaint.descent() + textPaint.ascent()) / 2f;
+                c.drawText("Xóa", cx, cy, textPaint);
+            }
+            super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive);
+        }
     }
 
     @Override

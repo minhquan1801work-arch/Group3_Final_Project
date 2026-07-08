@@ -77,6 +77,11 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         return result;
     }
 
+    /** Dùng cho swipe-to-delete: lấy item theo vị trí trong RecyclerView. */
+    public CartDetail getItemAt(int position) {
+        return (position >= 0 && position < items.size()) ? items.get(position) : null;
+    }
+
     public boolean isAllSelected() {
         return !items.isEmpty() && selectedIds.size() == items.size();
     }

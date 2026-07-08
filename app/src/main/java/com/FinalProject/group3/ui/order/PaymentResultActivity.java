@@ -21,6 +21,7 @@ import com.FinalProject.group3.model.Product;
 import com.FinalProject.group3.repository.CartRepository;
 import com.FinalProject.group3.repository.ProductRepository;
 import com.FinalProject.group3.utils.FirebaseHelper;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 
@@ -46,6 +47,7 @@ public class PaymentResultActivity extends AppCompatActivity {
     private static final NumberFormat VND_FORMAT = NumberFormat.getInstance(new Locale("vi", "VN"));
 
     private ActivityPaymentResultBinding binding;
+    private ListenerRegistration paymentStatusListener;
 
     public static void start(Context context, String orderCode, String orderId,
                               double amount, String method) {
@@ -72,23 +74,29 @@ public class PaymentResultActivity extends AppCompatActivity {
         binding.tvOrderCode.setText("Mã đơn: " + orderCode);
 
         if ("BANK_TRANSFER".equals(method)) {
-            // Biến thể 1: chờ chuyển khoản
+            // Biến thể 1: chờ chuyển khoản — ẩn gợi ý sản phẩm, tập trung vào QR + trạng thái
             binding.ivStatus.setImageResource(R.drawable.ic_clock);
             binding.tvStatusTitle.setText(R.string.payment_pending_title);
             binding.tvStatusDesc.setText(R.string.payment_pending_desc);
             binding.llBankInfo.setVisibility(View.VISIBLE);
+            binding.llSuggest.setVisibility(View.GONE);
             setupVietQR(orderCode, amount);
+            if (orderId != null && !orderId.isEmpty()) watchPaymentStatus(orderId);
         } else {
             // Biến thể 2: COD đặt hàng thành công
             binding.ivStatus.setImageResource(R.drawable.ic_check_circle);
             binding.tvStatusTitle.setText(R.string.payment_success_title);
             binding.tvStatusDesc.setText(R.string.payment_success_desc);
+            binding.llSuggest.setVisibility(View.VISIBLE);
+            loadSuggestions();
         }
 
         binding.btnGoHome.setOnClickListener(v -> {
-            // Quay về MainActivity, xóa hết stack Checkout phía trên
+            // Quay về MainActivity, xóa hết stack Checkout phía trên, ép về tab Trang chủ
+            // (MainActivity có thể đã đứng ở cartFragment từ trước khi vào Checkout)
             Intent intent = new Intent(this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra(MainActivity.EXTRA_OPEN_HOME, true);
             startActivity(intent);
             finish();
         });
@@ -100,8 +108,43 @@ public class PaymentResultActivity extends AppCompatActivity {
             else
                 startActivity(OrderHistoryActivity.intent(this));
         });
+    }
 
+    /**
+     * Tự động phát hiện khi tiền về: lắng nghe realtime field paymentStatus của đơn hàng.
+     * Chuyển khoản MB Bank cá nhân không có API xác nhận trực tiếp trong app — cần một
+     * dịch vụ webhook đối soát sao kê (VD: SePay/Casso, có gói miễn phí cho TK cá nhân)
+     * gọi vào Cloud Function để set paymentStatus="PAID" trên Firestore khi nội dung CK
+     * khớp mã đơn. Từ đó app tự nhận được thay đổi ngay lập tức, không cần bấm gì thêm.
+     */
+    private void watchPaymentStatus(String orderId) {
+        paymentStatusListener = FirebaseHelper.getDb()
+                .collection(FirebaseHelper.COL_ORDERS)
+                .document(orderId)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists() || binding == null) return;
+                    String status = snapshot.getString("paymentStatus");
+                    if ("PAID".equals(status)) {
+                        onPaymentConfirmed();
+                    }
+                });
+    }
+
+    /** Chuyển UI từ "Đang chờ thanh toán" sang "Thanh toán thành công" ngay khi Firestore báo PAID. */
+    private void onPaymentConfirmed() {
+        binding.ivStatus.setImageResource(R.drawable.ic_check_circle);
+        binding.tvStatusTitle.setText(R.string.payment_success_title);
+        binding.tvStatusDesc.setText("Đã nhận được thanh toán. Đơn hàng của bạn đang được xử lý!");
+        binding.llBankInfo.setVisibility(View.GONE);
+        binding.llSuggest.setVisibility(View.VISIBLE);
         loadSuggestions();
+        Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (paymentStatusListener != null) paymentStatusListener.remove();
     }
 
     // "Có thể bạn cũng thích" — lấy sản phẩm bán chạy

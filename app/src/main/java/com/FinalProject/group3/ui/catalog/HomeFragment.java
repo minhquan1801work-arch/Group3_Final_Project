@@ -86,6 +86,12 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
+    /** Cuộn NestedScrollView (root) về đầu — gọi khi quay lại Home từ màn khác (VD: sau thanh toán). */
+    public void scrollToTop() {
+        if (binding == null) return;
+        binding.getRoot().smoothScrollTo(0, 0);
+    }
+
     // ── Adapters ─────────────────────────────────────────────────────────────
 
     private void setupAdapters() {

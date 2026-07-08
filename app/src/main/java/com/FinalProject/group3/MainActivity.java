@@ -20,6 +20,9 @@ public class MainActivity extends AppCompatActivity {
     /** Extra: mở thẳng tab Giỏ hàng (icon giỏ ở header ProductDetail dùng) */
     public static final String EXTRA_OPEN_CART = "open_cart";
 
+    /** Extra: mở thẳng tab Trang chủ (nút "Về trang chủ" sau khi đặt hàng) */
+    public static final String EXTRA_OPEN_HOME = "open_home";
+
     private DrawerLayout drawerLayout;
 
     @Override
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setupDrawer();
         setupNotificationDot();
         handleOpenCartIntent(getIntent());
+        handleOpenHomeIntent(getIntent());
         claimGuestOrders();
     }
 
@@ -56,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleOpenCartIntent(intent);
+        handleOpenHomeIntent(intent);
     }
 
     /** Nếu intent yêu cầu mở giỏ (từ icon giỏ ở ProductDetail) → navigate tab Giỏ */
@@ -70,6 +75,32 @@ public class MainActivity extends AppCompatActivity {
         NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.navHostFragment);
         if (navHost != null) navHost.getNavController().navigate(R.id.cartFragment);
+    }
+
+    /** Nếu intent yêu cầu về Trang chủ (nút "Về trang chủ" sau khi đặt hàng) → navigate tab Home + cuộn lên đầu */
+    private void handleOpenHomeIntent(android.content.Intent intent) {
+        if (intent == null || !intent.getBooleanExtra(EXTRA_OPEN_HOME, false)) return;
+        intent.removeExtra(EXTRA_OPEN_HOME); // tránh navigate lại khi rotate
+        NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.navHostFragment);
+        if (navHost == null) return;
+
+        NavController nc = navHost.getNavController();
+        if (nc.getCurrentDestination() == null
+                || nc.getCurrentDestination().getId() != R.id.homeFragment) {
+            nc.navigate(R.id.homeFragment, null, new androidx.navigation.NavOptions.Builder()
+                    .setPopUpTo(R.id.homeFragment, true)
+                    .build());
+        }
+
+        // Dù vừa navigate lại hay đã sẵn ở Home từ trước, luôn cuộn lên đầu —
+        // post() để đợi transaction fragment (nếu có) commit xong trước khi lấy instance
+        navHost.getChildFragmentManager().executePendingTransactions();
+        androidx.fragment.app.Fragment current =
+                navHost.getChildFragmentManager().getPrimaryNavigationFragment();
+        if (current instanceof com.FinalProject.group3.ui.catalog.HomeFragment) {
+            ((com.FinalProject.group3.ui.catalog.HomeFragment) current).scrollToTop();
+        }
     }
 
     public void openDrawer() {

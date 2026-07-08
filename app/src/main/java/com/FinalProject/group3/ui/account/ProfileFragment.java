@@ -96,7 +96,7 @@ public class ProfileFragment extends Fragment {
         setupPolicyRows();
 
         binding.btnLogout.setOnClickListener(v -> {
-            FirebaseHelper.signOut();
+            com.FinalProject.group3.utils.SessionManager.logout(requireContext());
             Intent intent = new Intent(requireContext(), WelcomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

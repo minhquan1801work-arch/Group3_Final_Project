@@ -23,6 +23,7 @@ import com.FinalProject.group3.databinding.ItemReviewBinding;
 import com.FinalProject.group3.model.CartDetail;
 import com.FinalProject.group3.model.Product;
 import com.FinalProject.group3.repository.CartRepository;
+import com.FinalProject.group3.repository.FavoriteRepository;
 import com.FinalProject.group3.repository.ProductRepository;
 import com.FinalProject.group3.ui.order.CheckoutActivity;
 import com.FinalProject.group3.utils.FirebaseHelper;
@@ -73,11 +74,13 @@ public class ProductDetailActivity extends AppCompatActivity {
     private ActivityProductDetailBinding binding;
     private final ProductRepository productRepo = new ProductRepository();
     private final CartRepository cartRepo = new CartRepository();
+    private final FavoriteRepository favoriteRepo = new FavoriteRepository();
 
     private Product product;
     private int quantity = 1;
     private int selectedColorIndex = 0;
     private ProductAdapter relatedAdapter;
+    private boolean isFavorited = false;
 
     public static void start(Context context, String productId) {
         Intent intent = new Intent(context, ProductDetailActivity.class);
@@ -115,6 +118,8 @@ public class ProductDetailActivity extends AppCompatActivity {
         binding.btnAllReviews.setOnClickListener(v ->
                 Toast.makeText(this, "Tất cả đánh giá — sẽ làm ở bước tiếp theo", Toast.LENGTH_SHORT).show());
 
+        binding.ivFavorite.setOnClickListener(v -> onFavoriteClick());
+
         String productId = getIntent().getStringExtra(EXTRA_PRODUCT_ID);
         if (productId == null) { finish(); return; }
         loadProduct(productId);
@@ -136,6 +141,7 @@ public class ProductDetailActivity extends AppCompatActivity {
                 product = p;
                 bindProduct();
                 loadRelated();
+                checkFavoriteState(p.getProductId());
             }
 
             @Override
@@ -169,8 +175,7 @@ public class ProductDetailActivity extends AppCompatActivity {
 
     // ── Ảnh: ViewPager2 + thumbnail ───────────────────────────────────────────
     private void setupImages() {
-        List<String> images = (product.getImages() != null && !product.getImages().isEmpty())
-                ? product.getImages() : new ArrayList<>();
+        List<String> images = resolveGalleryImages();
 
         ImagePagerAdapter pagerAdapter = new ImagePagerAdapter(images);
         binding.vpImages.setAdapter(pagerAdapter);
@@ -186,6 +191,21 @@ public class ProductDetailActivity extends AppCompatActivity {
                         thumbAdapter.setSelected(position);
                     }
                 });
+    }
+
+    /**
+     * Ảnh sản phẩm: field "images" cũ nếu có, nếu không (sản phẩm mới lưu ảnh
+     * riêng theo từng variant màu) thì gộp ảnh từ tất cả variants làm gallery.
+     */
+    private List<String> resolveGalleryImages() {
+        if (product.getImages() != null && !product.getImages().isEmpty()) return product.getImages();
+        List<String> flat = new ArrayList<>();
+        if (product.getVariants() != null) {
+            for (com.FinalProject.group3.model.ProductVariant v : product.getVariants()) {
+                if (v.getImages() != null) flat.addAll(v.getImages());
+            }
+        }
+        return flat;
     }
 
     // ── Chọn màu: dot động từ product.colors ─────────────────────────────────
@@ -408,6 +428,73 @@ public class ProductDetailActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    // ── Helpers: màu + kho theo variant đang chọn ──────────────────────────────
+
+    private String currentVariantColor() {
+        if (product == null) return "";
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        if (variants != null && !variants.isEmpty() && selectedColorIndex < variants.size()) {
+            String c = variants.get(selectedColorIndex).getColor();
+            if (c != null) return c;
+        }
+        List<String> colors = product.getColors();
+        if (colors != null && selectedColorIndex < colors.size()) return colors.get(selectedColorIndex);
+        return "";
+    }
+
+    private int currentVariantStock() {
+        if (product == null) return 0;
+        List<com.FinalProject.group3.model.ProductVariant> variants = product.getVariants();
+        if (variants != null && !variants.isEmpty() && selectedColorIndex < variants.size()) {
+            int s = variants.get(selectedColorIndex).getStock();
+            if (s > 0) return s;
+        }
+        return product.getStock();
+    }
+
+    // ── Yêu thích ─────────────────────────────────────────────────────────────
+
+    private void checkFavoriteState(String productId) {
+        if (FirebaseHelper.getCurrentUserId() == null) return;
+        com.FinalProject.group3.utils.FirebaseHelper.getDb()
+                .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_FAVORITES)
+                .whereEqualTo("customerId", FirebaseHelper.getCurrentUserId())
+                .whereEqualTo("productId", productId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (binding == null) return;
+                    isFavorited = !snapshot.isEmpty();
+                    binding.ivFavorite.setImageResource(
+                            isFavorited ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+                });
+    }
+
+    private void onFavoriteClick() {
+        if (product == null) return;
+        if (FirebaseHelper.getCurrentUserId() == null) {
+            com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                    this, "Đăng nhập để lưu sản phẩm yêu thích");
+            return;
+        }
+        favoriteRepo.toggleFavorite(product.getProductId(), new FavoriteRepository.ToggleCallback() {
+            @Override
+            public void onSuccess(boolean nowFavorite) {
+                if (binding == null) return;
+                isFavorited = nowFavorite;
+                binding.ivFavorite.setImageResource(
+                        nowFavorite ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+                Toast.makeText(ProductDetailActivity.this,
+                        nowFavorite ? "Đã thêm vào yêu thích" : "Đã bỏ yêu thích",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(ProductDetailActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     /** Lấy ImageView của trang hiện tại trong ViewPager2 để dùng làm nguồn fly animation. */

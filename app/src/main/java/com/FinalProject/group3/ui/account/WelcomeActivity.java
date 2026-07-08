@@ -48,6 +48,14 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Còn phiên (Firebase Auth tự lưu đăng nhập, hoặc đã chọn Khách trước đó)
+        // → vào thẳng Main, không bắt đăng nhập lại mỗi lần mở app
+        if (com.FinalProject.group3.utils.SessionManager.hasSession(this)) {
+            goToMain();
+            return;
+        }
+
         binding = ActivityWelcomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
@@ -71,7 +79,11 @@ public class WelcomeActivity extends AppCompatActivity {
         binding.btnGoogle.setOnClickListener(v ->
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
 
-        binding.tvContinueGuest.setOnClickListener(v -> goToMain());
+        binding.tvContinueGuest.setOnClickListener(v -> {
+            // Nhớ lựa chọn Khách — lần sau mở app vào thẳng Main
+            com.FinalProject.group3.utils.SessionManager.setGuestMode(this, true);
+            goToMain();
+        });
     }
 
     private void handleGoogleAccount(GoogleSignInAccount account) {

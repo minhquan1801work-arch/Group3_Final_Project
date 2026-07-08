@@ -6,23 +6,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:paddingBottom="84dp"
     tools:context=".ui.order.CartFragment">
 
-    <!-- Header: "Giỏ hàng(3)" + kẻ mảnh -->
+    <!-- Header: nút back + "Giỏ hàng(3)" -->
+    <ImageView
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:padding="8dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="6dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_arrow_back"
+        app:tint="@color/color_text_primary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="16dp"
+        android:paddingHorizontal="8dp"
         android:paddingVertical="14dp"
         android:text="@string/cart_title"
         android:textColor="@color/color_text_primary"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btnBack"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
         tools:text="Giỏ hàng(3)" />
 
     <View
@@ -32,7 +45,7 @@
         android:background="@color/color_divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        app:layout_constraintTop_toBottomOf="@id/btnBack" />
 
     <!-- ═══ EMPTY STATE (Figma: icon giỏ outline xám + text + nút đen full-width) ═══ -->
     <LinearLayout

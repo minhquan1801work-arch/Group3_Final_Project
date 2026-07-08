@@ -14,6 +14,7 @@ public class Product {
     private List<String> images; // Firebase Storage URLs
     private String categoryId;
     private List<String> faceShapes; // ["tron","trai_xoan",...] — empty for non-glasses
+    private List<ProductVariant> variants;
 
     public Product() {}
 
@@ -56,4 +57,7 @@ public class Product {
 
     public List<String> getFaceShapes() { return faceShapes; }
     public void setFaceShapes(List<String> faceShapes) { this.faceShapes = faceShapes; }
+
+    public List<ProductVariant> getVariants() { return variants; }
+    public void setVariants(List<ProductVariant> variants) { this.variants = variants; }
 }
