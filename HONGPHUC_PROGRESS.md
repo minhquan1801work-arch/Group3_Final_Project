@@ -119,18 +119,30 @@
 
 ---
 
-## [B8] CollectionActivity ✅
+## [B8] CollectionActivity ✅ (rework 08/07/2026 theo Figma)
 
 ### Files
-- `app/.../ui/catalog/CollectionActivity.java`
-- `app/.../res/layout/activity_collection.xml`
+- `app/.../ui/catalog/CollectionActivity.java` — viết lại toàn bộ, 2 chế độ
+- `app/.../res/layout/activity_collection.xml` — viết lại toàn bộ
+- `app/.../adapter/CollectionProductAdapter.java` — mới: card SP nhỏ (ảnh 110dp + tên + giá)
+- `app/.../res/layout/item_collection_product.xml` — mới
+- `app/.../res/drawable/bg_sheet_top_rounded.xml` — mới: sheet trắng bo góc trên
 
-### Hành vi
-- **Không có EXTRA**: hiển thị 3 section (Monochrome + Essential + Sunlight), mỗi section có ảnh placeholder + "Hàng mới về" horizontal RecyclerView
-- **Có EXTRA_COLLECTION**: chỉ hiển thị 1 section tương ứng
-- Data: `ProductRepository.getProductsByCollection(collection)` query `where("collection","==",value)`
-- IDs ảnh: `imgMonochrome`, `imgEssential`, `imgSunlight` (220dp, src sẽ được điền Cloudinary)
-- Launch: `CollectionActivity.start(ctx)` hoặc `CollectionActivity.start(ctx, "Monochrome Collection")`
+### Chế độ A — danh sách BST (không EXTRA, Figma "March Collection")
+- Nền tối `#4A4443`, header chữ "March" (cursive) + "COLLECTION" letterspaced
+- 3 section xếp dọc: ảnh full-width 380dp + hàng `01 ─── MONOCHROME COLLECTION`
+- Bấm section → mở lại activity với EXTRA của BST đó
+- IDs: `layoutAll`, `btnBackAll`, `sectionAllMonochrome/Essential/Sunlight`, `imgAllMonochrome/Essential/Sunlight`
+
+### Chế độ B — chi tiết 1 BST (có EXTRA_COLLECTION)
+- Hero full-bleed 440dp + title serif overlay (`imgHero`, `tvHeroTitle`) + back trắng
+- Sheet trắng bo góc trên (margin -24dp đè lên hero): "HÀNG MỚI VỀ" + mũi tên `btnPrev`/`btnNext` (smoothScroll), RecyclerView `rvProducts` card nhỏ ngang
+- Nút `btnViewAll` "Xem tất cả" → `ProductListActivity.startCollection(ctx, collection)`: trang danh sách sản phẩm chỉ hiện SP thuộc BST đó (title = tên BST, vẫn có filter/sort)
+- `ProductListActivity` thêm `EXTRA_COLLECTION` + `loadByCollection()`; bấm chip category/shape khác sẽ reset filter collection
+
+### Home (fragment_home.xml) — BST đổi thành carousel ngang
+- 3 tile cũ (2+1 grid) → `HorizontalScrollView` card 200dp: ảnh dọc 265dp + tên BST bên dưới (letterspaced) — lướt ngang như Figma
+- IDs giữ nguyên: `tileMonochrome/tileEssential/tileSunlight`, `imgMonochrome/imgEssential/imgSunlight`, `btnViewAllCollections` → HomeFragment.java không phải sửa
 
 ---
 

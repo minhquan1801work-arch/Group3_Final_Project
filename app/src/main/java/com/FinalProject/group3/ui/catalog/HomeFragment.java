@@ -34,15 +34,15 @@ public class HomeFragment extends Fragment {
 
     // Hero: 3 portrait thời trang đeo kính (khớp Figma)
     private static final List<String> HERO_URLS = Arrays.asList(
-            CLOUD + "v1783354469/glassity/site/hero_bg1.png",   // nữ blazer đen, cat-eye
-            CLOUD + "v1783355120/glassity/site/hero_james.jpg", // james — wrap shades
-            CLOUD + "v1783355121/glassity/site/hero_juhoon.jpg" // juhoon — sunglasses đôi
+            CLOUD + "v1783502208/5714e927d794a24eb4e3f5ac9d35cec642484aca_bhnscg.png",   // nữ blazer đen, cat-eye
+            CLOUD + "v1783502208/54bafc97ad1059dfd47aceb4ce98548693bf6b5c_xzhlb3.png", // james — wrap shades
+            CLOUD + "v1783502209/04b56adec24d1b9c3c5e7043b002d25a723d0d8b_cuvcfg.png" // juhoon — sunglasses đôi
     );
 
     private static final String URL_PROMO       = CLOUD + "v1783355118/glassity/site/promo_sasalele.jpg";
-    private static final String URL_MONOCHROME = CLOUD + "v1783354469/glassity/site/hero_bg1.png";
-    private static final String URL_ESSENTIAL   = CLOUD + "v1783354477/glassity/site/flatlay_background.png";
-    private static final String URL_SUNLIGHT    = CLOUD + "v1783354471/glassity/site/hero_bg2.png";
+    private static final String URL_MONOCHROME = CLOUD + "v1783502208/d21ee09b2dcb18b17af1ec5262d245334b74241b_lwh1kx.png";
+    private static final String URL_ESSENTIAL   = CLOUD + "v1783502208/7aec1cc6374895c92464c3118255d38449be11ee_yzemoi.png";
+    private static final String URL_SUNLIGHT    = CLOUD + "v1783502207/36566f6bfcef59072645817ac9273fc3824ad0c3_msnssy.png";
     private static final String URL_KHAM_PHA    = CLOUD + "v1783355119/glassity/site/kham_pha_flowers.jpg";
     private static final String URL_BLOG_GUIDE  = CLOUD + "v1783354481/glassity/site/guide_diagram.png";
     private static final String URL_BLOG_TREND  = CLOUD + "v1783355123/glassity/site/blog_login_signup.jpg";
