@@ -176,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
         android.widget.ImageView btnCategory     = findViewById(R.id.btnNavCategory);
         android.widget.ImageView btnNotification = findViewById(R.id.btnNavNotification);
         android.widget.ImageView btnProfile      = findViewById(R.id.btnNavProfile);
+        android.view.View navBarCard             = findViewById(R.id.navBarCard);
 
         btnHome.setOnClickListener(v         -> navigateTab(navController, R.id.homeFragment));
         btnCategory.setOnClickListener(v     -> navigateTab(navController, R.id.categoryFragment));
@@ -188,6 +189,16 @@ public class MainActivity extends AppCompatActivity {
             btnCategory.setSelected(id == R.id.categoryFragment);
             btnNotification.setSelected(id == R.id.notificationFragment);
             btnProfile.setSelected(id == R.id.profileFragment);
+
+            // Ẩn footer pill khi đang ở giỏ hàng — toàn màn hình dành cho nội dung cart
+            boolean onCart = (id == R.id.cartFragment);
+            navBarCard.animate()
+                    .translationY(onCart ? navBarCard.getHeight() : 0f)
+                    .alpha(onCart ? 0f : 1f)
+                    .setDuration(180)
+                    .withEndAction(() -> navBarCard.setVisibility(
+                            onCart ? android.view.View.GONE : android.view.View.VISIBLE))
+                    .start();
         });
     }
 
