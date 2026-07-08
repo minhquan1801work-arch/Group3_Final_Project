@@ -140,6 +140,23 @@
 - Nút `btnViewAll` "Xem tất cả" → `ProductListActivity.startCollection(ctx, collection)`: trang danh sách sản phẩm chỉ hiện SP thuộc BST đó (title = tên BST, vẫn có filter/sort)
 - `ProductListActivity` thêm `EXTRA_COLLECTION` + `loadByCollection()`; bấm chip category/shape khác sẽ reset filter collection
 
+---
+
+## Merge vào main (08/07/2026) ✅
+
+Đã merge `feature/person-HongPhuc` → `main`, resolve 9 file conflict:
+
+| File | Cách resolve |
+|------|--------------|
+| `CollectionActivity.java`, `Product.java`, `ProductVariant.java` | Lấy bản HongPhuc (rewrite Figma + colorName + getTotalStock) |
+| `CartAdapter.java` | Giữ bản main: `onVariantClick(item)` 1 tham số (khớp CartFragment) |
+| `ProductDetailActivity.java` | Ảnh/variants lấy bản HongPhuc; **guest-flow lấy bản main** (guest Mua ngay → Checkout trực tiếp, Thêm giỏ → LoginRequiredDialog). Xóa method trùng `currentVariantColor/Stock` (bản dùng `selectedColorIndex` không tồn tại) |
+| `ProductAdapter.java` | Kết hợp: `resolveThumbnailUrl()` của main + color dots từ variants |
+| `.gitignore` | Union: `service-account*`, `*.pem`, `cloudinary-config.json`, `node_modules/` |
+| `package.json` / lock | Union 3 deps: cloudinary + express + firebase-admin, regen lock |
+
+Build OK sau merge. Lưu ý cho lần merge sau: file `adapter/` + `model/` là vùng chạm nhau giữa 2 người — luôn kiểm tra interface signature (`onVariantClick`) và guest-flow trước khi lấy đè.
+
 ### Home (fragment_home.xml) — BST đổi thành carousel ngang
 - 3 tile cũ (2+1 grid) → `HorizontalScrollView` card 200dp: ảnh dọc 265dp + tên BST bên dưới (letterspaced) — lướt ngang như Figma
 - IDs giữ nguyên: `tileMonochrome/tileEssential/tileSunlight`, `imgMonochrome/imgEssential/imgSunlight`, `btnViewAllCollections` → HomeFragment.java không phải sửa
