@@ -123,6 +123,16 @@
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_rounded_card"
             android:backgroundTint="#8EC5C8">
+            <ImageView
+                android:id="@+id/imgPromo"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="centerCrop"
+                android:contentDescription="@null"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
             <TextView
                 android:id="@+id/tvPromoText"
                 android:layout_width="0dp"
@@ -219,8 +229,11 @@
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
-                    <View android:layout_width="64dp" android:layout_height="64dp"
-                        android:background="@drawable/bg_face_circle" />
+                    <ImageView android:id="@+id/imgFaceTron"
+                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_face_circle"
+                        android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="TRÒN"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
@@ -231,8 +244,11 @@
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
-                    <View android:layout_width="64dp" android:layout_height="64dp"
-                        android:background="@drawable/bg_face_circle" />
+                    <ImageView android:id="@+id/imgFaceTraiXoan"
+                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_face_circle"
+                        android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="TRÁI XOAN"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
@@ -243,8 +259,11 @@
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
-                    <View android:layout_width="64dp" android:layout_height="64dp"
-                        android:background="@drawable/bg_face_circle" />
+                    <ImageView android:id="@+id/imgFaceTraiTim"
+                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_face_circle"
+                        android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="TRÁI TIM"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
@@ -262,8 +281,11 @@
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
-                    <View android:layout_width="64dp" android:layout_height="64dp"
-                        android:background="@drawable/bg_face_circle" />
+                    <ImageView android:id="@+id/imgFaceKimCuong"
+                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_face_circle"
+                        android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="KIM CƯƠNG"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
@@ -274,8 +296,11 @@
                     android:layout_weight="1" android:gravity="center" android:orientation="vertical"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
-                    <View android:layout_width="64dp" android:layout_height="64dp"
-                        android:background="@drawable/bg_face_circle" />
+                    <ImageView android:id="@+id/imgFaceVuong"
+                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/bg_face_circle"
+                        android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:layout_marginTop="4dp" android:text="VUÔNG"
                         android:textColor="@color/color_text_primary" android:textSize="10sp" />
@@ -314,99 +339,97 @@
                     android:src="@drawable/ic_chevron_right" />
             </LinearLayout>
 
-            <!-- Row 1: Monochrome + Essential -->
-            <LinearLayout
+            <!-- Carousel lướt ngang: mỗi card = ảnh dọc + tên BST bên dưới (Figma) -->
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginHorizontal="16dp"
-                android:orientation="horizontal">
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
 
-                <FrameLayout
-                    android:id="@+id/tileMonochrome"
-                    android:layout_width="0dp"
-                    android:layout_height="160dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="6dp"
-                    android:background="@drawable/bg_rounded_card"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-                    <ImageView
-                        android:id="@+id/imgMonochrome"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@color/brand_dark"
-                        android:contentDescription="@null" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="12dp"
-                        android:text="MONOCHROME&#10;COLLECTION"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-
-                <FrameLayout
-                    android:id="@+id/tileEssential"
-                    android:layout_width="0dp"
-                    android:layout_height="160dp"
-                    android:layout_weight="1"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/bg_rounded_card"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?attr/selectableItemBackground">
-                    <ImageView
-                        android:id="@+id/imgEssential"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop"
-                        android:src="@color/brand_taupe"
-                        android:contentDescription="@null" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="bottom|start"
-                        android:layout_margin="12dp"
-                        android:text="ESSENTIAL&#10;ACETATE"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
-                </FrameLayout>
-            </LinearLayout>
-
-            <!-- Row 2: Sunlight full-width -->
-            <FrameLayout
-                android:id="@+id/tileSunlight"
-                android:layout_width="match_parent"
-                android:layout_height="140dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginHorizontal="16dp"
-                android:background="@drawable/bg_rounded_card"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
-                <ImageView
-                    android:id="@+id/imgSunlight"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@color/color_field_border"
-                    android:contentDescription="@null" />
-                <TextView
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|start"
-                    android:layout_margin="12dp"
-                    android:text="SUNLIGHT STUDIO"
-                    android:textColor="#FFFFFF"
-                    android:textSize="11sp"
-                    android:textStyle="bold" />
-            </FrameLayout>
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
+
+                    <LinearLayout
+                        android:id="@+id/tileMonochrome"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="14dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/imgMonochrome"
+                            android:layout_width="match_parent"
+                            android:layout_height="265dp"
+                            android:scaleType="centerCrop"
+                            android:src="@color/brand_dark"
+                            android:contentDescription="@null" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:letterSpacing="0.12"
+                            android:text="MONOCHROME COLLECTION"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/tileEssential"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="14dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/imgEssential"
+                            android:layout_width="match_parent"
+                            android:layout_height="265dp"
+                            android:scaleType="centerCrop"
+                            android:src="@color/brand_taupe"
+                            android:contentDescription="@null" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:letterSpacing="0.12"
+                            android:text="ESSENTIAL ACETATE"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/tileSunlight"
+                        android:layout_width="200dp"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/imgSunlight"
+                            android:layout_width="match_parent"
+                            android:layout_height="265dp"
+                            android:scaleType="centerCrop"
+                            android:src="@color/color_field_border"
+                            android:contentDescription="@null" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:letterSpacing="0.12"
+                            android:text="SUNLIGHT STUDIO"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="11sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
 
         </LinearLayout>
 
@@ -572,10 +595,13 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         android:orientation="vertical">
-                        <View
+                        <ImageView
+                            android:id="@+id/imgBlog1"
                             android:layout_width="match_parent"
                             android:layout_height="120dp"
-                            android:background="@color/color_field_border" />
+                            android:scaleType="centerCrop"
+                            android:background="@color/color_field_border"
+                            android:contentDescription="@null" />
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -611,10 +637,13 @@
                         android:focusable="true"
                         android:foreground="?attr/selectableItemBackground"
                         android:orientation="vertical">
-                        <View
+                        <ImageView
+                            android:id="@+id/imgBlog2"
                             android:layout_width="match_parent"
                             android:layout_height="120dp"
-                            android:background="@color/color_field_border" />
+                            android:scaleType="centerCrop"
+                            android:background="@color/color_field_border"
+                            android:contentDescription="@null" />
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

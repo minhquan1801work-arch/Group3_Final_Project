@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.FinalProject.group3.databinding.ItemProductBinding;
 import com.FinalProject.group3.model.Product;
+import com.FinalProject.group3.model.ProductVariant;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
@@ -79,6 +80,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         // Anh: uu tien anh cua variant dau tien (san pham moi luu anh theo mau),
         // fallback ve field images cu (san pham cu chua co variants)
         String imageUrl = resolveThumbnailUrl(product);
+        List<ProductVariant> variants = product.getVariants();
         Glide.with(holder.itemView.getContext())
                 .load(imageUrl)
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
@@ -87,8 +89,17 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 .centerCrop()
                 .into(holder.binding.ivProduct);
 
-        // Color swatches — hien toi da 3 cham mau
-        List<String> colors = product.getColors();
+        // Color swatches — lay mau tu variants, fallback colors cu
+        List<String> colors;
+        if (variants != null && !variants.isEmpty()) {
+            colors = new ArrayList<>();
+            for (ProductVariant v : variants) {
+                String c = v.getColor();
+                if (c != null && !c.isEmpty()) colors.add(c);
+            }
+        } else {
+            colors = product.getColors();
+        }
         View[] dots = {holder.binding.dot1, holder.binding.dot2, holder.binding.dot3};
         for (int i = 0; i < dots.length; i++) {
             if (colors != null && i < colors.size()) {

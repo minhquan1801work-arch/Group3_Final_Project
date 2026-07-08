@@ -1,214 +1,353 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background"
-    android:orientation="vertical">
+    android:background="@color/color_background">
 
-    <!-- Toolbar -->
+    <!-- ════════════ CHẾ ĐỘ A: DANH SÁCH BST (nền tối, kiểu March Collection) ════════════ -->
     <LinearLayout
+        android:id="@+id/layoutAll"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingHorizontal="8dp">
+        android:layout_height="match_parent"
+        android:background="#4A4443"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@null"
-            android:padding="8dp"
-            android:src="@drawable/ic_arrow_back" />
+        <!-- Toolbar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="8dp">
+            <ImageView
+                android:id="@+id/btnBackAll"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="#FFFFFF"
+                xmlns:app="http://schemas.android.com/apk/res-auto" />
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="serif"
+                android:gravity="center"
+                android:text="Glassity"
+                android:textColor="#FFFFFF"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            <View android:layout_width="40dp" android:layout_height="40dp" />
+        </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center"
-            android:text="Bộ Sưu Tập"
-            android:textColor="@color/color_text_primary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:scrollbars="none">
 
-        <View android:layout_width="40dp" android:layout_height="40dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="40dp">
+
+                <!-- Header: March COLECTION -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="cursive"
+                    android:text="March"
+                    android:textColor="#FFFFFF"
+                    android:textSize="52sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:letterSpacing="0.35"
+                    android:text="COLLECTION"
+                    android:textColor="#E8E4DF"
+                    android:textSize="14sp" />
+
+                <!-- 01 Monochrome -->
+                <LinearLayout
+                    android:id="@+id/sectionAllMonochrome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:id="@+id/imgAllMonochrome"
+                        android:layout_width="match_parent"
+                        android:layout_height="380dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop"
+                        android:src="@color/brand_dark" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:text="01"
+                            android:textColor="#E8E4DF"
+                            android:textSize="13sp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="12dp"
+                            android:layout_weight="1"
+                            android:background="#66FFFFFF" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.18"
+                            android:text="MONOCHROME COLLECTION"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 02 Essential -->
+                <LinearLayout
+                    android:id="@+id/sectionAllEssential"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:id="@+id/imgAllEssential"
+                        android:layout_width="match_parent"
+                        android:layout_height="380dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop"
+                        android:src="@color/brand_taupe" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:text="02"
+                            android:textColor="#E8E4DF"
+                            android:textSize="13sp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="12dp"
+                            android:layout_weight="1"
+                            android:background="#66FFFFFF" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.18"
+                            android:text="ESSENTIAL ACETATE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 03 Sunlight -->
+                <LinearLayout
+                    android:id="@+id/sectionAllSunlight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
+                    android:orientation="vertical">
+                    <ImageView
+                        android:id="@+id/imgAllSunlight"
+                        android:layout_width="match_parent"
+                        android:layout_height="380dp"
+                        android:layout_marginHorizontal="16dp"
+                        android:contentDescription="@null"
+                        android:scaleType="centerCrop"
+                        android:src="@color/color_field_border" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="serif"
+                            android:text="03"
+                            android:textColor="#E8E4DF"
+                            android:textSize="13sp" />
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="1dp"
+                            android:layout_marginHorizontal="12dp"
+                            android:layout_weight="1"
+                            android:background="#66FFFFFF" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.18"
+                            android:text="SUNLIGHT STUDIO"
+                            android:textColor="#FFFFFF"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
     </LinearLayout>
 
+    <!-- ════════════ CHẾ ĐỘ B: CHI TIẾT 1 BST (hero + sheet trắng) ════════════ -->
     <ScrollView
+        android:id="@+id/layoutSingle"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="none">
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="32dp">
+            android:orientation="vertical">
 
-            <!-- Monochrome Collection -->
-            <LinearLayout
-                android:id="@+id/sectionMonochrome"
+            <!-- Hero: ảnh full-bleed + title overlay + back -->
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:layout_height="440dp">
 
                 <ImageView
-                    android:id="@+id/imgMonochrome"
+                    android:id="@+id/imgHero"
                     android:layout_width="match_parent"
-                    android:layout_height="220dp"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@null"
                     android:scaleType="centerCrop"
-                    android:src="@color/color_field_border"
-                    android:contentDescription="@null" />
+                    android:src="@color/brand_dark" />
+
+                <ImageView
+                    android:id="@+id/btnBack"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_arrow_back"
+                    app:tint="#FFFFFF"
+                    xmlns:app="http://schemas.android.com/apk/res-auto" />
 
                 <TextView
+                    android:id="@+id/tvHeroTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="01"
-                    android:textColor="@color/color_hint"
-                    android:textSize="12sp" />
+                    android:layout_gravity="top"
+                    android:layout_marginTop="52dp"
+                    android:fontFamily="serif"
+                    android:gravity="center"
+                    android:text="MONOCHROME\nCOLLECTION"
+                    android:textColor="#FFFFFF"
+                    android:textSize="30sp"
+                    android:shadowColor="#80000000"
+                    android:shadowRadius="8" />
+            </FrameLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:text="Monochrome Collection"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+            <!-- Sheet trắng bo góc trên đè lên hero -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-24dp"
+                android:background="@drawable/bg_sheet_top_rounded"
+                android:orientation="vertical"
+                android:paddingTop="24dp"
+                android:paddingBottom="32dp">
 
-                <TextView
+                <!-- Header: HÀNG MỚI VỀ + mũi tên -->
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Hàng mới về"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:layout_marginHorizontal="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:letterSpacing="0.08"
+                        android:text="HÀNG MỚI VỀ"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/btnPrev"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="4dp"
+                        android:rotation="180"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/color_hint"
+                        xmlns:app="http://schemas.android.com/apk/res-auto" />
+                    <ImageView
+                        android:id="@+id/btnNext"
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:layout_marginStart="8dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@null"
+                        android:padding="4dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/color_text_primary"
+                        xmlns:app="http://schemas.android.com/apk/res-auto" />
+                </LinearLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvMonochrome"
+                    android:id="@+id/rvProducts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:clipToPadding="false"
                     android:paddingHorizontal="16dp" />
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginVertical="16dp"
-                    android:background="@color/color_field_border" />
-            </LinearLayout>
-
-            <!-- Essential Acetate -->
-            <LinearLayout
-                android:id="@+id/sectionEssential"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/imgEssential"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    android:scaleType="centerCrop"
-                    android:src="@color/color_field_border"
-                    android:contentDescription="@null" />
-
                 <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="02"
-                    android:textColor="@color/color_hint"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:text="Essential Acetate"
+                    android:id="@+id/btnViewAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="24dp"
+                    android:background="@drawable/bg_btn_black_outline"
+                    android:gravity="center"
+                    android:paddingHorizontal="32dp"
+                    android:text="Xem tất cả"
                     android:textColor="@color/color_text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Hàng mới về"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvEssential"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingHorizontal="16dp" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginVertical="16dp"
-                    android:background="@color/color_field_border" />
-            </LinearLayout>
-
-            <!-- Sunlight Studio -->
-            <LinearLayout
-                android:id="@+id/sectionSunlight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/imgSunlight"
-                    android:layout_width="match_parent"
-                    android:layout_height="220dp"
-                    android:scaleType="centerCrop"
-                    android:src="@color/color_field_border"
-                    android:contentDescription="@null" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="03"
-                    android:textColor="@color/color_hint"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="16dp"
-                    android:text="Sunlight Studio"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:text="Hàng mới về"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvSunlight"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingHorizontal="16dp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
-
         </LinearLayout>
     </ScrollView>
 
-</LinearLayout>
+</FrameLayout>

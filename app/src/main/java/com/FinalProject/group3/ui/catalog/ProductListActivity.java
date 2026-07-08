@@ -58,6 +58,7 @@ public class ProductListActivity extends AppCompatActivity {
     private static final String EXTRA_FACE_SHAPE    = "extra_face_shape";
     private static final String EXTRA_ALL_SHAPES    = "extra_all_shapes";
     private static final String EXTRA_CATEGORY_NAME = "extra_category_name";
+    private static final String EXTRA_COLLECTION    = "extra_collection";
 
     // ── Static launchers ──────────────────────────────────────────────────────
     public static void start(Context context, String categoryId, String faceShape, String title) {
@@ -81,6 +82,14 @@ public class ProductListActivity extends AppCompatActivity {
         context.startActivity(intent);
     }
 
+    /** Mo danh sach san pham cua 1 bo suu tap (loc theo field collection) */
+    public static void startCollection(Context context, String collection) {
+        Intent intent = new Intent(context, ProductListActivity.class);
+        intent.putExtra(EXTRA_COLLECTION, collection);
+        intent.putExtra(EXTRA_CATEGORY_NAME, collection);
+        context.startActivity(intent);
+    }
+
     // ── Fields ────────────────────────────────────────────────────────────────
     private ActivityProductListBinding binding;
     private final ProductRepository productRepository = new ProductRepository();
@@ -89,6 +98,7 @@ public class ProductListActivity extends AppCompatActivity {
     private List<Product> allProducts = new ArrayList<>();
     private String currentCategoryId = null;
     private String currentFaceShape  = null;
+    private String currentCollection = null;
     private boolean isAllShapes      = false;
     private int currentSort          = SORT_DEFAULT;
 
@@ -101,6 +111,7 @@ public class ProductListActivity extends AppCompatActivity {
 
         currentCategoryId = getIntent().getStringExtra(EXTRA_CATEGORY_ID);
         currentFaceShape  = getIntent().getStringExtra(EXTRA_FACE_SHAPE);
+        currentCollection = getIntent().getStringExtra(EXTRA_COLLECTION);
         isAllShapes       = getIntent().getBooleanExtra(EXTRA_ALL_SHAPES, false);
         String title      = getIntent().getStringExtra(EXTRA_CATEGORY_NAME);
         binding.tvTitle.setText(title != null ? title : "Sản phẩm");
@@ -131,9 +142,11 @@ public class ProductListActivity extends AppCompatActivity {
     }
 
     private void switchToCategory(String categoryId, TextView chip) {
-        if (categoryId.equals(currentCategoryId) && currentFaceShape == null && !isAllShapes) return;
+        if (categoryId.equals(currentCategoryId) && currentFaceShape == null && !isAllShapes
+                && currentCollection == null) return;
         currentCategoryId = categoryId;
         currentFaceShape  = null;
+        currentCollection = null;
         isAllShapes       = false;
         currentSort       = SORT_DEFAULT;
         resetChips();
@@ -146,6 +159,7 @@ public class ProductListActivity extends AppCompatActivity {
         isAllShapes       = true;
         currentCategoryId = null;
         currentFaceShape  = null;
+        currentCollection = null;
         currentSort       = SORT_DEFAULT;
         resetChips();
         setActiveChip(binding.chipShape);
@@ -222,6 +236,7 @@ public class ProductListActivity extends AppCompatActivity {
     private void switchToShape(String shape, String label) {
         currentFaceShape  = shape;
         currentCategoryId = null;
+        currentCollection = null;
         isAllShapes       = false;
         currentSort       = SORT_DEFAULT;
         resetChips();
@@ -242,10 +257,16 @@ public class ProductListActivity extends AppCompatActivity {
 
     // ── Load ──────────────────────────────────────────────────────────────────
     private void loadInitial() {
-        if (currentFaceShape != null)    loadByFaceShape(currentFaceShape);
+        if (currentCollection != null)   loadByCollection(currentCollection);
+        else if (currentFaceShape != null) loadByFaceShape(currentFaceShape);
         else if (isAllShapes)            loadAllShapes();
         else if (currentCategoryId != null) loadByCategory(currentCategoryId);
         else                             loadAll();
+    }
+
+    private void loadByCollection(String collection) {
+        showLoading();
+        productRepository.getProductsByCollection(collection, wrap());
     }
 
     private void loadAll() {
