@@ -103,19 +103,20 @@
 
 ---
 
-## [B7] SearchActivity ✅
+## [B7] SearchActivity ✅ (hoàn thiện 09/07/2026)
 
 ### Files
-- `app/.../ui/catalog/SearchActivity.java`
-- `app/.../res/layout/activity_search.xml`
-- `app/.../res/drawable/bg_search_bar.xml`
+- `app/.../ui/catalog/SearchActivity.java` — viết lại toàn bộ
+- `app/.../res/layout/activity_search.xml` — viết lại: thêm section "Gợi ý tìm kiếm" + icon camera
+- `app/.../adapter/SearchSuggestAdapter.java` — mới: card gợi ý (ảnh + tên đậm)
+- `app/.../res/layout/item_search_suggest.xml` — mới
 
-### Tính năng
-- Lịch sử tìm kiếm lưu `SharedPreferences` (`search_history` / `history`), tối đa 8 từ
-- Xóa từng chip lịch sử, nút "Xóa tất cả"
-- Kết quả search: `ProductRepository.searchProducts(keyword)` → prefix match Firestore
-- Grid 2 cột kết quả, empty state text
-- Keyboard tự hiện khi mở
+### Cách hoạt động
+- **Search in-memory**: load toàn bộ products 1 lần → tìm contains, bỏ dấu tiếng Việt, không phân biệt hoa thường, khớp tên + mô tả + tên màu variant ("hổ phách" ra được SP có variant Hổ phách). Không dùng Firestore prefix query nữa (hàm `searchProducts` cũ trong repo vẫn giữ cho nơi khác)
+- **Type-ahead**: gõ ≥2 ký tự → debounce 250ms → hiện grid sản phẩm khớp ngay. Bấm Enter/chip lịch sử mới lưu lịch sử (không lưu rác từng ký tự)
+- **Lịch sử**: chỉ user đã đăng nhập, lưu SharedPreferences key `history_<uid>` (mỗi tài khoản riêng), max 8, mới nhất trước, guest ẩn hẳn section
+- **Gợi ý tìm kiếm** (cá nhân hóa): hồ sơ sở thích = SP đã mua (orders→orderDetails) + yêu thích + khớp lịch sử search → chấm điểm SP chưa mua: +3 trùng collection, +2/faceShape trùng, +1 trùng category, +1 cùng khoảng giá ±30% → top 6, điểm bằng thì random. Guest/chưa có dữ liệu → random 6
+- **Camera trong search bar**: UI giữ chỗ cho tính năng tìm bằng hình ảnh (Toast "sắp ra mắt") — sẽ bổ sung sau. Icon camera ↔ nút X hoán đổi theo trạng thái đang gõ
 
 ---
 

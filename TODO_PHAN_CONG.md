@@ -28,15 +28,13 @@
 
 | # | Task | Ưu tiên | Ghi chú |
 |---|---|:---:|---|
-| 1 | Fix hoàn chỉnh `SearchActivity` | ⭐⭐⭐ | File có sẵn nhưng chưa hoạt động đúng. Kiểm tra: kết quả search có ra đúng sản phẩm không (`ProductRepository.searchProducts` dùng prefix + ``), lịch sử tìm kiếm lưu/xoá đúng, giao diện khớp Figma, bấm kết quả → vào đúng `ProductDetailActivity` |
-| 2 | Review Firestore Rules | ⭐⭐⭐ | Đang `allow read, write: if true` — lỗ hổng bảo mật, cần review trước khi nộp bài (tối thiểu: chỉ cho user đã login ghi vào `orders`/`customers` của chính họ) |
-| 3 | **Hiển thị review thật trên trang sản phẩm** | ⭐⭐⭐ | `ProductDetailActivity.bindDemoReviews()` đang dùng `DEMO_REVIEWS` hardcode. Đổi sang query `FirebaseHelper.getDb().collection(COL_REVIEWS).whereEqualTo("productId", productId)`, map sang `ItemReviewBinding` (tên người đánh giá lấy `customerId`→tra `customers/{uid}.name`, ngày từ `createdAt`, nội dung `comment`, số sao `rating` — hiện code đang fix cứng 5 sao full, cần đổi động theo `rating`). Cũng nên hiện luôn `imageUrls` nếu có ảnh review. Tính lại `tvRating`/`tvRatingCount` từ dữ liệu thật thay vì fix cứng "4.9" |
-| 4 | Fix hoàn chỉnh `SearchActivity` | ⭐⭐⭐ | File có sẵn nhưng chưa hoạt động đúng. Kiểm tra: kết quả search có ra đúng sản phẩm không (`ProductRepository.searchProducts` dùng prefix + ``), lịch sử tìm kiếm lưu/xoá đúng, giao diện khớp Figma, bấm kết quả → vào đúng `ProductDetailActivity` |
-| 5 | Review Firestore Rules | ⭐⭐⭐ | Đang `allow read, write: if true` — lỗ hổng bảo mật, cần review trước khi nộp bài (tối thiểu: chỉ cho user đã login ghi vào `orders`/`customers`/`reviews` của chính họ) |
-| 6 | Ảnh thật cho 3 phụ kiện | ⭐⭐ | `Hộp Đựng Kính Da Cao Cấp`, `Nước Lau Kính Chuyên Dụng 30ml`, `Túi Đựng Kính Nhung Mềm` đang dùng ảnh demo Cloudinary — cần ảnh thật hoặc nhờ thành viên khác tìm theo `HUONG_DAN_THEM_SAN_PHAM.md` |
-| 7 | Test toàn bộ luồng catalog sau merge | ⭐⭐⭐ | Home → Collection carousel → BST detail → Xem tất cả → ProductList lọc đúng → ProductDetail hiển thị đúng ảnh/màu/giá/review cho cả 20 SP mới lẫn SP cũ (kính cận, phụ kiện) |
-| 8 | Đối chiếu lại toàn bộ UI với Figma | ⭐⭐ | Cần bạn gửi tôi export ảnh từng màn (hoặc cấp quyền xem) vì link hiện bị chặn đăng nhập — ưu tiên các màn: ProductDetail, ProductList, SearchActivity, DrawerLayout |
-| 9 | Dọn `HONGPHUC_PROGRESS.md` | ⭐ | Đánh dấu B7 SearchActivity là "đang sửa lại", tránh gây hiểu nhầm như lần này |
+| 1 | ~~Fix hoàn chỉnh `SearchActivity`~~ ✅ **XONG 09/07** | — | Đã viết lại: in-memory search (contains, bỏ dấu tiếng Việt, khớp cả tên màu variant), type-ahead debounce 250ms, lịch sử per-uid (guest ẩn hẳn), gợi ý cá nhân hóa (SP đã mua + yêu thích + lịch sử search → chấm điểm collection/faceShape/category/giá), UI camera giữ chỗ. **Còn lại (làm sau):** tính năng tìm bằng hình ảnh thật cho nút camera |
+| 2 | **Hiển thị review thật trên trang sản phẩm** | ⭐⭐⭐ | `ProductDetailActivity.bindDemoReviews()` đang dùng `DEMO_REVIEWS` hardcode. Đổi sang query `collection(COL_REVIEWS).whereEqualTo("productId", ...)`, map sang `ItemReviewBinding` (tên lấy `customers/{uid}.name`, ngày từ `createdAt`, sao động theo `rating` — hiện fix cứng 5 sao). Hiện `imageUrls` nếu có ảnh review. Tính `tvRating`/`tvRatingCount` từ data thật thay vì "4.9" |
+| 3 | Review Firestore Rules | ⭐⭐⭐ | Đang `allow read, write: if true` — lỗ hổng bảo mật, cần review trước khi nộp (tối thiểu: chỉ user đã login ghi vào `orders`/`customers`/`reviews` của chính họ) |
+| 4 | Ảnh thật cho 3 phụ kiện | ⭐⭐ | `Hộp Đựng Kính Da Cao Cấp`, `Nước Lau Kính Chuyên Dụng 30ml`, `Túi Đựng Kính Nhung Mềm` đang dùng ảnh demo Cloudinary — tìm ảnh thật theo `HUONG_DAN_THEM_SAN_PHAM.md` |
+| 5 | Test toàn bộ luồng catalog sau merge | ⭐⭐⭐ | Home → Collection → BST detail → Xem tất cả → ProductList → ProductDetail đúng ảnh/màu/giá/review cho cả SP mới lẫn cũ. Test Search: guest không thấy lịch sử, user login có lịch sử riêng, gợi ý đổi theo hành vi mua/thích |
+| 6 | Đối chiếu lại toàn bộ UI với Figma | ⭐⭐ | Gửi AI export ảnh từng màn (link Figma bị chặn đăng nhập) — ưu tiên: ProductDetail, ProductList, DrawerLayout |
+| 7 | Tìm bằng hình ảnh (nút camera Search) | ⭐ | UI đã giữ chỗ (Toast "sắp ra mắt"). Khi làm thật: chụp/chọn ảnh → tìm SP tương tự. Gợi ý: ML Kit Image Labeling hoặc so màu chủ đạo |
 
 ---
 
