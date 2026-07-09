@@ -210,7 +210,9 @@ public class MainActivity extends AppCompatActivity {
         android.view.View navBarCard             = findViewById(R.id.navBarCard);
 
         btnHome.setOnClickListener(v         -> navigateTab(navController, R.id.homeFragment));
-        btnCategory.setOnClickListener(v     -> navigateTab(navController, R.id.categoryFragment));
+        // Nút danh mục → mở thẳng trang sản phẩm (tất cả SP) thay vì CategoryFragment
+        btnCategory.setOnClickListener(v     ->
+                com.FinalProject.group3.ui.catalog.ProductListActivity.startAll(this));
         btnNotification.setOnClickListener(v -> navigateTab(navController, R.id.notificationFragment));
         btnProfile.setOnClickListener(v      -> navigateTab(navController, R.id.profileFragment));
 

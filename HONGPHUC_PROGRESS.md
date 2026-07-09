@@ -103,6 +103,37 @@
 
 ---
 
+## [B10] Homepage khớp Figma 100% (09/07/2026) ✅
+
+### Thay đổi lớn theo Figma
+| Section | Trước | Sau (Figma) |
+|---|---|---|
+| Hero carousel | Full-width + dots | **Peek carousel**: slide giữa to, 2 bên ló ra, scale animation, mỗi slide có label "XEM NGAY" gạch chân. Bỏ dots |
+| Hero click | Không có | Bấm slide → `ProductDetailActivity`. **ID sản phẩm điền tại `HERO_PRODUCT_IDS` trong `HomeFragment.java`** (đang rỗng → Toast "Sắp ra mắt"). Điền document ID Firestore theo đúng thứ tự slide |
+| Promo banner | Text trái trên, nút wine | Cao 200dp, text IN HOA căn giữa dưới, nút đen `bg_btn_black_filled` căn giữa |
+| Card "Bán chạy" | Tên 2 dòng + giá | Tên 1 dòng + icon tim góc ảnh, **ẩn giá** (`tvPrice` gone, giữ id cho adapter) |
+| Dáng mặt | 64dp, label đen, hàng 2 lệch trái | 84dp, label **màu riêng từng shape** (đỏ/teal/vàng/xanh/cam, bold), hàng 2 căn giữa |
+| SẢN PHẨM NỔI BẬT | Grid 2 cột | **Xóa hẳn** (Figma không có) — `productAdapter`/`rvProducts`/`tvEmptyProducts` đã gỡ khỏi HomeFragment, badge giỏ hàng giờ refresh qua `CartQuickActions.refreshBadge()` |
+| Lợi ích | 4 dòng text | **6 tile 2 cột** có viền (styles `BenefitTile/Icon/Text` trong themes.xml): vận chuyển, đo mắt, đổi trả, hỗ trợ 24/7, chính hãng, thanh toán |
+| Thứ tự section | BST→Lợi ích→Nổi bật→Blog | BST→**Blog→Lợi ích** (khớp Figma) |
+| Khám phá Glassity | Banner overlay chữ giữa | Nền trắng: ảnh + **chữ dọc "GLASSITY" serif xoay 90°** + tagline dọc + link "KHÁM PHÁ GLASSITY" gạch chân (`tvKhamPhaLink`) |
+| Footer | Nền đen | **Nền sáng #F7F5F2 căn giữa**: 3 icon MXH (vector mới `ic_social_x/ig/yt`), ornament ─◇─, email/SĐT/giờ mở cửa (serif), hàng About/Contact/Policy (id `footerAbout/footerContact/footerPolicy` — **trang đích bổ sung sau**), dòng bản quyền |
+
+### Files
+- `fragment_home.xml` — sửa lớn toàn bộ các section trên
+- `HomeFragment.java` — hero peek transformer + `HERO_PRODUCT_IDS` + gỡ section nổi bật
+- `HeroBannerAdapter.java` — dùng layout `item_hero_banner.xml` (mới) thay ImageView trần
+- `item_product_featured.xml` — card bán chạy mới
+- `themes.xml` — 3 style BenefitTile/BenefitIcon/BenefitText
+- Drawable mới: `bg_benefit_tile`, `ic_social_x`, `ic_social_ig`, `ic_social_yt`
+- `item_hero_banner.xml` — mới
+
+### Chờ điền sau
+- [ ] `HERO_PRODUCT_IDS` (3 document ID) — `HomeFragment.java` gần đầu file
+- [ ] Trang đích About / Contact / Policy cho footer (id đã có sẵn, chưa gắn listener)
+
+---
+
 ## [B7] SearchActivity ✅ (hoàn thiện 09/07/2026)
 
 ### Files

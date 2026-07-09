@@ -94,31 +94,20 @@
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- ══════════════════════════════ HERO CAROUSEL ══════════════════════════════ -->
-        <FrameLayout
+        <!-- ══════════════ HERO CAROUSEL: slide giữa to, 2 bên ló ra (Figma) ══════════════ -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/vpHero"
             android:layout_width="match_parent"
-            android:layout_height="220dp">
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/vpHero"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <!-- Dot indicators -->
-            <LinearLayout
-                android:id="@+id/llHeroDots"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center_horizontal"
-                android:layout_marginBottom="12dp"
-                android:orientation="horizontal" />
-        </FrameLayout>
+            android:layout_height="230dp"
+            android:clipChildren="false"
+            android:clipToPadding="false" />
 
         <!-- ══════════════════════════════ PROMO BANNER ══════════════════════════════ -->
+        <!-- Cao gần vuông để thấy trọn ảnh minh họa (Figma) -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutPromoBanner"
             android:layout_width="match_parent"
-            android:layout_height="140dp"
+            android:layout_height="330dp"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/bg_rounded_card"
@@ -133,33 +122,36 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
+            <!-- Text + nút căn giữa, dồn xuống dưới (Figma) -->
             <TextView
                 android:id="@+id/tvPromoText"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginEnd="100dp"
-                android:text="Mua sản phẩm thứ hai\ngiảm ngay 20%"
+                android:gravity="center"
+                android:shadowColor="#40000000"
+                android:shadowRadius="4"
+                android:text="MUA SẢN PHẨM THỨ HAI\nGIẢM NGAY 20%"
                 android:textColor="#FFFFFF"
-                android:textSize="17sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintBottom_toTopOf="@id/btnPromo"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
             <TextView
                 android:id="@+id/btnPromo"
                 android:layout_width="wrap_content"
-                android:layout_height="32dp"
-                android:layout_marginStart="20dp"
+                android:layout_height="36dp"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_btn_wine_filled"
+                android:layout_marginBottom="28dp"
+                android:background="@drawable/bg_btn_black_filled"
                 android:gravity="center"
-                android:paddingHorizontal="16dp"
+                android:paddingHorizontal="24dp"
                 android:text="Mua ngay"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvPromoText" />
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- ══════════════════════════════ SẢN PHẨM BÁN CHẠY ══════════════════════════════ -->
@@ -230,13 +222,14 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:id="@+id/imgFaceTron"
-                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:layout_width="84dp" android:layout_height="84dp"
                         android:scaleType="centerCrop"
                         android:background="@drawable/bg_face_circle"
                         android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="TRÒN"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
+                        android:layout_marginTop="6dp" android:text="TRÒN"
+                        android:letterSpacing="0.06" android:textStyle="bold"
+                        android:textColor="#E56B6F" android:textSize="11sp" />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/faceTraiXoan"
@@ -245,13 +238,14 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:id="@+id/imgFaceTraiXoan"
-                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:layout_width="84dp" android:layout_height="84dp"
                         android:scaleType="centerCrop"
                         android:background="@drawable/bg_face_circle"
                         android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="TRÁI XOAN"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
+                        android:layout_marginTop="6dp" android:text="TRÁI XOAN"
+                        android:letterSpacing="0.06" android:textStyle="bold"
+                        android:textColor="#2FA7A0" android:textSize="11sp" />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/faceTraiTim"
@@ -260,21 +254,24 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:id="@+id/imgFaceTraiTim"
-                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:layout_width="84dp" android:layout_height="84dp"
                         android:scaleType="centerCrop"
                         android:background="@drawable/bg_face_circle"
                         android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="TRÁI TIM"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
+                        android:layout_marginTop="6dp" android:text="TRÁI TIM"
+                        android:letterSpacing="0.06" android:textStyle="bold"
+                        android:textColor="#D4A72C" android:textSize="11sp" />
                 </LinearLayout>
             </LinearLayout>
+            <!-- Hàng 2: 2 dáng mặt căn giữa (Figma) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="14dp"
                 android:gravity="center"
                 android:orientation="horizontal">
+                <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="0.5" />
                 <LinearLayout
                     android:id="@+id/faceKimCuong"
                     android:layout_width="0dp" android:layout_height="wrap_content"
@@ -282,13 +279,14 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:id="@+id/imgFaceKimCuong"
-                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:layout_width="84dp" android:layout_height="84dp"
                         android:scaleType="centerCrop"
                         android:background="@drawable/bg_face_circle"
                         android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="KIM CƯƠNG"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
+                        android:layout_marginTop="6dp" android:text="KIM CƯƠNG"
+                        android:letterSpacing="0.06" android:textStyle="bold"
+                        android:textColor="#4A7BD9" android:textSize="11sp" />
                 </LinearLayout>
                 <LinearLayout
                     android:id="@+id/faceVuong"
@@ -297,15 +295,16 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true" android:focusable="true">
                     <ImageView android:id="@+id/imgFaceVuong"
-                        android:layout_width="64dp" android:layout_height="64dp"
+                        android:layout_width="84dp" android:layout_height="84dp"
                         android:scaleType="centerCrop"
                         android:background="@drawable/bg_face_circle"
                         android:contentDescription="@null" />
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp" android:text="VUÔNG"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
+                        android:layout_marginTop="6dp" android:text="VUÔNG"
+                        android:letterSpacing="0.06" android:textStyle="bold"
+                        android:textColor="#E8963A" android:textSize="11sp" />
                 </LinearLayout>
-                <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
+                <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="0.5" />
             </LinearLayout>
         </LinearLayout>
 
@@ -433,120 +432,6 @@
 
         </LinearLayout>
 
-        <!-- ══════════════════════════════ LỢI ÍCH ══════════════════════════════ -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginHorizontal="16dp"
-            android:background="@color/white"
-            android:padding="12dp"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:layout_marginEnd="8dp"
-                    android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x1F69A;" android:textSize="16sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Miễn phí vận chuyển từ 399K"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
-                </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x1F504;" android:textSize="16sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Đổi trả trong 30 ngày"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View android:layout_width="match_parent" android:layout_height="1dp"
-                android:layout_marginVertical="10dp" android:background="@color/color_field_border" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:layout_marginEnd="8dp"
-                    android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x1F4AC;" android:textSize="16sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Nhân viên hỗ trợ 24/7"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
-                </LinearLayout>
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:layout_width="28dp" android:layout_height="28dp"
-                        android:gravity="center" android:text="&#x2705;" android:textSize="16sp" />
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                        android:layout_weight="1" android:layout_marginStart="6dp"
-                        android:text="Cam kết chính hãng 100%"
-                        android:textColor="@color/color_text_primary" android:textSize="10sp" />
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- ══════════════════════════════ SẢN PHẨM NỔI BẬT ══════════════════════════════ -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:letterSpacing="0.05"
-                    android:text="SẢN PHẨM NỔI BẬT"
-                    android:textColor="@color/color_text_primary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-                <ImageView
-                    android:id="@+id/btnViewAllProducts"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_chevron_right" />
-            </LinearLayout>
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvProducts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginHorizontal="11dp"
-                android:nestedScrollingEnabled="false"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
-                tools:listitem="@layout/item_product" />
-            <TextView
-                android:id="@+id/tvEmptyProducts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:gravity="center"
-                android:text="Chưa có sản phẩm nào, đội ngũ đang cập nhật."
-                android:textColor="@color/color_text_secondary"
-                android:visibility="gone"
-                tools:visibility="visible" />
-        </LinearLayout>
-
         <!-- ══════════════════════════════ BLOG ══════════════════════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -672,190 +557,284 @@
             </HorizontalScrollView>
         </LinearLayout>
 
-        <!-- ══════════════════════════════ KHÁM PHÁ GLASSITY banner ══════════════════════════════ -->
-        <FrameLayout
-            android:id="@+id/bannerKhamPha"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:layout_marginTop="28dp"
-            android:layout_marginHorizontal="16dp"
-            android:background="@drawable/bg_rounded_card"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
-
-            <ImageView
-                android:id="@+id/imgKhamPha"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@color/brand_dark"
-                android:contentDescription="@null" />
-
-            <!-- Gradient overlay -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:alpha="0.4"
-                android:background="@color/brand_dark" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:letterSpacing="0.12"
-                    android:text="KHÁM PHÁ"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:letterSpacing="0.08"
-                    android:text="Glassity"
-                    android:textColor="#FFFFFF"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_btn_wine_filled"
-                    android:gravity="center"
-                    android:paddingHorizontal="20dp"
-                    android:paddingVertical="6dp"
-                    android:text="Xem thêm"
-                    android:textColor="#FFFFFF"
-                    android:textSize="13sp" />
-            </LinearLayout>
-        </FrameLayout>
-
-        <!-- ══════════════════════════════ FOOTER ══════════════════════════════ -->
+        <!-- ══════════════ LỢI ÍCH: 6 tile 2 cột (Figma) ══════════════ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:background="@color/brand_dark"
-            android:orientation="vertical"
-            android:padding="20dp">
+            android:layout_marginTop="24dp"
+            android:layout_marginHorizontal="16dp"
+            android:orientation="vertical">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:letterSpacing="0.08"
-                android:text="Glassity"
-                android:textColor="#FFFFFF"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Kính mắt thời trang – Phong cách của bạn"
-                android:textColor="#AAAAAA"
-                android:textSize="12sp" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_marginVertical="16dp"
-                android:background="#444444" />
-
-            <!-- Links -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/footerAbout"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingVertical="4dp"
-                        android:text="Về Glassity"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp" />
-                    <TextView
-                        android:id="@+id/footerContact"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingVertical="4dp"
-                        android:text="Liên hệ"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp" />
-                    <TextView
-                        android:id="@+id/footerPolicy"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingVertical="4dp"
-                        android:text="Chính sách bảo mật"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp" />
+                <LinearLayout style="@style/BenefitTile"
+                    android:layout_marginEnd="8dp">
+                    <TextView style="@style/BenefitIcon" android:text="&#x1F69A;" />
+                    <TextView style="@style/BenefitText" android:text="Miễn phí\nvận chuyển từ 399K" />
                 </LinearLayout>
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:paddingVertical="4dp"
-                        android:text="Theo dõi chúng tôi"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:id="@+id/footerFb"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:gravity="center"
-                            android:text="f"
-                            android:textColor="#FFFFFF"
-                            android:textSize="14sp"
-                            android:textStyle="bold" />
-                        <TextView
-                            android:id="@+id/footerIg"
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_marginStart="4dp"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:gravity="center"
-                            android:text="ig"
-                            android:textColor="#FFFFFF"
-                            android:textSize="12sp"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                <LinearLayout style="@style/BenefitTile">
+                    <TextView style="@style/BenefitIcon" android:text="&#x1F453;" />
+                    <TextView style="@style/BenefitText" android:text="Đo mắt miễn phí\ntại cửa hàng" />
                 </LinearLayout>
             </LinearLayout>
 
-            <View
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0.5dp"
-                android:layout_marginVertical="16dp"
-                android:background="#444444" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+                <LinearLayout style="@style/BenefitTile"
+                    android:layout_marginEnd="8dp">
+                    <TextView style="@style/BenefitIcon" android:text="&#x1F4E6;" />
+                    <TextView style="@style/BenefitText" android:text="Đổi trả\ntrong 30 ngày" />
+                </LinearLayout>
+                <LinearLayout style="@style/BenefitTile">
+                    <TextView style="@style/BenefitIcon" android:text="&#x1F9D1;&#x200D;&#x1F4BC;" />
+                    <TextView style="@style/BenefitText" android:text="Nhân viên hỗ trợ\n24/7" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+                <LinearLayout style="@style/BenefitTile"
+                    android:layout_marginEnd="8dp">
+                    <TextView style="@style/BenefitIcon" android:text="&#x1F3C5;" />
+                    <TextView style="@style/BenefitText" android:text="Cam kết\nchính hãng 100%" />
+                </LinearLayout>
+                <LinearLayout style="@style/BenefitTile">
+                    <TextView style="@style/BenefitIcon" android:text="&#x1F6E1;&#xFE0F;" />
+                    <TextView style="@style/BenefitText" android:text="Thanh toán\nnhanh, an toàn" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ══════════════ KHÁM PHÁ GLASSITY: ảnh + chữ dọc (Figma) ══════════════ -->
+        <LinearLayout
+            android:id="@+id/bannerKhamPha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@color/white"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            android:orientation="vertical"
+            android:paddingVertical="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="420dp"
+                android:clipChildren="false"
+                android:orientation="horizontal"
+                android:paddingStart="24dp"
+                android:paddingEnd="8dp">
+
+                <ImageView
+                    android:id="@+id/imgKhamPha"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:scaleType="centerCrop"
+                    android:src="@color/color_field_border"
+                    android:contentDescription="@null" />
+
+                <!-- Cột chữ dọc bên phải -->
+                <FrameLayout
+                    android:layout_width="88dp"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false">
+                    <TextView
+                        android:layout_width="400dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="serif"
+                        android:gravity="center"
+                        android:letterSpacing="0.15"
+                        android:rotation="90"
+                        android:text="GLASSITY"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="34sp"
+                        android:translationX="-14dp" />
+                    <TextView
+                        android:layout_width="400dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:letterSpacing="0.2"
+                        android:rotation="90"
+                        android:text="ĐỊNH NGHĨA PHONG CÁCH QUA TỪNG ÁNH NHÌN"
+                        android:textColor="@color/color_text_secondary"
+                        android:textSize="9sp"
+                        android:translationX="22dp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvKhamPhaLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:letterSpacing="0.12"
+                android:text="KHÁM PHÁ GLASSITY"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- ══════════════ FOOTER: nền sáng, căn giữa (Figma) ══════════════ -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="#F7F5F2"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingVertical="28dp">
+
+            <!-- Social icons -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <ImageView
+                    android:id="@+id/footerTw"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_social_x" />
+                <ImageView
+                    android:id="@+id/footerIg"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:layout_marginHorizontal="20dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_social_ig" />
+                <ImageView
+                    android:id="@+id/footerYt"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@null"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_social_yt" />
+            </LinearLayout>
+
+            <!-- Ornament ─◇─ -->
+            <LinearLayout
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <View android:layout_width="0dp" android:layout_height="0.7dp"
+                    android:layout_weight="1" android:background="#C9C3BB" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp" android:text="&#x25C7;"
+                    android:textColor="#C9C3BB" android:textSize="10sp" />
+                <View android:layout_width="0dp" android:layout_height="0.7dp"
+                    android:layout_weight="1" android:background="#C9C3BB" />
+            </LinearLayout>
+
+            <!-- Contact info -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="serif"
+                android:text="support@glassity.com"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="serif"
+                android:text="+8386 123 789"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:fontFamily="serif"
+                android:text="08:00 - 22:00 - Mỗi ngày"
+                android:textColor="@color/color_text_primary"
+                android:textSize="13sp" />
+
+            <!-- Ornament ─◇─ -->
+            <LinearLayout
+                android:layout_width="220dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+                <View android:layout_width="0dp" android:layout_height="0.7dp"
+                    android:layout_weight="1" android:background="#C9C3BB" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp" android:text="&#x25C7;"
+                    android:textColor="#C9C3BB" android:textSize="10sp" />
+                <View android:layout_width="0dp" android:layout_height="0.7dp"
+                    android:layout_weight="1" android:background="#C9C3BB" />
+            </LinearLayout>
+
+            <!-- Links: About / Contact / Policy — trang đích bổ sung sau -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/footerAbout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:fontFamily="serif"
+                    android:padding="6dp"
+                    android:text="About"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/footerContact"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="28dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:fontFamily="serif"
+                    android:padding="6dp"
+                    android:text="Contact"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/footerPolicy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:fontFamily="serif"
+                    android:padding="6dp"
+                    android:text="Policy"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="#EDEAE5"
                 android:gravity="center"
-                android:text="© 2025 Glassity. All rights reserved."
-                android:textColor="#666666"
+                android:paddingVertical="10dp"
+                android:text="Glassity© Bản quyền được bảo hộ."
+                android:textColor="@color/color_text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
 
