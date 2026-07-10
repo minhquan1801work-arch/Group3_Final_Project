@@ -4,12 +4,16 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.ActivityAccountInfoBinding;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.FinalProject.group3.utils.InsetsUtil;
@@ -53,6 +57,7 @@ public class AccountInfoActivity extends AppCompatActivity {
         }
 
         // LA.Personal1 — đã đăng nhập
+        markRequiredLabel(binding.tvNameLabel, "Họ và tên *");
         setupGenderSpinner();
         setupDatePicker();
         loadCustomerData(user);
@@ -76,12 +81,23 @@ public class AccountInfoActivity extends AppCompatActivity {
             }
         });
 
-        binding.rowLogout.setOnClickListener(v -> {
+        binding.rowLogout.setOnClickListener(v2 -> {
             com.FinalProject.group3.utils.SessionManager.logout(this);
             Intent intent = new Intent(this, WelcomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         });
+    }
+
+    /** Tô đỏ dấu `*` ở cuối label để đánh dấu trường bắt buộc. */
+    private void markRequiredLabel(android.widget.TextView tv, String text) {
+        SpannableString span = new SpannableString(text);
+        int starIdx = text.lastIndexOf('*');
+        if (starIdx >= 0) {
+            span.setSpan(new ForegroundColorSpan(0xFFD32F2F),
+                    starIdx, starIdx + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        tv.setText(span);
     }
 
     private void setupGenderSpinner() {
@@ -138,7 +154,18 @@ public class AccountInfoActivity extends AppCompatActivity {
         String gender = binding.spinnerGender.getSelectedItem().toString();
 
         if (name.isEmpty()) {
-            binding.etName.setError("Vui lòng nhập họ và tên");
+            binding.etName.setError("Họ và tên là bắt buộc");
+            binding.etName.requestFocus();
+            return;
+        }
+        if (name.length() < 2) {
+            binding.etName.setError("Tên quá ngắn");
+            binding.etName.requestFocus();
+            return;
+        }
+        if (!phone.isEmpty() && !com.FinalProject.group3.utils.ValidationUtils.isValidPhone(phone)) {
+            binding.etPhone.setError(getString(R.string.err_phone_invalid));
+            binding.etPhone.requestFocus();
             return;
         }
 

@@ -4,10 +4,14 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -17,7 +21,6 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
@@ -30,6 +33,7 @@ import com.FinalProject.group3.repository.ProductRepository;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.FinalProject.group3.utils.InsetsUtil;
 import com.bumptech.glide.Glide;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
@@ -56,11 +60,14 @@ public class ReviewActivity extends AppCompatActivity {
     private String orderId;
     private String firstProductId;
     private final List<Uri> selectedImages = new ArrayList<>();
+    private Uri selectedVideo = null;
     private Uri cameraImageUri;
 
     private ActivityResultLauncher<Uri> cameraLauncher;
     private ActivityResultLauncher<String> galleryLauncher;
     private ActivityResultLauncher<String> cameraPermLauncher;
+    private ActivityResultLauncher<Uri> videoCaptureLauncher;
+    private ActivityResultLauncher<String> videoGalleryLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,26 +96,79 @@ public class ReviewActivity extends AppCompatActivity {
                     else Toast.makeText(this, "Cần quyền camera để chụp ảnh", Toast.LENGTH_SHORT).show();
                 });
 
+        videoCaptureLauncher = registerForActivityResult(
+                new ActivityResultContracts.CaptureVideo(), success -> {
+                    if (Boolean.TRUE.equals(success) && cameraImageUri != null) {
+                        selectedVideo = cameraImageUri;
+                        rebuildMediaRow();
+                    }
+                });
+
+        videoGalleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(), uri -> {
+                    if (uri != null) {
+                        selectedVideo = uri;
+                        rebuildMediaRow();
+                    }
+                });
+
         binding.btnBack.setOnClickListener(v -> finish());
         setupStars();
         binding.btnSubmit.setOnClickListener(v -> submit());
 
-        rebuildPhotoRow();
+        rebuildMediaRow();
         if (orderId != null) loadProductFromOrder(orderId);
     }
 
-    // ── Hàng ảnh (tối đa 5) ───────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private int dp(int value) {
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
 
-    private void rebuildPhotoRow() {
+    // ── Media row (video thumbnail + photos + add button) ─────────────────────
+
+    private void rebuildMediaRow() {
         binding.llPhotos.removeAllViews();
         int size = dp(80);
         int marginEnd = dp(8);
 
+        // Video thumbnail (nếu đã chọn)
+        if (selectedVideo != null) {
+            FrameLayout frame = new FrameLayout(this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
+            lp.setMarginEnd(marginEnd);
+            frame.setLayoutParams(lp);
+            frame.setBackgroundColor(Color.BLACK);
+
+            ImageView thumb = new ImageView(this);
+            thumb.setLayoutParams(new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT));
+            thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            // Glide loads video thumbnail from URI
+            Glide.with(this).load(selectedVideo).centerCrop().into(thumb);
+            frame.addView(thumb);
+
+            // Play icon overlay
+            ImageView playIcon = new ImageView(this);
+            FrameLayout.LayoutParams playLp = new FrameLayout.LayoutParams(dp(28), dp(28));
+            playLp.gravity = Gravity.CENTER;
+            playIcon.setLayoutParams(playLp);
+            playIcon.setImageResource(R.drawable.ic_play_circle);
+            frame.addView(playIcon);
+
+            // Remove button
+            frame.addView(makeRemoveButton(() -> {
+                selectedVideo = null;
+                rebuildMediaRow();
+            }));
+
+            binding.llPhotos.addView(frame);
+        }
+
+        // Photos
         for (int i = 0; i < selectedImages.size(); i++) {
             final int idx = i;
 
@@ -125,27 +185,23 @@ public class ReviewActivity extends AppCompatActivity {
             Glide.with(this).load(selectedImages.get(i)).centerCrop().into(iv);
             frame.addView(iv);
 
-            ImageView btnX = new ImageView(this);
-            FrameLayout.LayoutParams xLp = new FrameLayout.LayoutParams(dp(20), dp(20));
-            xLp.gravity = Gravity.TOP | Gravity.END;
-            xLp.setMargins(0, dp(3), dp(3), 0);
-            btnX.setLayoutParams(xLp);
-            btnX.setImageResource(R.drawable.ic_close);
-            btnX.setBackgroundResource(R.drawable.bg_photo_remove_btn);
-            btnX.setPadding(dp(4), dp(4), dp(4), dp(4));
-            btnX.setOnClickListener(v -> removePhoto(idx));
-            frame.addView(btnX);
+            frame.addView(makeRemoveButton(() -> {
+                selectedImages.remove(idx);
+                rebuildMediaRow();
+            }));
 
             binding.llPhotos.addView(frame);
         }
 
-        if (selectedImages.size() < MAX_PHOTOS) {
+        // Add button (nếu còn slot ảnh hoặc video)
+        boolean hasSlot = selectedImages.size() < MAX_PHOTOS || selectedVideo == null;
+        if (hasSlot) {
             LinearLayout placeholder = new LinearLayout(this);
             placeholder.setLayoutParams(new LinearLayout.LayoutParams(size, size));
             placeholder.setOrientation(LinearLayout.VERTICAL);
             placeholder.setGravity(Gravity.CENTER);
             placeholder.setBackgroundResource(R.drawable.bg_chip_variant);
-            placeholder.setOnClickListener(v -> showPhotoChooser());
+            placeholder.setOnClickListener(v -> showMediaChooser());
 
             ImageView camera = new ImageView(this);
             LinearLayout.LayoutParams camLp = new LinearLayout.LayoutParams(dp(28), dp(28));
@@ -164,10 +220,11 @@ public class ReviewActivity extends AppCompatActivity {
             label.setLayoutParams(labelLp);
             label.setTextSize(10);
             label.setTextColor(getResources().getColor(R.color.color_hint, getTheme()));
-            if (selectedImages.isEmpty()) {
-                label.setText("Thêm ảnh sản phẩm");
+            int photoCount = selectedImages.size();
+            if (photoCount == 0 && selectedVideo == null) {
+                label.setText("Thêm media");
             } else {
-                label.setText("(" + selectedImages.size() + "/5)");
+                label.setText("(" + photoCount + "/5)");
             }
             placeholder.addView(label);
 
@@ -175,36 +232,83 @@ public class ReviewActivity extends AppCompatActivity {
         }
     }
 
+    private ImageView makeRemoveButton(Runnable onClick) {
+        ImageView btnX = new ImageView(this);
+        FrameLayout.LayoutParams xLp = new FrameLayout.LayoutParams(dp(20), dp(20));
+        xLp.gravity = Gravity.TOP | Gravity.END;
+        xLp.setMargins(0, dp(3), dp(3), 0);
+        btnX.setLayoutParams(xLp);
+        btnX.setImageResource(R.drawable.ic_close);
+        btnX.setBackgroundResource(R.drawable.bg_photo_remove_btn);
+        btnX.setPadding(dp(4), dp(4), dp(4), dp(4));
+        btnX.setOnClickListener(v -> onClick.run());
+        return btnX;
+    }
+
     private void addPhoto(Uri uri) {
         if (selectedImages.size() >= MAX_PHOTOS) return;
         selectedImages.add(uri);
-        rebuildPhotoRow();
+        rebuildMediaRow();
     }
 
-    private void removePhoto(int index) {
-        if (index < 0 || index >= selectedImages.size()) return;
-        selectedImages.remove(index);
-        rebuildPhotoRow();
+    // ── Bottom sheet chọn media ────────────────────────────────────────────────
+
+    private void showMediaChooser() {
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        View sheetView = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_media_chooser, null);
+        sheet.setContentView(sheetView);
+
+        boolean photoFull = selectedImages.size() >= MAX_PHOTOS;
+        boolean videoFull = selectedVideo != null;
+
+        // Ảnh options
+        View optCamera = sheetView.findViewById(R.id.optionCamera);
+        View optGallery = sheetView.findViewById(R.id.optionGallery);
+        // Video options
+        View optRecord = sheetView.findViewById(R.id.optionRecordVideo);
+        View optVideoGal = sheetView.findViewById(R.id.optionVideoGallery);
+        TextView tvVideoSlot = sheetView.findViewById(R.id.tvVideoSlot);
+
+        if (photoFull) {
+            optCamera.setAlpha(0.35f);
+            optCamera.setEnabled(false);
+            optGallery.setAlpha(0.35f);
+            optGallery.setEnabled(false);
+        }
+        if (videoFull) {
+            optRecord.setAlpha(0.35f);
+            optRecord.setEnabled(false);
+            optVideoGal.setAlpha(0.35f);
+            optVideoGal.setEnabled(false);
+        }
+        tvVideoSlot.setText(videoFull ? "1/1" : "0/1");
+
+        optCamera.setOnClickListener(v -> {
+            sheet.dismiss();
+            requestCameraAndShoot(false);
+        });
+        optGallery.setOnClickListener(v -> {
+            sheet.dismiss();
+            galleryLauncher.launch("image/*");
+        });
+        optRecord.setOnClickListener(v -> {
+            sheet.dismiss();
+            requestCameraAndShoot(true);
+        });
+        optVideoGal.setOnClickListener(v -> {
+            sheet.dismiss();
+            videoGalleryLauncher.launch("video/*");
+        });
+
+        sheet.show();
     }
 
-    // ── Chọn ảnh ──────────────────────────────────────────────────────────────
-
-    private void showPhotoChooser() {
-        String[] options = {"Chụp ảnh", "Chọn từ thư viện"};
-        new AlertDialog.Builder(this)
-                .setTitle("Thêm ảnh đánh giá")
-                .setItems(options, (dialog, which) -> {
-                    if (which == 0) requestCameraAndShoot();
-                    else galleryLauncher.launch("image/*");
-                })
-                .setNegativeButton("Huỷ", null)
-                .show();
-    }
-
-    private void requestCameraAndShoot() {
+    private void requestCameraAndShoot(boolean isVideo) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-            launchCamera();
+            if (isVideo) launchVideoCamera();
+            else launchCamera();
         } else {
             cameraPermLauncher.launch(Manifest.permission.CAMERA);
         }
@@ -218,6 +322,16 @@ public class ReviewActivity extends AppCompatActivity {
         cameraImageUri = FileProvider.getUriForFile(this,
                 getPackageName() + ".fileprovider", imageFile);
         cameraLauncher.launch(cameraImageUri);
+    }
+
+    private void launchVideoCamera() {
+        File cacheDir = new File(getCacheDir(), "camera_videos");
+        //noinspection ResultOfMethodCallIgnored
+        cacheDir.mkdirs();
+        File videoFile = new File(cacheDir, "review_" + System.currentTimeMillis() + ".mp4");
+        cameraImageUri = FileProvider.getUriForFile(this,
+                getPackageName() + ".fileprovider", videoFile);
+        videoCaptureLauncher.launch(cameraImageUri);
     }
 
     // ── Load sản phẩm từ đơn hàng ─────────────────────────────────────────────
@@ -287,9 +401,13 @@ public class ReviewActivity extends AppCompatActivity {
         }
         if (selectedStar == 0) {
             binding.tvStarLabel.setText("");
+            binding.tvStarLabel.setTextColor(
+                    getResources().getColor(R.color.color_price, getTheme()));
         } else {
             String[] labels = {"Tệ", "Không tốt", "Bình thường", "Tốt", "Tuyệt vời"};
             binding.tvStarLabel.setText(labels[selectedStar - 1]);
+            binding.tvStarLabel.setTextColor(
+                    getResources().getColor(R.color.color_price, getTheme()));
         }
     }
 
@@ -297,7 +415,8 @@ public class ReviewActivity extends AppCompatActivity {
 
     private void submit() {
         if (selectedStar == 0) {
-            Toast.makeText(this, "Vui lòng chọn số sao đánh giá", Toast.LENGTH_SHORT).show();
+            binding.tvStarLabel.setText("Vui lòng chọn đánh giá sao");
+            binding.tvStarLabel.setTextColor(Color.parseColor("#D32F2F"));
             return;
         }
         String uid = FirebaseHelper.getCurrentUserId();
@@ -309,21 +428,43 @@ public class ReviewActivity extends AppCompatActivity {
         binding.btnSubmit.setEnabled(false);
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        if (!selectedImages.isEmpty()) {
-            uploadAllThenSave(uid, comment);
+        if (selectedVideo != null) {
+            uploadVideoThenPhotos(uid, comment);
+        } else if (!selectedImages.isEmpty()) {
+            uploadAllThenSave(uid, comment, null);
         } else {
-            saveReview(uid, comment, new ArrayList<>());
+            saveReview(uid, comment, new ArrayList<>(), null);
         }
     }
 
-    private void uploadAllThenSave(String uid, String comment) {
-        List<String> urls = new ArrayList<>();
-        uploadNext(uid, comment, 0, urls);
+    private void uploadVideoThenPhotos(String uid, String comment) {
+        String path = "reviews/" + uid + "/" + System.currentTimeMillis() + "_video.mp4";
+        StorageReference ref = FirebaseHelper.getStorageRef().child(path);
+        ref.putFile(selectedVideo)
+                .addOnSuccessListener(snap ->
+                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
+                            String videoUrl = uri.toString();
+                            if (!selectedImages.isEmpty()) {
+                                uploadAllThenSave(uid, comment, videoUrl);
+                            } else {
+                                saveReview(uid, comment, new ArrayList<>(), videoUrl);
+                            }
+                        }))
+                .addOnFailureListener(e -> {
+                    binding.btnSubmit.setEnabled(true);
+                    binding.progressBar.setVisibility(View.GONE);
+                    Toast.makeText(this, "Upload video thất bại, thử lại", Toast.LENGTH_SHORT).show();
+                });
     }
 
-    private void uploadNext(String uid, String comment, int idx, List<String> urls) {
+    private void uploadAllThenSave(String uid, String comment, String videoUrl) {
+        List<String> urls = new ArrayList<>();
+        uploadNext(uid, comment, videoUrl, 0, urls);
+    }
+
+    private void uploadNext(String uid, String comment, String videoUrl, int idx, List<String> urls) {
         if (idx >= selectedImages.size()) {
-            saveReview(uid, comment, urls);
+            saveReview(uid, comment, urls, videoUrl);
             return;
         }
         String path = "reviews/" + uid + "/" + System.currentTimeMillis() + "_" + idx + ".jpg";
@@ -332,7 +473,7 @@ public class ReviewActivity extends AppCompatActivity {
                 .addOnSuccessListener(snap ->
                         ref.getDownloadUrl().addOnSuccessListener(uri -> {
                             urls.add(uri.toString());
-                            uploadNext(uid, comment, idx + 1, urls);
+                            uploadNext(uid, comment, videoUrl, idx + 1, urls);
                         }))
                 .addOnFailureListener(e -> {
                     binding.btnSubmit.setEnabled(true);
@@ -341,7 +482,7 @@ public class ReviewActivity extends AppCompatActivity {
                 });
     }
 
-    private void saveReview(String uid, String comment, List<String> imageUrls) {
+    private void saveReview(String uid, String comment, List<String> imageUrls, String videoUrl) {
         Map<String, Object> review = new HashMap<>();
         review.put("productId", firstProductId);
         review.put("orderId", orderId);
@@ -349,6 +490,7 @@ public class ReviewActivity extends AppCompatActivity {
         review.put("rating", selectedStar);
         review.put("comment", comment);
         if (!imageUrls.isEmpty()) review.put("imageUrls", imageUrls);
+        if (videoUrl != null) review.put("videoUrl", videoUrl);
         review.put("createdAt", new Date());
 
         FirebaseHelper.getDb().collection(FirebaseHelper.COL_REVIEWS).add(review)

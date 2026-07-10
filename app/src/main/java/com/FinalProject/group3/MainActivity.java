@@ -44,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
         handleOpenCartIntent(getIntent());
         handleOpenHomeIntent(getIntent());
         claimGuestOrders();
+        com.FinalProject.group3.utils.AddressApiHelper.preload();
+        com.FinalProject.group3.utils.NotificationHelper.seedDemoCampaigns(this);
     }
 
     /** Đơn đặt lúc chưa đăng nhập (customerId="GUEST") → gán về tài khoản theo email */

@@ -16,11 +16,6 @@ import com.FinalProject.group3.databinding.FragmentProfileBinding;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * LA.Profile — trang THÀNH VIÊN: thẻ barcode + điểm, grid tiện ích,
@@ -42,6 +37,13 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Header dùng chung với Home — hamburger mở drawer, hoạt động như nhau dù đăng nhập hay khách
+        binding.btnMenu.setOnClickListener(v -> {
+            if (getActivity() instanceof com.FinalProject.group3.MainActivity) {
+                ((com.FinalProject.group3.MainActivity) getActivity()).openDrawer();
+            }
+        });
 
         // ── Guest (chưa đăng nhập): ẩn thẻ barcode, các nút yêu cầu đăng nhập ──
         FirebaseUser user = FirebaseHelper.getAuth().getCurrentUser();
@@ -86,7 +88,7 @@ public class ProfileFragment extends Fragment {
 
         // Header
         binding.btnSearch.setOnClickListener(v -> startActivity(new Intent(requireContext(), com.FinalProject.group3.ui.catalog.SearchActivity.class)));
-        binding.btnBag.setOnClickListener(v ->
+        binding.btnCart.setOnClickListener(v ->
                 androidx.navigation.fragment.NavHostFragment.findNavController(this)
                         .navigate(R.id.cartFragment));
 
@@ -102,14 +104,12 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        binding.btnSeedOrders.setOnClickListener(v -> seedTestOrders());
     }
 
     // ── Guest mode (Figma LA.Personal2): không barcode, nút nào cần tài khoản
     //    thì hiện dialog yêu cầu đăng nhập — trừ Cài đặt + hỗ trợ/chính sách ──
     private void setupGuestMode() {
         binding.cardMember.setVisibility(View.GONE);
-        binding.btnSeedOrders.setVisibility(View.GONE);
 
         // Các mục cần tài khoản → dialog đăng nhập
         binding.menuOrders.setOnClickListener(v -> showLoginRequired());
@@ -124,7 +124,7 @@ public class ProfileFragment extends Fragment {
 
         // Header
         binding.btnSearch.setOnClickListener(v -> startActivity(new Intent(requireContext(), com.FinalProject.group3.ui.catalog.SearchActivity.class)));
-        binding.btnBag.setOnClickListener(v -> showLoginRequired());
+        binding.btnCart.setOnClickListener(v -> showLoginRequired());
 
         // Hỗ trợ / chính sách là thông tin công khai — mở bình thường
         binding.rowSupport.setOnClickListener(v ->
@@ -155,65 +155,15 @@ public class ProfileFragment extends Fragment {
                 requireContext(), "Đăng nhập để sử dụng tính năng dành riêng cho thành viên");
     }
 
-    private void seedTestOrders() {
-        String uid = FirebaseHelper.getCurrentUserId();
-        if (uid == null) { toast("Chưa đăng nhập"); return; }
-
-        FirebaseHelper.getDb().collection(FirebaseHelper.COL_PRODUCTS)
-                .limit(3).get()
-                .addOnSuccessListener(snap -> {
-                    if (snap.isEmpty()) { toast("Không có sản phẩm để tạo đơn test"); return; }
-
-                    String dateStr = new SimpleDateFormat("yyMMdd", Locale.US).format(new Date());
-                    String[] statuses = {"PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "DELIVERED"};
-                    String address = "Test User | 0901234567 | 123 Đường Test, Quận 1, TP.HCM";
-
-                    for (int i = 0; i < 5; i++) {
-                        int docIdx = i % snap.size();
-                        String productId = snap.getDocuments().get(docIdx).getId();
-                        Double price = snap.getDocuments().get(docIdx).getDouble("price");
-                        double p = (price != null) ? price : 500000;
-                        double shipFee = 35000;
-                        double total = p + shipFee;
-                        final String status = statuses[i];
-                        String code = "GLS-" + dateStr + "-T" + (i + 1);
-
-                        Map<String, Object> order = new HashMap<>();
-                        order.put("customerId", uid);
-                        order.put("orderCode", code);
-                        order.put("totalAmount", total);
-                        order.put("shippingFee", shipFee);
-                        order.put("shipDiscount", 0.0);
-                        order.put("voucherDiscount", 0.0);
-                        order.put("usedPoints", 0);
-                        order.put("earnedPoints", (int)(p / 1000));
-                        order.put("paymentMethod", "COD");
-                        order.put("paymentStatus", "PENDING");
-                        order.put("orderStatus", status);
-                        order.put("shippingAddress", address);
-                        order.put("reviewed", false);
-                        order.put("createdAt", new Date());
-
-                        final String finalProductId = productId;
-                        final double finalPrice = p;
-                        FirebaseHelper.getDb().collection(FirebaseHelper.COL_ORDERS)
-                                .add(order)
-                                .addOnSuccessListener(ref -> {
-                                    Map<String, Object> detail = new HashMap<>();
-                                    detail.put("productId", finalProductId);
-                                    detail.put("quantity", 1);
-                                    detail.put("price", finalPrice);
-                                    detail.put("color", "Đen");
-                                    ref.collection(FirebaseHelper.COL_ORDER_DETAILS).add(detail);
-                                });
-                    }
-                    toast("Đã tạo 5 đơn test! Vào 'Đơn đã mua' để xem.");
-                })
-                .addOnFailureListener(e -> toast("Lỗi: " + e.getMessage()));
-    }
-
     private void toast(String msg) {
         Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (binding != null)
+            com.FinalProject.group3.utils.CartQuickActions.refreshBadge(binding.tvCartBadge);
     }
 
     @Override

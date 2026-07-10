@@ -57,9 +57,14 @@ public class CheckoutActivity extends AppCompatActivity {
     private static final double SHIP_STANDARD = 35000;
     private static final double SHIP_FAST = 50000;
 
-    private static final String VOUCHER_FREESHIP = "FREESHIP";
-    private static final String VOUCHER_GIAM10 = "GIAM10";
-    private static final String VOUCHER_GIAM50K = "GIAM50K";
+    private static final String VOUCHER_FREESHIP  = "FREESHIP";
+    private static final String VOUCHER_SHIP50    = "SHIP50";
+    private static final String VOUCHER_NEWUSER   = "NEWUSER";
+    private static final String VOUCHER_GIAM10    = "GIAM10";
+    private static final String VOUCHER_MEMBER15  = "MEMBER15";
+    private static final String VOUCHER_GIAM50K   = "GIAM50K";
+    private static final String VOUCHER_SALE20    = "SALE20";
+    private static final String VOUCHER_GIAM100K  = "GIAM100K";
 
     private ActivityCheckoutBinding binding;
     private final CartRepository cartRepo = new CartRepository();
@@ -119,6 +124,10 @@ public class CheckoutActivity extends AppCompatActivity {
     private static final String EXTRA_DIRECT_QTY = "direct_qty";
 
     private boolean isGuest = false;
+
+    // Dữ liệu cascading dropdown cho guest form
+    private final java.util.List<com.FinalProject.group3.utils.AddressApiHelper.AdminUnit> guestDistricts = new java.util.ArrayList<>();
+    private final java.util.List<com.FinalProject.group3.utils.AddressApiHelper.AdminUnit> guestWards     = new java.util.ArrayList<>();
 
     /** Mua ngay không cần tài khoản: truyền thẳng sản phẩm, không qua cart. */
     public static void startDirect(Context context, String productId, String color, int quantity) {
@@ -197,7 +206,7 @@ public class CheckoutActivity extends AppCompatActivity {
         // Mã giảm giá / vận chuyển → 1 picker, chọn được cả 2 loại độc lập
         binding.rowVoucher.setOnClickListener(v ->
                 voucherLauncher.launch(
-                        CheckoutVoucherActivity.intent(this, appliedDiscountVoucher, appliedShipVoucher)));
+                        CheckoutVoucherActivity.intent(this, appliedDiscountVoucher, appliedShipVoucher, subtotal())));
         // Ô nhập mã inline
         binding.btnApplyVoucherInline.setOnClickListener(v ->
                 applyVoucherCode(binding.etVoucher.getText().toString().trim().toUpperCase(Locale.US)));
@@ -232,13 +241,105 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
-    // ── Chế độ KHÁCH: form nhập tay, ẩn voucher + điểm + sổ địa chỉ ───────────
+    // ── Chế độ KHÁCH: form nhập tay, ẩn điểm + sổ địa chỉ; voucher yêu cầu đăng nhập ──
     private void setupGuestUi() {
         binding.rowAddress.setVisibility(View.GONE);
         binding.layoutGuestAddress.setVisibility(View.VISIBLE);
-        binding.rowVoucher.setVisibility(View.GONE);
-        binding.layoutVoucherInline.setVisibility(View.GONE);
         binding.layoutPointsSection.setVisibility(View.GONE);
+
+        // Disable district/ward trước khi có data
+        setGuestDropdownEnabled(binding.actGuestDistrict, false);
+        setGuestDropdownEnabled(binding.actGuestWard,     false);
+
+        // Tỉnh/TP: fetch từ API, khi chọn → load quận/huyện
+        loadGuestProvinces();
+
+        View.OnClickListener requireLogin = v ->
+                com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                        this, "Đăng nhập để sử dụng voucher của Glassity");
+        binding.rowVoucher.setOnClickListener(requireLogin);
+        binding.btnApplyVoucherInline.setOnClickListener(requireLogin);
+        binding.etVoucher.setFocusable(false);
+        binding.etVoucher.setOnClickListener(requireLogin);
+    }
+
+    private void loadGuestProvinces() {
+        com.FinalProject.group3.utils.AddressApiHelper.fetchProvinces(units -> {
+            android.widget.ArrayAdapter<com.FinalProject.group3.utils.AddressApiHelper.AdminUnit> adapter =
+                    new android.widget.ArrayAdapter<>(this,
+                            android.R.layout.simple_list_item_1, units);
+            binding.actGuestProvince.setAdapter(adapter);
+            binding.actGuestProvince.setThreshold(0);
+            binding.actGuestProvince.setKeyListener(null);
+            binding.actGuestProvince.setOnClickListener(v -> binding.actGuestProvince.showDropDown());
+            binding.actGuestProvince.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus) binding.actGuestProvince.showDropDown();
+            });
+            binding.actGuestProvince.setOnItemClickListener((parent, view, pos, id) -> {
+                com.FinalProject.group3.utils.AddressApiHelper.AdminUnit selected =
+                        (com.FinalProject.group3.utils.AddressApiHelper.AdminUnit) parent.getItemAtPosition(pos);
+                binding.actGuestDistrict.setText("", false);
+                binding.actGuestWard.setText("", false);
+                guestDistricts.clear(); guestWards.clear();
+                setGuestDropdownEnabled(binding.actGuestWard, false);
+                loadGuestDistricts(selected.code);
+            });
+        });
+    }
+
+    private void loadGuestDistricts(int provinceCode) {
+        setGuestDropdownEnabled(binding.actGuestDistrict, false);
+        com.FinalProject.group3.utils.AddressApiHelper.fetchDistricts(provinceCode, units -> {
+            guestDistricts.clear();
+            guestDistricts.addAll(units);
+            android.widget.ArrayAdapter<com.FinalProject.group3.utils.AddressApiHelper.AdminUnit> adapter =
+                    new android.widget.ArrayAdapter<>(this,
+                            android.R.layout.simple_list_item_1, guestDistricts);
+            binding.actGuestDistrict.setAdapter(adapter);
+            binding.actGuestDistrict.setThreshold(0);
+            binding.actGuestDistrict.setKeyListener(null);
+            binding.actGuestDistrict.setOnClickListener(v -> {
+                if (!guestDistricts.isEmpty()) binding.actGuestDistrict.showDropDown();
+            });
+            binding.actGuestDistrict.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus && !guestDistricts.isEmpty()) binding.actGuestDistrict.showDropDown();
+            });
+            binding.actGuestDistrict.setOnItemClickListener((parent, view, pos, id) -> {
+                com.FinalProject.group3.utils.AddressApiHelper.AdminUnit selected =
+                        (com.FinalProject.group3.utils.AddressApiHelper.AdminUnit) parent.getItemAtPosition(pos);
+                binding.actGuestWard.setText("", false);
+                guestWards.clear();
+                setGuestDropdownEnabled(binding.actGuestWard, false);
+                loadGuestWards(selected.code);
+            });
+            setGuestDropdownEnabled(binding.actGuestDistrict, true);
+        });
+    }
+
+    private void loadGuestWards(int districtCode) {
+        setGuestDropdownEnabled(binding.actGuestWard, false);
+        com.FinalProject.group3.utils.AddressApiHelper.fetchWards(districtCode, units -> {
+            guestWards.clear();
+            guestWards.addAll(units);
+            android.widget.ArrayAdapter<com.FinalProject.group3.utils.AddressApiHelper.AdminUnit> adapter =
+                    new android.widget.ArrayAdapter<>(this,
+                            android.R.layout.simple_list_item_1, guestWards);
+            binding.actGuestWard.setAdapter(adapter);
+            binding.actGuestWard.setThreshold(0);
+            binding.actGuestWard.setKeyListener(null);
+            binding.actGuestWard.setOnClickListener(v -> {
+                if (!guestWards.isEmpty()) binding.actGuestWard.showDropDown();
+            });
+            binding.actGuestWard.setOnFocusChangeListener((v, hasFocus) -> {
+                if (hasFocus && !guestWards.isEmpty()) binding.actGuestWard.showDropDown();
+            });
+            setGuestDropdownEnabled(binding.actGuestWard, true);
+        });
+    }
+
+    private void setGuestDropdownEnabled(android.widget.AutoCompleteTextView view, boolean enabled) {
+        view.setEnabled(enabled);
+        view.setAlpha(enabled ? 1f : 0.5f);
     }
 
     // ── Mua trực tiếp: dựng CartDetail từ Intent, không đọc giỏ ───────────────
@@ -250,7 +351,7 @@ public class CheckoutActivity extends AppCompatActivity {
         loadProducts();
     }
 
-    /** Footnote: "Điều khoản Glassity" → Toast (Figma link clickable). */
+    /** Footnote: "Điều khoản Glassity" → mở trang Điều khoản sử dụng. */
     private void setupTermsNote() {
         String full = getString(R.string.checkout_terms_note);
         String link = "Điều khoản Glassity";
@@ -262,8 +363,8 @@ public class CheckoutActivity extends AppCompatActivity {
         span.setSpan(new ClickableSpan() {
             @Override
             public void onClick(@NonNull View widget) {
-                Toast.makeText(CheckoutActivity.this,
-                        "Điều khoản Glassity — sẽ cập nhật sau", Toast.LENGTH_SHORT).show();
+                startActivity(com.FinalProject.group3.ui.account.PolicyActivity.intent(
+                        CheckoutActivity.this, com.FinalProject.group3.ui.account.PolicyActivity.TYPE_TERMS));
             }
         }, start, start + link.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         binding.tvTermsNote.setText(span);
@@ -403,15 +504,24 @@ public class CheckoutActivity extends AppCompatActivity {
     }
 
     private double shipDiscount() {
-        return VOUCHER_FREESHIP.equals(appliedShipVoucher) ? shippingFee() : 0;
+        double sub = subtotal();
+        if (VOUCHER_FREESHIP.equals(appliedShipVoucher)) return shippingFee();
+        if (VOUCHER_SHIP50.equals(appliedShipVoucher) && sub >= 200000) return shippingFee() * 0.5;
+        return 0;
     }
 
     private double voucherDiscount() {
+        if (appliedDiscountVoucher == null) return 0;
         double sub = subtotal();
-        if (VOUCHER_GIAM10.equals(appliedDiscountVoucher) && sub >= 300000)
-            return Math.min(sub * 0.10, 100000);
-        if (VOUCHER_GIAM50K.equals(appliedDiscountVoucher) && sub >= 500000) return 50000;
-        return 0;
+        switch (appliedDiscountVoucher) {
+            case VOUCHER_NEWUSER:  return sub >= 100000 ? 30000 : 0;
+            case VOUCHER_GIAM10:   return sub >= 300000 ? Math.min(sub * 0.10, 100000) : 0;
+            case VOUCHER_MEMBER15: return sub >= 400000 ? Math.min(sub * 0.15, 150000) : 0;
+            case VOUCHER_GIAM50K:  return sub >= 500000 ? 50000 : 0;
+            case VOUCHER_SALE20:   return sub >= 500000 ? Math.min(sub * 0.20, 200000) : 0;
+            case VOUCHER_GIAM100K: return sub >= 800000 ? 100000 : 0;
+            default: return 0;
+        }
     }
 
     private double pointsDiscount() {
@@ -436,17 +546,26 @@ public class CheckoutActivity extends AppCompatActivity {
         switch (code) {
             case VOUCHER_FREESHIP:
                 appliedShipVoucher = code; break;
+            case VOUCHER_SHIP50:
+                if (sub < 200000) { toast("SHIP50 áp dụng đơn từ 200.000đ"); return; }
+                appliedShipVoucher = code; break;
+            case VOUCHER_NEWUSER:
+                if (sub < 100000) { toast("NEWUSER áp dụng đơn từ 100.000đ"); return; }
+                appliedDiscountVoucher = code; break;
             case VOUCHER_GIAM10:
-                if (sub < 300000) {
-                    Toast.makeText(this, "GIAM10 chỉ áp dụng cho đơn từ 300.000đ", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                if (sub < 300000) { toast("GIAM10 áp dụng đơn từ 300.000đ"); return; }
+                appliedDiscountVoucher = code; break;
+            case VOUCHER_MEMBER15:
+                if (sub < 400000) { toast("MEMBER15 áp dụng đơn từ 400.000đ"); return; }
                 appliedDiscountVoucher = code; break;
             case VOUCHER_GIAM50K:
-                if (sub < 500000) {
-                    Toast.makeText(this, "GIAM50K chỉ áp dụng cho đơn từ 500.000đ", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+                if (sub < 500000) { toast("GIAM50K áp dụng đơn từ 500.000đ"); return; }
+                appliedDiscountVoucher = code; break;
+            case VOUCHER_SALE20:
+                if (sub < 500000) { toast("SALE20 áp dụng đơn từ 500.000đ"); return; }
+                appliedDiscountVoucher = code; break;
+            case VOUCHER_GIAM100K:
+                if (sub < 800000) { toast("GIAM100K áp dụng đơn từ 800.000đ"); return; }
                 appliedDiscountVoucher = code; break;
             default:
                 Toast.makeText(this, "Mã không hợp lệ", Toast.LENGTH_SHORT).show();
@@ -454,6 +573,10 @@ public class CheckoutActivity extends AppCompatActivity {
         }
         Toast.makeText(this, "Đã áp dụng mã " + code, Toast.LENGTH_SHORT).show();
         updateSummary();
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
     private void updateSummary() {
@@ -521,13 +644,23 @@ public class CheckoutActivity extends AppCompatActivity {
 
         String guestEmail = null;
         if (isGuest) {
-            // Khách: validate form nhập tay (tối thiểu tên, SĐT, email, địa chỉ)
-            String name  = binding.etGuestName.getText().toString().trim();
-            String phone = binding.etGuestPhone.getText().toString().trim();
-            String email = binding.etGuestEmail.getText().toString().trim();
-            String addr  = binding.etGuestAddress.getText().toString().trim();
-            if (name.isEmpty() || phone.isEmpty() || addr.isEmpty()
-                    || email.isEmpty() || !email.contains("@")) {
+            // Khách: validate form nhập tay (tên, SĐT, email, Tỉnh/Thành, Phường/Xã, địa chỉ chi tiết)
+            String name     = binding.etGuestName.getText().toString().trim();
+            String phone    = binding.etGuestPhone.getText().toString().trim();
+            String email    = binding.etGuestEmail.getText().toString().trim();
+            String province = binding.actGuestProvince.getText().toString().trim();
+            String district = binding.actGuestDistrict.getText().toString().trim();
+            String ward     = binding.actGuestWard.getText().toString().trim();
+            String detail   = binding.etGuestDetail.getText().toString().trim();
+            if (name.isEmpty() || phone.isEmpty() || email.isEmpty() || !email.contains("@")
+                    || province.isEmpty() || district.isEmpty() || ward.isEmpty() || detail.isEmpty()) {
+                binding.tvGuestAddressError.setText(R.string.err_guest_form_incomplete);
+                binding.tvGuestAddressError.setVisibility(View.VISIBLE);
+                binding.nestedScroll.post(() -> binding.nestedScroll.smoothScrollTo(0, 0));
+                return;
+            }
+            if (!com.FinalProject.group3.utils.ValidationUtils.isValidPhone(phone)) {
+                binding.tvGuestAddressError.setText(R.string.err_phone_invalid);
                 binding.tvGuestAddressError.setVisibility(View.VISIBLE);
                 binding.nestedScroll.post(() -> binding.nestedScroll.smoothScrollTo(0, 0));
                 return;
@@ -535,7 +668,8 @@ public class CheckoutActivity extends AppCompatActivity {
             binding.tvGuestAddressError.setVisibility(View.GONE);
             shipName = name;
             shipPhone = phone;
-            shipFullAddress = addr;
+            // Định dạng khớp Address.fullAddress(): "detail, ward, district, province"
+            shipFullAddress = detail + ", " + ward + ", " + district + ", " + province;
             guestEmail = email;
         } else if (shipFullAddress == null || shipFullAddress.isEmpty()) {
             binding.tvAddressError.setVisibility(View.VISIBLE);
@@ -586,6 +720,16 @@ public class CheckoutActivity extends AppCompatActivity {
                 } else {
                     removeOrderedItemsFromCart();
                     updateCustomerPoints(uid, earnedPoints, usedPoints2);
+                    // Tóm tắt sản phẩm cho thông báo: "Tên kính đầu tiên (+N sản phẩm)"
+                    String productSummary = null;
+                    if (!items.isEmpty() && items.get(0).getProduct() != null) {
+                        productSummary = items.get(0).getProduct().getName();
+                        if (items.size() > 1) {
+                            productSummary += " (+" + (items.size() - 1) + " san pham)";
+                        }
+                    }
+                    com.FinalProject.group3.utils.NotificationHelper
+                            .sendOrderPlaced(uid, orderId, orderCode, method, productSummary);
                 }
                 createPayment(orderId, uid, method, total);
                 PaymentResultActivity.start(CheckoutActivity.this, orderCode, orderId, total, method);
@@ -683,7 +827,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 updateSummary();
             });
             holder.binding.btnPlus.setOnClickListener(v -> {
-                int maxStock = (p != null) ? p.getStock() : 99;
+                int maxStock = resolveStock(p, d.getColor());
                 if (d.getQuantity() >= maxStock) {
                     Toast.makeText(CheckoutActivity.this, "Đã đạt số lượng tối đa trong kho", Toast.LENGTH_SHORT).show();
                     return;
@@ -697,39 +841,62 @@ public class CheckoutActivity extends AppCompatActivity {
             holder.binding.tvQty.setOnClickListener(v -> showQtyEditor(d, p, holder));
         }
 
+        /** Kho của đúng variant đang chọn (theo màu); fallback field stock cũ nếu không có variants. */
+        private int resolveStock(Product p, String color) {
+            if (p == null) return 99;
+            List<com.FinalProject.group3.model.ProductVariant> variants = p.getVariants();
+            if (variants != null && !variants.isEmpty()) {
+                for (com.FinalProject.group3.model.ProductVariant v : variants) {
+                    if (v.getColor() != null && v.getColor().equalsIgnoreCase(color)) return v.getStock();
+                }
+            }
+            return p.getStock() > 0 ? p.getStock() : 99;
+        }
+
         private void showColorPicker(CartDetail d, Product p, VH holder) {
             if (p == null) return;
 
-            // Ưu tiên variants (data mới): value = hex, label = colorName tiếng Việt
-            final List<String> colorValues = new ArrayList<>();
-            final List<String> colorLabels = new ArrayList<>();
-            if (p.getVariants() != null && !p.getVariants().isEmpty()) {
-                for (com.FinalProject.group3.model.ProductVariant v : p.getVariants()) {
-                    if (v.getColor() == null || v.getColor().isEmpty()) continue;
-                    colorValues.add(v.getColor());
-                    colorLabels.add((v.getColorName() != null && !v.getColorName().isEmpty())
-                            ? v.getColorName() : v.getColor());
-                }
-            } else if (p.getColors() != null) {
-                for (String c : p.getColors()) { colorValues.add(c); colorLabels.add(c); }
-            }
-            if (colorValues.isEmpty()) return;
+            // Đóng bàn phím nếu có (guest form còn field đang focus) rồi đợi đúng 1 khung
+            // hình cho layout ổn định mới mở popup — ListPopupWindow tính vị trí/kích thước
+            // theo layout hiện tại, mở ngay lúc bàn phím đang thu vào sẽ bị lệch vùng nhận touch.
+            // Luôn post() (không dựa vào giá trị trả về của hideSoftInputFromWindow, vốn không
+            // đồng nhất giữa các máy/phiên bản Android).
+            android.view.inputmethod.InputMethodManager imm =
+                    (android.view.inputmethod.InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+            if (imm != null) imm.hideSoftInputFromWindow(holder.itemView.getWindowToken(), 0);
 
-            android.widget.ArrayAdapter<String> arrAdapter = new android.widget.ArrayAdapter<>(
-                    CheckoutActivity.this,
-                    R.layout.item_color_popup, colorLabels);
-            android.widget.ListPopupWindow popup = new android.widget.ListPopupWindow(CheckoutActivity.this);
-            popup.setAnchorView(holder.binding.layoutColorPicker);
-            popup.setAdapter(arrAdapter);
-            popup.setWidth(Math.max(holder.binding.layoutColorPicker.getWidth(), 360));
-            popup.setModal(true);
-            popup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
-            popup.setOnItemClickListener((parent, view, which, id) -> {
-                d.setColor(colorValues.get(which));
-                notifyItemChanged(holder.getAdapterPosition());
-                popup.dismiss();
+            holder.itemView.post(() -> {
+                // Ưu tiên variants (data mới): value = hex, label = colorName tiếng Việt
+                final List<String> colorValues = new ArrayList<>();
+                final List<String> colorLabels = new ArrayList<>();
+                if (p.getVariants() != null && !p.getVariants().isEmpty()) {
+                    for (com.FinalProject.group3.model.ProductVariant v : p.getVariants()) {
+                        if (v.getColor() == null || v.getColor().isEmpty()) continue;
+                        colorValues.add(v.getColor());
+                        colorLabels.add((v.getColorName() != null && !v.getColorName().isEmpty())
+                                ? v.getColorName() : v.getColor());
+                    }
+                } else if (p.getColors() != null) {
+                    for (String c : p.getColors()) { colorValues.add(c); colorLabels.add(c); }
+                }
+                if (colorValues.isEmpty()) return;
+
+                android.widget.ArrayAdapter<String> arrAdapter = new android.widget.ArrayAdapter<>(
+                        CheckoutActivity.this,
+                        R.layout.item_color_popup, colorLabels);
+                android.widget.ListPopupWindow popup = new android.widget.ListPopupWindow(CheckoutActivity.this);
+                popup.setAnchorView(holder.binding.layoutColorPicker);
+                popup.setAdapter(arrAdapter);
+                popup.setWidth(Math.max(holder.binding.layoutColorPicker.getWidth(), 360));
+                popup.setModal(true);
+                popup.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(0xFFFFFFFF));
+                popup.setOnItemClickListener((parent, view, which, id) -> {
+                    d.setColor(colorValues.get(which));
+                    notifyItemChanged(holder.getAdapterPosition());
+                    popup.dismiss();
+                });
+                popup.show();
             });
-            popup.show();
         }
 
         /** Tên màu hiển thị: tra colorName trong variants theo hex đang chọn */
@@ -756,7 +923,7 @@ public class CheckoutActivity extends AppCompatActivity {
                     .setPositiveButton("OK", (dlg, which) -> {
                         try {
                             int qty = Integer.parseInt(et.getText().toString().trim());
-                            int maxStock = (p != null) ? p.getStock() : 99;
+                            int maxStock = resolveStock(p, d.getColor());
                             if (qty < 1) qty = 1;
                             if (qty > maxStock) {
                                 Toast.makeText(CheckoutActivity.this,

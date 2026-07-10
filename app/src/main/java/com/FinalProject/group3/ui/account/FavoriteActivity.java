@@ -54,12 +54,20 @@ public class FavoriteActivity extends AppCompatActivity {
 
         binding.btnBack.setOnClickListener(v -> finish());
         binding.rvFavorites.setAdapter(adapter);
+
+        // Icon giỏ hàng ở header → mở tab Giỏ hàng
+        binding.btnCart.setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.FinalProject.group3.MainActivity.class);
+            intent.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_CART, true);
+            startActivity(intent);
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         loadFavorites();
+        CartQuickActions.refreshBadge(binding.tvCartBadge);
     }
 
     private void loadFavorites() {
@@ -191,8 +199,17 @@ public class FavoriteActivity extends AppCompatActivity {
                     }));
 
             // 2 nút — tái dùng CartQuickActions (đã xử lý guest + last_added_id)
-            b.btnAddToCart.setOnClickListener(v ->
-                    CartQuickActions.addToCart(FavoriteActivity.this, p));
+            b.btnAddToCart.setOnClickListener(v -> {
+                // Ảnh sản phẩm bay lên icon giỏ + bounce + cập nhật badge
+                CartQuickActions.flyToCart(FavoriteActivity.this, b.ivProduct,
+                        binding.btnCart, () -> {
+                            CartQuickActions.animateCartIcon(binding.btnCart);
+                            CartQuickActions.refreshBadge(binding.tvCartBadge);
+                        });
+                CartQuickActions.addToCart(FavoriteActivity.this, p, () ->
+                        Toast.makeText(FavoriteActivity.this,
+                                "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show());
+            });
             b.btnBuyNow.setOnClickListener(v ->
                     CartQuickActions.buyNow(FavoriteActivity.this, p));
         }

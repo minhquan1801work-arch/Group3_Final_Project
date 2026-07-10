@@ -1,0 +1,9 @@
+{
+  "hosting": {
+    "public": "admin_web",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**", "README.md"]
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}

@@ -149,45 +149,56 @@
             android:gravity="end"
             android:orientation="horizontal">
 
-            <Button
+            <!-- Dùng TextView thay Button: theme MaterialComponents đè android:background
+                 của Button bằng backgroundTint nên drawable outline không hiển thị -->
+            <TextView
                 android:id="@+id/btnReorder"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
-                android:background="@drawable/bg_btn_black_filled"
+                android:background="@drawable/bg_btn_orange_outline"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
                 android:minWidth="0dp"
                 android:paddingHorizontal="14dp"
                 android:text="Mua lại"
-                android:textColor="@color/white"
+                android:textColor="#E65100"
                 android:textSize="12sp"
+                android:textStyle="bold"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnReview"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_btn_wine_outline"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
                 android:minWidth="0dp"
                 android:paddingHorizontal="14dp"
                 android:text="Đánh giá"
                 android:textColor="@color/color_accent"
                 android:textSize="12sp"
+                android:textStyle="bold"
                 android:visibility="gone"
                 tools:visibility="visible" />
 
-            <Button
+            <TextView
                 android:id="@+id/btnDetail"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/bg_btn_black_filled"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
                 android:minWidth="0dp"
                 android:paddingHorizontal="14dp"
                 android:text="Xem chi tiết"
                 android:textColor="@color/white"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

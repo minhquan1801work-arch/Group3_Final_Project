@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glassity — Quản trị đơn hàng</title>
+<style>
+  /* ── Palette đồng bộ app Android: brand_dark/wine/cream/beige + cam giá ── */
+  :root {
+    --dark:  #322D29;
+    --wine:  #72383D;
+    --taupe: #AC9C8D;
+    --beige: #D1C7BD;
+    --cream: #EFE9E1;
+    --price: #EE4D2D;
+    --green: #2E7D32;
+    --red:   #B3261E;
+    --text2: #6B6560;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+  body { background: var(--cream); color: var(--dark); min-height: 100vh; }
+
+  .serif { font-family: Georgia, 'Times New Roman', serif; }
+
+  /* ── Đăng nhập ── */
+  #loginScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; flex-direction: column; gap: 8px;
+  }
+  .login-card {
+    background: #fff; border: 1px solid var(--beige); border-radius: 14px;
+    padding: 36px 32px; width: 360px; box-shadow: 0 4px 24px rgba(50,45,41,.08);
+  }
+  .login-card h1 { font-size: 30px; text-align: center; }
+  .login-card .sub {
+    text-align: center; letter-spacing: 4px; font-size: 11px;
+    color: var(--wine); margin: 4px 0 26px; font-weight: 600;
+  }
+  .login-card input {
+    width: 100%; padding: 11px 12px; margin-bottom: 12px;
+    border: 1px solid var(--beige); border-radius: 8px; font-size: 14px;
+    background: var(--cream);
+  }
+  .login-card input:focus { outline: 2px solid var(--wine); border-color: transparent; }
+  .err { color: var(--red); font-size: 12.5px; min-height: 18px; margin-bottom: 8px; }
+
+  .btn {
+    border: none; border-radius: 8px; padding: 11px 18px; font-size: 14px;
+    cursor: pointer; font-weight: 600; transition: opacity .15s;
+  }
+  .btn:hover { opacity: .88; }
+  .btn:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-dark  { background: var(--dark);  color: #fff; width: 100%; }
+  .btn-wine  { background: var(--wine);  color: #fff; }
+  .btn-line  { background: #fff; color: var(--wine); border: 1px solid var(--wine); }
+  .btn-red   { background: var(--red);   color: #fff; }
+  .btn-green { background: var(--green); color: #fff; }
+  .btn-sm    { padding: 6px 12px; font-size: 12.5px; border-radius: 6px; }
+
+  /* ── App bar ── */
+  #app { display: none; }
+  header {
+    background: #fff; border-bottom: 1px solid var(--beige);
+    padding: 14px 28px; display: flex; align-items: center; gap: 14px;
+    position: sticky; top: 0; z-index: 10;
+  }
+  header .logo { font-size: 24px; font-weight: bold; }
+  header .tag {
+    background: var(--wine); color: #fff; font-size: 10px; letter-spacing: 2px;
+    padding: 3px 8px; border-radius: 4px; font-weight: 700;
+  }
+  header .spacer { flex: 1; }
+  header .user { font-size: 13px; color: var(--text2); }
+
+  main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 60px; }
+
+  /* ── Thống kê nhanh ── */
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  .stat {
+    background: #fff; border: 1px solid var(--beige); border-radius: 10px;
+    padding: 14px 20px; min-width: 132px;
+  }
+  .stat .n { font-size: 26px; font-weight: 700; }
+  .stat .l { font-size: 12px; color: var(--text2); margin-top: 2px; }
+
+  /* ── Bộ lọc ── */
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+  .chip {
+    background: #fff; border: 1px solid var(--beige); border-radius: 999px;
+    padding: 7px 16px; font-size: 13px; cursor: pointer; user-select: none;
+  }
+  .chip.active { background: var(--dark); color: #fff; border-color: var(--dark); }
+  #searchBox {
+    margin-left: auto; padding: 8px 14px; border: 1px solid var(--beige);
+    border-radius: 999px; font-size: 13px; width: 240px; background: #fff;
+  }
+
+  /* ── Bảng đơn ── */
+  table { width: 100%; border-collapse: collapse; background: #fff;
+          border: 1px solid var(--beige); border-radius: 10px; overflow: hidden; }
+  thead { background: var(--dark); color: #fff; }
+  th { text-align: left; padding: 11px 14px; font-size: 12px; letter-spacing: .5px; font-weight: 600; }
+  td { padding: 12px 14px; font-size: 13.5px; border-top: 1px solid #F0EBE4; vertical-align: middle; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--cream); }
+  .money { color: var(--price); font-weight: 700; white-space: nowrap; }
+  .code  { font-weight: 700; white-space: nowrap; }
+
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 999px;
+           font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .st-PENDING    { background: #FFF3E0; color: #E65100; }
+  .st-PROCESSING { background: #E3F2FD; color: #1565C0; }
+  .st-SHIPPED    { background: #EDE7F6; color: #5E35B1; }
+  .st-DELIVERED  { background: #E8F5E9; color: var(--green); }
+  .st-CANCELLED  { background: #FDECEA; color: var(--red); }
+  .pay-PAID    { color: var(--green); font-weight: 700; font-size: 12px; }
+  .pay-PENDING { color: #E65100; font-weight: 700; font-size: 12px; }
+
+  .empty { text-align: center; color: var(--text2); padding: 48px 0; font-size: 14px; }
+
+  /* ── Modal ── */
+  .overlay {
+    display: none; position: fixed; inset: 0; background: rgba(50,45,41,.45);
+    z-index: 50; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 40px 16px;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 14px; width: 640px; max-width: 100%;
+    padding: 26px 28px; box-shadow: 0 10px 40px rgba(0,0,0,.2);
+  }
+  .modal h2 { font-size: 19px; margin-bottom: 4px; }
+  .modal .mono { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
+  .sect { border-top: 1px solid var(--cream); padding: 14px 0; }
+  .sect h3 { font-size: 13px; letter-spacing: 1px; color: var(--wine); margin-bottom: 8px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; font-size: 13.5px; }
+  .row .k { color: var(--text2); }
+  .items-tbl td { padding: 7px 6px; font-size: 13px; border-top: 1px dashed var(--cream); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .modal textarea, .modal input[type=text], .modal input[type=number], .modal select {
+    width: 100%; padding: 9px 11px; border: 1px solid var(--beige); border-radius: 8px;
+    font-size: 13.5px; background: var(--cream); margin-top: 4px;
+  }
+  label { font-size: 12px; color: var(--text2); display: block; margin-top: 10px; }
+  .close-x { float: right; border: none; background: none; font-size: 22px; cursor: pointer; color: var(--text2); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%);
+    background: var(--dark); color: #fff; padding: 11px 22px; border-radius: 999px;
+    font-size: 13.5px; display: none; z-index: 99; box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ ĐĂNG NHẬP ═══════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1 class="serif">Glassity</h1>
+    <div class="sub">QUẢN TRỊ ĐƠN HÀNG</div>
+    <input type="email" id="loginEmail" placeholder="Email quản trị">
+    <input type="password" id="loginPass" placeholder="Mật khẩu">
+    <div class="err" id="loginErr"></div>
+    <button class="btn btn-dark" id="btnLogin">Đăng nhập</button>
+  </div>
+</div>
+
+<!-- ═══════════ APP ═══════════ -->
+<div id="app">
+  <header>
+    <span class="logo serif">Glassity</span>
+    <span class="tag">ADMIN</span>
+    <span class="spacer"></span>
+    <span class="user" id="userEmail"></span>
+    <button class="btn btn-line btn-sm" id="btnLogout">Đăng xuất</button>
+  </header>
+
+  <main>
+    <div class="stats" id="stats"></div>
+
+    <div class="toolbar">
+      <span class="chip active" data-f="ALL">Tất cả</span>
+      <span class="chip" data-f="PENDING">Chờ xác nhận</span>
+      <span class="chip" data-f="PROCESSING">Đang xử lý</span>
+      <span class="chip" data-f="SHIPPED">Đang giao</span>
+      <span class="chip" data-f="DELIVERED">Hoàn thành</span>
+      <span class="chip" data-f="CANCELLED">Đã hủy</span>
+      <input id="searchBox" placeholder="Tìm mã đơn / SĐT / tên khách...">
+      <button class="btn btn-wine btn-sm" id="btnNewOrder">+ Tạo đơn</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>MÃ ĐƠN</th><th>NGÀY ĐẶT</th><th>KHÁCH HÀNG</th><th>TỔNG TIỀN</th>
+          <th>THANH TOÁN</th><th>TRẠNG THÁI</th>
+        </tr>
+      </thead>
+      <tbody id="orderRows"></tbody>
+    </table>
+    <div class="empty" id="emptyMsg" style="display:none">Không có đơn hàng nào khớp bộ lọc.</div>
+  </main>
+</div>
+
+<!-- ═══════════ MODAL CHI TIẾT ĐƠN ═══════════ -->
+<div class="overlay" id="detailOverlay">
+  <div class="modal">
+    <button class="close-x" onclick="closeDetail()">×</button>
+    <h2 id="dOrderCode"></h2>
+    <div class="mono" id="dOrderId"></div>
+
+    <div class="sect">
+      <h3>SẢN PHẨM</h3>
+      <table class="items-tbl" style="border:none" id="dItems"></table>
+    </div>
+
+    <div class="sect">
+      <h3>GIAO HÀNG</h3>
+      <div class="row"><span class="k">Email đặt hàng</span><span id="dEmail">—</span></div>
+      <div class="row"><span class="k">Người nhận / địa chỉ</span></div>
+      <textarea id="dAddress" rows="2"></textarea>
+      <button class="btn btn-line btn-sm" style="margin-top:8px" onclick="saveAddress()">Lưu địa chỉ</button>
+    </div>
+
+    <div class="sect">
+      <h3>THANH TOÁN</h3>
+      <div class="row"><span class="k">Phương thức</span><span id="dMethod"></span></div>
+      <div class="row"><span class="k">Trạng thái thanh toán</span><span id="dPayStatus"></span></div>
+      <div class="row"><span class="k">Tổng tiền</span><span class="money" id="dTotal"></span></div>
+      <div class="actions" id="payActions"></div>
+    </div>
+
+    <div class="sect">
+      <h3>TRẠNG THÁI ĐƠN — <span id="dStatusNow"></span></h3>
+      <div class="actions" id="statusActions"></div>
+    </div>
+
+    <div class="sect" style="border-top:2px solid var(--cream)">
+      <div class="actions">
+        <button class="btn btn-red btn-sm" onclick="deleteOrder()">🗑 Xóa đơn hàng</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL TẠO ĐƠN ═══════════ -->
+<div class="overlay" id="createOverlay">
+  <div class="modal" style="width:480px">
+    <button class="close-x" onclick="closeCreate()">×</button>
+    <h2>Tạo đơn thủ công</h2>
+    <div class="mono">Dùng khi nhận đơn qua điện thoại/Zalo — đơn gắn khách vãng lai (GUEST)</div>
+    <label>Tên người nhận *</label><input type="text" id="cName">
+    <label>Số điện thoại *</label><input type="text" id="cPhone" maxlength="10">
+    <label>Địa chỉ giao *</label><input type="text" id="cAddress">
+    <label>Tổng tiền (đ) *</label><input type="number" id="cTotal" min="0">
+    <label>Phương thức</label>
+    <select id="cMethod">
+      <option value="COD">COD — thanh toán khi nhận</option>
+      <option value="BANK_TRANSFER">Chuyển khoản</option>
+    </select>
+    <div class="err" id="cErr"></div>
+    <div class="actions">
+      <button class="btn btn-wine" onclick="createOrder()">Tạo đơn</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ── Firebase config — apiKey web là public identifier, bảo mật nằm ở Firestore Rules ── */
+firebase.initializeApp({
+  apiKey: "AIzaSyAZdqYHoCd8oBqdSt-0sYmWZSuKYfcJBOI",
+  authDomain: "glassity-770c5.firebaseapp.com",
+  projectId: "glassity-770c5",
+});
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const VND = n => new Intl.NumberFormat('vi-VN').format(Math.round(n || 0)) + 'đ';
+const STATUS_LABEL = { PENDING:'Chờ xác nhận', PROCESSING:'Đang xử lý', SHIPPED:'Đang giao', DELIVERED:'Hoàn thành', CANCELLED:'Đã hủy' };
+// Luồng chuyển trạng thái hợp lệ (khớp BPMN): PENDING → PROCESSING → SHIPPED → DELIVERED; hủy được trước khi giao xong
+const NEXT_STATUS = { PENDING:['PROCESSING','CANCELLED'], PROCESSING:['SHIPPED','CANCELLED'], SHIPPED:['DELIVERED','CANCELLED'], DELIVERED:[], CANCELLED:[] };
+
+let allOrders = [];       // {id, ...data}
+let filter = 'ALL';
+let search = '';
+let currentOrder = null;  // đơn đang mở trong modal
+let unsubOrders = null;
+const productNameCache = {};
+const customerEmailCache = {}; // customerId → email (tra từ customers/{uid})
+
+/* Email người đặt: đơn GUEST lấy field guestEmail lưu ngay trong order;
+   đơn của thành viên tra customers/{uid}.email (cache theo uid). */
+async function resolveEmail(o) {
+  if (o._email !== undefined) return o._email;
+  let email = '';
+  if (o.customerId === 'GUEST') {
+    email = o.guestEmail || '';
+  } else if (o.customerId) {
+    if (customerEmailCache[o.customerId] !== undefined) {
+      email = customerEmailCache[o.customerId];
+    } else {
+      try {
+        const c = await db.collection('customers').doc(o.customerId).get();
+        email = c.exists ? (c.data().email || '') : '';
+      } catch (e) { email = ''; }
+      customerEmailCache[o.customerId] = email;
+    }
+  }
+  o._email = email;
+  return email;
+}
+
+/* ══════════ AUTH ══════════ */
+document.getElementById('btnLogin').onclick = async () => {
+  const err = document.getElementById('loginErr');
+  err.textContent = '';
+  try {
+    await auth.signInWithEmailAndPassword(
+      document.getElementById('loginEmail').value.trim(),
+      document.getElementById('loginPass').value);
+  } catch (e) {
+    err.textContent = 'Đăng nhập thất bại: sai email hoặc mật khẩu.';
+  }
+};
+document.getElementById('loginPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('btnLogin').click();
+});
+document.getElementById('btnLogout').onclick = () => auth.signOut();
+
+auth.onAuthStateChanged(async user => {
+  if (user) {
+    // Check quyền admin: phải có document admins/{uid} (Rules cũng enforce phía server)
+    try {
+      const adminDoc = await db.collection('admins').doc(user.uid).get();
+      if (!adminDoc.exists) {
+        document.getElementById('loginErr').textContent =
+          'Tài khoản này không có quyền quản trị.';
+        auth.signOut();
+        return;
+      }
+    } catch (e) {
+      document.getElementById('loginErr').textContent = 'Không kiểm tra được quyền quản trị.';
+      auth.signOut();
+      return;
+    }
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
+    subscribeOrders();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    if (unsubOrders) { unsubOrders(); unsubOrders = null; }
+  }
+});
+
+/* ══════════ READ — realtime danh sách đơn ══════════ */
+function subscribeOrders() {
+  if (unsubOrders) unsubOrders();
+  unsubOrders = db.collection('orders').onSnapshot(snap => {
+    allOrders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Mới nhất lên đầu
+    allOrders.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    render();
+    // Tra email người đặt (async, có cache) rồi vẽ lại để điền vào cột khách hàng
+    Promise.all(allOrders.map(resolveEmail)).then(render);
+  }, e => toast('Lỗi tải đơn: ' + e.message));
+}
+
+function render() {
+  renderStats();
+  const rows = document.getElementById('orderRows');
+  const list = allOrders.filter(o => {
+    if (filter !== 'ALL' && o.orderStatus !== filter) return false;
+    if (search) {
+      const hay = ((o.orderCode || '') + ' ' + (o.shippingAddress || '') + ' '
+                 + (o.guestPhone || '') + ' ' + (o._email || '')).toLowerCase();
+      if (!hay.includes(search)) return false;
+    }
+    return true;
+  });
+  document.getElementById('emptyMsg').style.display = list.length ? 'none' : 'block';
+  rows.innerHTML = list.map(o => {
+    const d = o.createdAt?.toDate ? o.createdAt.toDate() : null;
+    const dateStr = d ? d.toLocaleDateString('vi-VN') + ' ' + d.toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) : '—';
+    const name = (o.shippingAddress || '').split('|')[0].trim() || '(không tên)';
+    const emailLine = o._email
+        ? `<div style="font-size:11.5px;color:var(--text2)">${esc(o._email)}</div>` : '';
+    return `<tr onclick="openDetail('${o.id}')">
+      <td class="code">${esc(o.orderCode || o.id.slice(0,8))}</td>
+      <td>${dateStr}</td>
+      <td>${esc(name)}${o.customerId === 'GUEST' ? ' <span style="font-size:10px;color:var(--taupe)">KHÁCH</span>' : ''}${emailLine}</td>
+      <td class="money">${VND(o.totalAmount)}</td>
+      <td class="pay-${o.paymentStatus === 'PAID' ? 'PAID' : 'PENDING'}">${o.paymentStatus === 'PAID' ? '✓ Đã thanh toán' : (o.paymentMethod === 'COD' ? 'COD' : 'Chờ CK')}</td>
+      <td><span class="badge st-${o.orderStatus}">${STATUS_LABEL[o.orderStatus] || o.orderStatus}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderStats() {
+  const c = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+  allOrders.forEach(o => { if (c[o.orderStatus] !== undefined) c[o.orderStatus]++; });
+  const revenue = allOrders.filter(o => o.orderStatus === 'DELIVERED')
+                           .reduce((s, o) => s + (o.totalAmount || 0), 0);
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="n">${allOrders.length}</div><div class="l">Tổng đơn</div></div>
+    <div class="stat"><div class="n" style="color:#E65100">${c.PENDING}</div><div class="l">Chờ xác nhận</div></div>
+    <div class="stat"><div class="n" style="color:#1565C0">${c.PROCESSING + c.SHIPPED}</div><div class="l">Đang xử lý / giao</div></div>
+    <div class="stat"><div class="n" style="color:var(--green)">${c.DELIVERED}</div><div class="l">Hoàn thành</div></div>
+    <div class="stat"><div class="n" style="color:var(--price)">${VND(revenue)}</div><div class="l">Doanh thu (đơn hoàn thành)</div></div>`;
+}
+
+/* Bộ lọc + tìm kiếm */
+document.querySelectorAll('.chip').forEach(ch => ch.onclick = () => {
+  document.querySelectorAll('.chip').forEach(x => x.classList.remove('active'));
+  ch.classList.add('active');
+  filter = ch.dataset.f;
+  render();
+});
+document.getElementById('searchBox').oninput = e => {
+  search = e.target.value.trim().toLowerCase();
+  render();
+};
+
+/* ══════════ CHI TIẾT ĐƠN (modal) ══════════ */
+async function openDetail(orderId) {
+  const o = allOrders.find(x => x.id === orderId);
+  if (!o) return;
+  currentOrder = o;
+
+  document.getElementById('dOrderCode').textContent = o.orderCode || orderId;
+  document.getElementById('dOrderId').textContent = 'ID: ' + orderId + (o.customerId === 'GUEST' ? ' · Khách vãng lai' : '');
+  document.getElementById('dEmail').textContent = 'Đang tải...';
+  resolveEmail(o).then(email => {
+    document.getElementById('dEmail').textContent = email || '(không có email)';
+  });
+  document.getElementById('dAddress').value = o.shippingAddress || '';
+  document.getElementById('dMethod').textContent = o.paymentMethod === 'BANK_TRANSFER' ? 'Chuyển khoản' : 'COD';
+  document.getElementById('dPayStatus').innerHTML = o.paymentStatus === 'PAID'
+      ? '<span class="pay-PAID">✓ Đã thanh toán</span>' : '<span class="pay-PENDING">Chưa thanh toán</span>';
+  document.getElementById('dTotal').textContent = VND(o.totalAmount);
+  document.getElementById('dStatusNow').innerHTML = `<span class="badge st-${o.orderStatus}">${STATUS_LABEL[o.orderStatus]}</span>`;
+
+  // Nút chuyển trạng thái theo luồng hợp lệ
+  const sa = document.getElementById('statusActions');
+  sa.innerHTML = (NEXT_STATUS[o.orderStatus] || []).map(s =>
+    `<button class="btn ${s === 'CANCELLED' ? 'btn-red' : 'btn-green'} btn-sm" onclick="setStatus('${s}')">
+       ${s === 'CANCELLED' ? 'Hủy đơn' : '→ ' + STATUS_LABEL[s]}</button>`).join('')
+    || '<span style="font-size:12.5px;color:var(--text2)">Đơn đã kết thúc, không đổi được trạng thái.</span>';
+
+  // Nút xác nhận thanh toán (chuyển khoản chưa PAID)
+  const pa = document.getElementById('payActions');
+  pa.innerHTML = (o.paymentMethod === 'BANK_TRANSFER' && o.paymentStatus !== 'PAID')
+    ? '<button class="btn btn-green btn-sm" onclick="confirmPaid()">✓ Xác nhận đã nhận tiền</button>' : '';
+
+  // Load sản phẩm trong đơn
+  const itemsTbl = document.getElementById('dItems');
+  itemsTbl.innerHTML = '<tr><td style="color:var(--text2)">Đang tải...</td></tr>';
+  document.getElementById('detailOverlay').classList.add('open');
+
+  const detailSnap = await db.collection('orders').doc(orderId).collection('orderDetails').get();
+  const rows = await Promise.all(detailSnap.docs.map(async d => {
+    const it = d.data();
+    let name = productNameCache[it.productId];
+    if (!name) {
+      try {
+        const p = await db.collection('products').doc(it.productId).get();
+        name = p.exists ? p.data().name : '(sản phẩm đã xóa)';
+      } catch (e) { name = it.productId; }
+      productNameCache[it.productId] = name;
+    }
+    return `<tr><td>${esc(name)}</td><td style="color:var(--text2)">x${it.quantity}</td>
+            <td class="money" style="text-align:right">${VND(it.price * it.quantity)}</td></tr>`;
+  }));
+  itemsTbl.innerHTML = rows.join('') || '<tr><td style="color:var(--text2)">Không có chi tiết sản phẩm.</td></tr>';
+}
+function closeDetail() { document.getElementById('detailOverlay').classList.remove('open'); currentOrder = null; }
+
+/* ══════════ UPDATE — trạng thái / thanh toán / địa chỉ ══════════ */
+async function setStatus(newStatus) {
+  if (!currentOrder) return;
+  if (newStatus === 'CANCELLED' && !confirm('Hủy đơn ' + currentOrder.orderCode + '?')) return;
+  try {
+    await db.collection('orders').doc(currentOrder.id).update({ orderStatus: newStatus });
+    await notifyCustomer(currentOrder, newStatus);
+    toast('Đã chuyển "' + currentOrder.orderCode + '" → ' + STATUS_LABEL[newStatus]);
+    closeDetail();
+  } catch (e) { toast('Lỗi: ' + e.message); }
+}
+
+async function confirmPaid() {
+  if (!currentOrder) return;
+  try {
+    await db.collection('orders').doc(currentOrder.id).update({
+      paymentStatus: 'PAID',
+      paidAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    toast('Đã xác nhận thanh toán ' + currentOrder.orderCode);
+    closeDetail();
+  } catch (e) { toast('Lỗi: ' + e.message); }
+}
+
+async function saveAddress() {
+  if (!currentOrder) return;
+  const addr = document.getElementById('dAddress').value.trim();
+  if (!addr) { toast('Địa chỉ không được để trống'); return; }
+  try {
+    await db.collection('orders').doc(currentOrder.id).update({ shippingAddress: addr });
+    toast('Đã cập nhật địa chỉ giao hàng');
+  } catch (e) { toast('Lỗi: ' + e.message); }
+}
+
+/* Gửi thông báo trong app cho khách khi đơn đổi trạng thái (BPMN: notify customer).
+   Fetch tên sản phẩm đầu tiên từ orderDetails để ghi vào nội dung thông báo.
+   Đơn GUEST không có tài khoản nên bỏ qua. */
+async function notifyCustomer(order, newStatus) {
+  if (!order.customerId || order.customerId === 'GUEST') return;
+
+  // Lấy tên sản phẩm đầu tiên: orderDetails → productId → products/{id}.name
+  let productSuffix = '';
+  try {
+    const detailSnap = await db.collection('orders').doc(order.id)
+        .collection('orderDetails').limit(1).get();
+    if (!detailSnap.empty) {
+      const productId = detailSnap.docs[0].data().productId;
+      if (productId) {
+        const productDoc = await db.collection('products').doc(productId).get();
+        if (productDoc.exists) {
+          productSuffix = ' - ' + productDoc.data().name;
+        }
+      }
+    }
+  } catch (_) {}
+
+  const bodyByStatus = {
+    PROCESSING: 'Đơn ' + order.orderCode + productSuffix + ' đã được xác nhận và đang chuẩn bị.',
+    SHIPPED:    'Đơn ' + order.orderCode + productSuffix + ' đã bàn giao cho đơn vị vận chuyển.',
+    DELIVERED:  'Đơn ' + order.orderCode + productSuffix + ' đã giao thành công. Hãy đánh giá nhé!',
+    CANCELLED:  'Đơn ' + order.orderCode + productSuffix + ' đã bị hủy. Liên hệ hỗ trợ nếu cần.',
+  };
+  await db.collection('notifications').add({
+    customerId: order.customerId,
+    message: bodyByStatus[newStatus] || ('Đơn ' + order.orderCode + ': ' + STATUS_LABEL[newStatus]),
+    type: 'ORDER',
+    orderId: order.id,
+    status: 'UNREAD',
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  });
+}
+
+/* ══════════ DELETE ══════════ */
+async function deleteOrder() {
+  if (!currentOrder) return;
+  if (!confirm('XÓA VĨNH VIỄN đơn ' + currentOrder.orderCode + '? Hành động này không hoàn tác được.')) return;
+  try {
+    // Xóa subcollection orderDetails trước (Firestore không tự xóa kèm)
+    const details = await db.collection('orders').doc(currentOrder.id).collection('orderDetails').get();
+    await Promise.all(details.docs.map(d => d.ref.delete()));
+    await db.collection('orders').doc(currentOrder.id).delete();
+    toast('Đã xóa đơn ' + currentOrder.orderCode);
+    closeDetail();
+  } catch (e) { toast('Lỗi: ' + e.message); }
+}
+
+/* ══════════ CREATE — tạo đơn thủ công ══════════ */
+document.getElementById('btnNewOrder').onclick = () =>
+  document.getElementById('createOverlay').classList.add('open');
+function closeCreate() { document.getElementById('createOverlay').classList.remove('open'); }
+
+async function createOrder() {
+  const name  = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const addr  = document.getElementById('cAddress').value.trim();
+  const total = parseFloat(document.getElementById('cTotal').value);
+  const method = document.getElementById('cMethod').value;
+  const err = document.getElementById('cErr');
+  err.textContent = '';
+
+  if (!name || !addr || !total || total <= 0) { err.textContent = 'Điền đủ tên, địa chỉ và tổng tiền hợp lệ.'; return; }
+  if (!/^0\d{9}$/.test(phone)) { err.textContent = 'Số điện thoại phải gồm đúng 10 chữ số.'; return; }
+
+  // Mã đơn cùng format app Android: GLS-yyMMdd-xxxx
+  const d = new Date();
+  const ymd = String(d.getFullYear()).slice(2) + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+  const code = 'GLS-' + ymd + '-' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+
+  try {
+    await db.collection('orders').add({
+      customerId: 'GUEST',
+      orderCode: code,
+      totalAmount: total,
+      shippingFee: 0, shipDiscount: 0, voucherDiscount: 0,
+      usedPoints: 0, earnedPoints: 0,
+      paymentMethod: method,
+      paymentStatus: 'PENDING',
+      orderStatus: 'PENDING',
+      shippingAddress: name + ' | ' + phone + ' | ' + addr,
+      guestPhone: phone,
+      reviewed: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    toast('Đã tạo đơn ' + code);
+    closeCreate();
+    ['cName','cPhone','cAddress','cTotal'].forEach(id => document.getElementById(id).value = '');
+  } catch (e) { err.textContent = 'Lỗi: ' + e.message; }
+}
+
+/* ══════════ Helpers ══════════ */
+function esc(s) { const div = document.createElement('div'); div.textContent = s ?? ''; return div.innerHTML; }
+let toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.display = 'none', 3000);
+}
+/* Đóng modal khi bấm nền tối */
+document.querySelectorAll('.overlay').forEach(ov =>
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); }));
+</script>
+</body>
+</html>
