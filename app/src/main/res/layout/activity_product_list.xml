@@ -71,11 +71,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_marginEnd="8dp"
-                android:background="@drawable/bg_btn_wine_filled"
+                android:background="@drawable/bg_btn_wine_outline"
                 android:gravity="center"
                 android:paddingHorizontal="14dp"
-                android:text="Kính Mắt"
-                android:textColor="#FFFFFF"
+                android:text="Kính Mát"
+                android:textColor="@color/brand_wine"
                 android:textSize="12sp" />
             <TextView
                 android:id="@+id/chipShape"
@@ -89,6 +89,17 @@
                 android:textColor="@color/brand_wine"
                 android:textSize="12sp" />
             <TextView
+                android:id="@+id/chipGong"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_btn_wine_outline"
+                android:gravity="center"
+                android:paddingHorizontal="14dp"
+                android:text="Gọng Kính ⌄"
+                android:textColor="@color/brand_wine"
+                android:textSize="12sp" />
+            <TextView
                 android:id="@+id/chipPhuKien"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
@@ -96,7 +107,7 @@
                 android:background="@drawable/bg_btn_wine_outline"
                 android:gravity="center"
                 android:paddingHorizontal="14dp"
-                android:text="Phụ Kiện"
+                android:text="Phụ Kiện ⌄"
                 android:textColor="@color/brand_wine"
                 android:textSize="12sp" />
             <TextView
@@ -106,7 +117,7 @@
                 android:background="@drawable/bg_btn_wine_outline"
                 android:gravity="center"
                 android:paddingHorizontal="14dp"
-                android:text="Bộ Sưu Tập"
+                android:text="Bộ Sưu Tập ⌄"
                 android:textColor="@color/brand_wine"
                 android:textSize="12sp" />
         </LinearLayout>

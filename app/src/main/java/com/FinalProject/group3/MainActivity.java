@@ -149,18 +149,26 @@ public class MainActivity extends AppCompatActivity {
 
         // Menu items → ProductListActivity
         navigate(drawerView, R.id.menuKinhMat,   ProductListActivity.CAT_KINH_MAT, null, "Kính Mát");
-        navigate(drawerView, R.id.menuGongNhua,  ProductListActivity.CAT_KINH_CAN, null, "Kính Gọng Nhựa");
-        navigate(drawerView, R.id.menuGongKimLoai, ProductListActivity.CAT_KINH_CAN, null, "Kính Gọng Kim Loại");
+        // Gọng nhựa / kim loại lọc theo chất liệu (không phải category kinh_can)
+        drawerView.findViewById(R.id.menuGongNhua).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            ProductListActivity.startMaterial(this, ProductListActivity.MAT_NHUA);
+        });
+        drawerView.findViewById(R.id.menuGongKimLoai).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            ProductListActivity.startMaterial(this, ProductListActivity.MAT_KIM_LOAI);
+        });
 
-        navigateShape(drawerView, R.id.menuShapeTron,   ProductListActivity.SHAPE_TRON,      "Kính Gọng Tròn");
-        navigateShape(drawerView, R.id.menuShapeOval,   ProductListActivity.SHAPE_TRAI_XOAN, "Kính Gọng Oval");
-        navigateShape(drawerView, R.id.menuShapeMatMeo, ProductListActivity.SHAPE_TRAI_TIM,  "Kính Gọng Mắt Mèo");
-        navigateShape(drawerView, R.id.menuShapeVuong,  ProductListActivity.SHAPE_VUONG,     "Kính Gọng Vuông");
+        // Shape items = HÌNH DÁNG GỌNG (khác dáng mặt ở trang chủ)
+        navigateFrameShape(drawerView, R.id.menuShapeTron,   ProductListActivity.SHAPE_TRON);
+        navigateFrameShape(drawerView, R.id.menuShapeOval,   ProductListActivity.SHAPE_OVAL);
+        navigateFrameShape(drawerView, R.id.menuShapeMatMeo, ProductListActivity.SHAPE_MAT_MEO);
+        navigateFrameShape(drawerView, R.id.menuShapeVuong,  ProductListActivity.SHAPE_VUONG);
 
-        navigate(drawerView, R.id.menuPhuKien, ProductListActivity.CAT_PHU_KIEN, null, "Phụ Kiện");
-        navigate(drawerView, R.id.menuHopDung, ProductListActivity.CAT_PHU_KIEN, null, "Hộp Đựng Kính");
-        navigate(drawerView, R.id.menuKhanLau, ProductListActivity.CAT_PHU_KIEN, null, "Khăn Lau Kính");
-        navigate(drawerView, R.id.menuNuocLau, ProductListActivity.CAT_PHU_KIEN, null, "Nước Lau Kính");
+        navigateAccessory(drawerView, R.id.menuPhuKien, null);
+        navigateAccessory(drawerView, R.id.menuHopDung, ProductListActivity.ACC_HOP_DUNG);
+        navigateAccessory(drawerView, R.id.menuKhanLau, ProductListActivity.ACC_KHAN_LAU);
+        navigateAccessory(drawerView, R.id.menuNuocLau, ProductListActivity.ACC_NUOC_LAU);
 
         drawerView.findViewById(R.id.menuBST).setOnClickListener(v -> {
             drawerLayout.closeDrawer(Gravity.START);
@@ -186,10 +194,17 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void navigateShape(android.view.View root, int viewId, String shape, String title) {
+    private void navigateFrameShape(android.view.View root, int viewId, String frameShape) {
         root.findViewById(viewId).setOnClickListener(v -> {
             drawerLayout.closeDrawer(Gravity.START);
-            ProductListActivity.start(this, null, shape, title);
+            ProductListActivity.startFrameShape(this, frameShape);
+        });
+    }
+
+    private void navigateAccessory(android.view.View root, int viewId, String accessoryType) {
+        root.findViewById(viewId).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            ProductListActivity.startAccessory(this, accessoryType);
         });
     }
 

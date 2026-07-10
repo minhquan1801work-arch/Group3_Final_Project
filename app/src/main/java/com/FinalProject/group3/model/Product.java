@@ -16,6 +16,9 @@ public class Product {
     private List<String> faceShapes; // ["tron","trai_xoan",...] — empty for non-glasses
     private String collection;       // BST: "Monochrome Collection" | "Essential Acetate" | "Sunlight Studio"
     private String gender;           // "nam" | "nu" | "unisex"
+    private String frameShape;       // hình dáng gọng: tron | oval | mat_meo | vuong (khác faceShapes = dáng mặt)
+    private String material;         // chất liệu gọng: nhua | kim_loai
+    private String accessoryType;    // loại phụ kiện: hop_dung | khan_lau | nuoc_lau | tui_dung | day_deo
     private List<ProductVariant> variants; // mỗi variant có color + stock + images riêng
 
     public Product() {}
@@ -75,6 +78,15 @@ public class Product {
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
+
+    public String getFrameShape() { return frameShape; }
+    public void setFrameShape(String frameShape) { this.frameShape = frameShape; }
+
+    public String getMaterial() { return material; }
+    public void setMaterial(String material) { this.material = material; }
+
+    public String getAccessoryType() { return accessoryType; }
+    public void setAccessoryType(String accessoryType) { this.accessoryType = accessoryType; }
 
     public List<ProductVariant> getVariants() { return variants; }
     public void setVariants(List<ProductVariant> variants) { this.variants = variants; }

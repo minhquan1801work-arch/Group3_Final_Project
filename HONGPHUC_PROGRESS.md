@@ -103,6 +103,57 @@
 
 ---
 
+## [B12] Filter v2 — 5 chip khớp hamburger + 3 field Firestore mới (09/07/2026) ✅
+
+### Data: 3 field mới trong `products` (đã chạy `update_attrs.js`, 37/37 doc)
+| Field | Giá trị | Ý nghĩa |
+|---|---|---|
+| `frameShape` | `tron` / `oval` / `mat_meo` / `vuong` | **Hình dáng GỌNG kính** — KHÁC `faceShapes` (dáng khuôn mặt phù hợp) |
+| `material` | `nhua` / `kim_loai` | Chất liệu gọng |
+| `accessoryType` | `hop_dung` / `khan_lau` / `nuoc_lau` / `tui_dung` / `day_deo` | Loại phụ kiện |
+
+`Product.java` đã thêm 3 field + getter/setter. `HUONG_DAN_THEM_SAN_PHAM.md` đã cập nhật cột mới.
+
+### Logic filter mới (thay bản multi-filter AND tự do của B11)
+**5 chip = 4 nhóm LOẠI TRỪ nhau** (chọn nhóm này tắt nhóm kia), duy nhất Gọng+Shape combine:
+1. `Kính Mát` — toggle trực tiếp
+2. `Gọng Kính ⌄` — sheet Nhựa/Kim Loại/Bỏ chọn → **ép Kính Cận**
+3. `Shape Kính ⌄` — sheet Tròn/Oval/Mắt Mèo/Vuông/Bỏ chọn (lọc `frameShape`) → **ép Kính Cận**; Gọng+Shape chọn đồng thời được
+4. `Phụ Kiện ⌄` — sheet Tất cả/Hộp/Khăn/Nước/Bỏ chọn (lọc `accessoryType`)
+5. `Bộ Sưu Tập ⌄` — sheet Tất cả/3 BST/Bỏ chọn
+
+**Ngữ cảnh dáng mặt từ trang chủ**: vào bằng nút "Chọn kính theo dáng mặt" → title "Kính hợp mặt Tròn" **giữ nguyên suốt phiên** (không chip nào sáng, không bỏ được — để khách biết đang chọn trong tập đó), các chip lọc thêm bên trong. Title ví dụ: "Kính hợp mặt Tròn · Kính Mát". **Chip Phụ Kiện bị ẨN trong ngữ cảnh này** (phụ kiện không có faceShapes → giao 2 tập luôn rỗng, phi logic).
+
+### Drawer (MainActivity)
+- Shape items → `startFrameShape()` (hình dáng gọng — trước đây trỏ nhầm faceShapes)
+- Phụ Kiện + 3 mục con → `startAccessory(type)`
+- Launcher mới: `startFrameShape(ctx, shape)`, `startAccessory(ctx, type|null)`
+
+### Files
+- `ProductListActivity.java` — viết lại state machine Mode {KINH_MAT, KINH_CAN, PHU_KIEN, BST} + fixedFaceShape; field mới có fallback heuristic cho doc cũ
+- `bottom_sheet_material/accessory/collection.xml` — mới; `bottom_sheet_shape.xml` — đổi title + "Bỏ chọn"
+- `activity_product_list.xml` — 5 chip
+- `update_attrs.js` — script điền field (root repo)
+
+---
+
+## [B11] ProductListActivity rework — multi-filter (09/07/2026) — ⚠️ ĐÃ THAY BẰNG B12
+
+### Vấn đề đã fix
+1. **Ô sản phẩm lệch chiều cao theo tên** → `item_product.xml` tvName `minLines=2 + maxLines=2 + ellipsize=end`: tên luôn chiếm đúng 2 dòng, dài quá hiện "..."
+2. **Filter không chọn nhiều loại cùng lúc** → viết lại toàn bộ filter thành in-memory (load products 1 lần): các chiều filter độc lập AND với nhau — loại (Kính Mát/Phụ Kiện) + chất liệu (Gọng Nhựa/Kim Loại) + shape + BST. Bấm chip đang active = bỏ filter đó
+3. **Empty-text đè lên danh sách** → hết race giữa 2 query Firestore (giờ chỉ filter RAM, đồng bộ); text ẩn khi đang loading
+4. **Thiếu Gọng Nhựa / Gọng Kim Loại** → thêm 2 chip (đủ 6 khớp 5 danh mục hamburger + shape). Data chưa có field material nên phân loại heuristic theo tên+mô tả (`metal/metallic/kim loai/titan/thep` → kim loại, còn lại → nhựa). **Nâng cấp sau:** thêm field `material` vào Firestore
+5. **Title dính chữ cũ** → `updateTitle()` tính lại từ filter đang bật, nối bằng " · " (vd "Kính Mát · Gọng Nhựa · Shape Tròn"), không filter nào = "Tất cả sản phẩm"
+6. **Rà soát thêm — 2 bug tự phát hiện:** (a) nút "Thêm vào giỏ"/"Mua ngay" ở trang này chưa wire `CartQuickActions` (chỉ Toast giả) → đã wire; (b) drawer "Gọng Nhựa"/"Gọng Kim Loại" đều trỏ nhầm `CAT_KINH_CAN` → giờ dùng `startMaterial()`
+7. Chip "Bộ Sưu Tập" trước query `categoryId=="bst"` (không còn SP nào như vậy → luôn rỗng) → giờ filter SP có field `collection` khác rỗng
+
+### API mới cho teammate
+- `ProductListActivity.startMaterial(ctx, MAT_NHUA | MAT_KIM_LOAI)`
+- Launchers cũ (`start/startAll/startAllShapes/startCollection`) giữ nguyên chữ ký; riêng tham số `title` giờ bị bỏ qua (title tự tính theo filter)
+
+---
+
 ## [B10] Homepage khớp Figma 100% (09/07/2026) ✅
 
 ### Thay đổi lớn theo Figma
@@ -222,7 +273,33 @@ ProductListActivity.startAllShapes(context);
 | Collection | Nội dung |
 |-----------|---------|
 | `categories` | 4 docs: kinh_mat, kinh_can, phu_kien, bst |
-| `products` | 20 docs kính mát — Cloudinary + đầy đủ data |
+| `products` | **32 docs** (cập nhật 09/07): 20 kính mát ảnh thật + 6 kính cận seed + 6 phụ kiện seed. Đã xóa 5 kính mát seed trùng vai trò (Glassity Urban/Vintage/Wave/Edge/Pilot — ảnh demo). Kính cận + phụ kiện vẫn dùng ảnh demo, chờ ảnh thật |
+
+### ⚠️ 12 sản phẩm CẦN TÌM ẢNH THẬT (đang dùng ảnh demo Cloudinary)
+
+**Kính cận (6)** — khi tìm ảnh chú ý khớp mô tả gọng có sẵn:
+
+| Tên | Hình dáng gọng | Chất liệu | Ghi chú mô tả hiện tại |
+|---|---|---|---|
+| Glassity Soft Mini | tron | nhua | Gọng tròn nhỏ, hợp trán rộng |
+| Glassity Vision Round | tron | nhua | Gọng tròn nhẹ, cận số thấp→cao |
+| Glassity Oval Frame | oval | nhua | Gọng chữ nhật góc vuông (mô tả seed hơi lệch tên — tìm ảnh oval rồi sửa lại mô tả) |
+| Glassity Vision Square | vuong | nhua | Gọng chữ nhật thanh mảnh, trẻ trung |
+| Glassity Vision Air | tron | kim_loai | Gọng siêu nhẹ titanium |
+| Glassity Classic | tron | nhua | Gọng nhựa cao cấp, tròng UV400 |
+
+**Phụ kiện (6)**:
+
+| Tên | accessoryType |
+|---|---|
+| Hộp Đựng Kính Da Cao Cấp | hop_dung |
+| Hộp Đựng Kính Glassity Box | hop_dung |
+| Khăn Lau Kính Microfiber | khan_lau |
+| Nước Lau Kính Chuyên Dụng 30ml | nuoc_lau |
+| Túi Đựng Kính Nhung Mềm | tui_dung |
+| Dây Đeo Kính Silicon | day_deo |
+
+> Chuẩn bị ảnh theo format `HUONG_DAN_THEM_SAN_PHAM.md` (thư mục tên IN HOA + ảnh đánh số). Vì các sản phẩm này **đã tồn tại trên Firestore**, chỉ cần thay ảnh — gửi Phúc kèm ghi chú "thay ảnh cho SP có sẵn" để chạy script update thay vì tạo mới.
 
 ### 20 sản phẩm kính mát (categoryId: `kinh_mat`)
 
