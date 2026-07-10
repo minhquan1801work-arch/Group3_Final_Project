@@ -20,6 +20,7 @@ public class PolicyActivity extends AppCompatActivity {
     public static final String TYPE_WARRANTY = "warranty";
     public static final String TYPE_PRIVACY = "privacy";
     public static final String TYPE_SHIPPING = "shipping";
+    public static final String TYPE_TERMS = "terms";
 
     private static final String EXTRA_TYPE = "policy_type";
 
@@ -44,6 +45,7 @@ public class PolicyActivity extends AppCompatActivity {
             case TYPE_WARRANTY: title = "CHÍNH SÁCH BẢO HÀNH"; html = WARRANTY_HTML; break;
             case TYPE_PRIVACY:  title = "CHÍNH SÁCH BẢO MẬT";  html = PRIVACY_HTML;  break;
             case TYPE_SHIPPING: title = "CHÍNH SÁCH\nGIAO HÀNG VÀ KIỂM TRA"; html = SHIPPING_HTML; break;
+            case TYPE_TERMS:    title = "ĐIỀU KHOẢN SỬ DỤNG";  html = TERMS_HTML;    break;
             default:            title = "CÂU HỎI THƯỜNG GẶP";  html = FAQ_HTML;      break;
         }
         binding.tvPolicyTitle.setText(title);
@@ -118,6 +120,32 @@ public class PolicyActivity extends AppCompatActivity {
         + "<b>7. Cơ chế tiếp nhận và giải quyết khiếu nại</b><br>"
         + "Glassity cam kết bảo vệ tuyệt đối thông tin cá nhân của khách hàng. Mọi thông tin được cung cấp sẽ được bảo mật và không được chia sẻ, mua bán hoặc cho thuê với bất kỳ bên thứ ba nào ngoài các trường hợp được nêu trong chính sách này.<br>"
         + "Nếu có bất kỳ thắc mắc, góp ý hoặc khiếu nại nào liên quan đến Chính sách bảo mật, hoặc nhận thấy thông tin cá nhân của mình bị sử dụng không đúng mục đích đã cam kết, quý khách vui lòng liên hệ với Glassity qua hotline 1900 8386 để được hỗ trợ và giải quyết kịp thời.";
+
+    // ── Nội dung tĩnh — Điều khoản sử dụng (gắn với Đăng ký + Thanh toán) ─────
+    private static final String TERMS_HTML =
+        "<b>1. Chấp nhận điều khoản</b><br>"
+        + "Bằng việc tạo tài khoản hoặc đặt hàng trên ứng dụng Glassity, quý khách xác nhận đã đọc, hiểu và đồng ý tuân thủ toàn bộ nội dung trong Điều khoản sử dụng này.<br>"
+        + "<b>2. Tài khoản người dùng</b><br>"
+        + "• Quý khách chịu trách nhiệm bảo mật thông tin đăng nhập và mọi hoạt động phát sinh từ tài khoản của mình.<br>"
+        + "• Thông tin đăng ký (họ tên, email, số điện thoại) phải chính xác và được cập nhật khi có thay đổi.<br>"
+        + "• Glassity có quyền tạm khóa hoặc chấm dứt tài khoản vi phạm điều khoản sử dụng hoặc có dấu hiệu gian lận.<br>"
+        + "<b>3. Đặt hàng và giá cả</b><br>"
+        + "• Giá sản phẩm hiển thị trên ứng dụng đã bao gồm thuế (nếu có), chưa bao gồm phí vận chuyển.<br>"
+        + "• Đơn hàng chỉ được xác nhận sau khi Glassity kiểm tra thành công thông tin đặt hàng và tồn kho.<br>"
+        + "• Glassity có quyền từ chối hoặc hủy đơn hàng trong trường hợp phát hiện sai sót về giá, tồn kho hoặc thông tin gian lận.<br>"
+        + "<b>4. Thanh toán</b><br>"
+        + "• Quý khách có thể thanh toán khi nhận hàng (COD) hoặc chuyển khoản ngân hàng theo thông tin được cung cấp khi đặt hàng.<br>"
+        + "• Đơn hàng chuyển khoản chỉ được xử lý sau khi Glassity xác nhận đã nhận đủ số tiền thanh toán.<br>"
+        + "<b>5. Đổi trả và bảo hành</b><br>"
+        + "Việc đổi trả, bảo hành sản phẩm được áp dụng theo Chính sách bảo hành và Chính sách giao hàng &amp; kiểm tra riêng của Glassity, xem chi tiết tại mục tương ứng trong ứng dụng.<br>"
+        + "<b>6. Quyền sở hữu trí tuệ</b><br>"
+        + "Toàn bộ nội dung, hình ảnh, logo và thương hiệu Glassity thuộc quyền sở hữu của Glassity Eyewear. Nghiêm cấm sao chép, sử dụng cho mục đích thương mại khi chưa được cho phép.<br>"
+        + "<b>7. Giới hạn trách nhiệm</b><br>"
+        + "Glassity không chịu trách nhiệm cho các thiệt hại phát sinh do lỗi kết nối mạng, gián đoạn dịch vụ ngoài tầm kiểm soát, hoặc do khách hàng cung cấp thông tin không chính xác.<br>"
+        + "<b>8. Thay đổi điều khoản</b><br>"
+        + "Glassity có quyền cập nhật, chỉnh sửa Điều khoản sử dụng bất kỳ lúc nào. Phiên bản mới nhất sẽ được đăng tải trên ứng dụng và có hiệu lực ngay khi công bố.<br>"
+        + "<b>9. Liên hệ</b><br>"
+        + "Mọi thắc mắc liên quan đến Điều khoản sử dụng vui lòng liên hệ hotline 1900 8386 hoặc email glassity@gmail.com.vn.";
 
     // ── Nội dung tĩnh (theo Figma DL_Warranty — Giao hàng & Kiểm tra) ─────────
     private static final String SHIPPING_HTML =

@@ -32,7 +32,12 @@ public class FirebaseHelper {
     private FirebaseHelper() {}
 
     public static FirebaseAuth getAuth() {
-        if (auth == null) auth = FirebaseAuth.getInstance();
+        if (auth == null) {
+            auth = FirebaseAuth.getInstance();
+            // Email Firebase gửi (quên mật khẩu, xác minh email...) dùng template
+            // tiếng Việt có sẵn thay vì mặc định tiếng Anh
+            auth.setLanguageCode("vi");
+        }
         return auth;
     }
 

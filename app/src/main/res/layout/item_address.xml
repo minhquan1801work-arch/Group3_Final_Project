@@ -67,6 +67,7 @@
             android:id="@+id/btnEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:text="Sửa"
             android:textColor="@color/color_text_secondary"

@@ -2,14 +2,23 @@ package com.FinalProject.group3.ui.account;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.FinalProject.group3.MainActivity;
 import com.FinalProject.group3.R;
@@ -74,6 +83,64 @@ public class SignupActivity extends AppCompatActivity {
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
 
         binding.btnSignup.setOnClickListener(v -> attemptSignup());
+
+        setupTermsLink();
+
+        // Phản hồi ngay khi gõ — liệt kê đúng phần còn thiếu (chữ thường/IN HOA/số/độ dài),
+        // hết thiếu thì hiện dòng xanh báo hợp lệ
+        binding.tilPassword.getEditText().addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override public void onTextChanged(CharSequence s, int a, int b, int c) {}
+            @Override public void afterTextChanged(android.text.Editable s) {
+                binding.tilPassword.setError(null);
+                updatePasswordHint(s.toString());
+            }
+        });
+    }
+
+    /** Cập nhật dòng gợi ý bên dưới ô mật khẩu: liệt kê đúng phần còn thiếu, hoặc báo hợp lệ (xanh). */
+    private void updatePasswordHint(String password) {
+        if (password.isEmpty()) {
+            binding.tvPasswordRule.setText(R.string.signup_password_rule);
+            binding.tvPasswordRule.setTextColor(getColor(R.color.color_text_secondary));
+            return;
+        }
+
+        List<String> missing = new ArrayList<>();
+        if (password.length() < 8) missing.add("đủ 8 ký tự");
+        if (!password.matches(".*[a-z].*")) missing.add("chữ thường");
+        if (!password.matches(".*[A-Z].*")) missing.add("chữ IN HOA");
+        if (!password.matches(".*\\d.*")) missing.add("số");
+
+        if (missing.isEmpty()) {
+            binding.tvPasswordRule.setText("✓ Mật khẩu của bạn đã hợp lệ");
+            binding.tvPasswordRule.setTextColor(getColor(R.color.color_success));
+        } else {
+            binding.tvPasswordRule.setText("Mật khẩu cần có: " + TextUtils.join(", ", missing));
+            binding.tvPasswordRule.setTextColor(getColor(R.color.color_error));
+        }
+    }
+
+    /** "Điều khoản sử dụng" trong nhãn checkbox → xanh, gạch chân, bấm mở trang Điều khoản. */
+    private void setupTermsLink() {
+        String full = getString(R.string.signup_terms);
+        String link = "Điều khoản sử dụng";
+        int start = full.indexOf(link);
+        if (start < 0) return;
+
+        SpannableString span = new SpannableString(full);
+        span.setSpan(new ForegroundColorSpan(0xFF1565C0), start, start + link.length(),
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        span.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View widget) {
+                startActivity(PolicyActivity.intent(SignupActivity.this, PolicyActivity.TYPE_TERMS));
+            }
+        }, start, start + link.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        binding.cbTerms.setText(span);
+        binding.cbTerms.setMovementMethod(LinkMovementMethod.getInstance());
+        binding.cbTerms.setHighlightColor(android.graphics.Color.TRANSPARENT);
     }
 
     private void attemptSignup() {
@@ -99,8 +166,11 @@ public class SignupActivity extends AppCompatActivity {
             binding.tilEmail.setError(getString(R.string.err_email_invalid));
             valid = false;
         }
-        if (TextUtils.isEmpty(password) || password.length() < 6) {
-            binding.tilPassword.setError(getString(R.string.err_password_short));
+        if (TextUtils.isEmpty(password)) {
+            binding.tilPassword.setError(getString(R.string.err_required));
+            valid = false;
+        } else if (!com.FinalProject.group3.utils.ValidationUtils.isValidPassword(password)) {
+            binding.tilPassword.setError(getString(R.string.err_password_format));
             valid = false;
         }
         if (!confirmPassword.equals(password)) {
@@ -118,6 +188,9 @@ public class SignupActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 setLoading(false);
+                // Tài khoản mới → gửi thông báo chào mừng + voucher NEWUSER
+                com.FinalProject.group3.utils.NotificationHelper.sendWelcome(
+                        com.FinalProject.group3.utils.FirebaseHelper.getCurrentUserId());
                 goToMain();
             }
 

@@ -38,6 +38,26 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         notifyDataSetChanged();
     }
 
+    public Notification getItemAt(int position) {
+        return (position >= 0 && position < items.size()) ? items.get(position) : null;
+    }
+
+    public void removeAt(int position) {
+        if (position < 0 || position >= items.size()) return;
+        items.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public boolean isEmpty() { return items.isEmpty(); }
+
+    public List<Notification> getUnreadItems() {
+        List<Notification> unread = new ArrayList<>();
+        for (Notification n : items) {
+            if ("UNREAD".equals(n.getStatus())) unread.add(n);
+        }
+        return unread;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -51,8 +71,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         holder.binding.tvMessage.setText(n.getMessage());
         holder.binding.tvTime.setText(n.getCreatedAt() != null
                 ? timeFormat.format(n.getCreatedAt()) : "");
-        holder.binding.dotUnread.setVisibility(
-                "UNREAD".equals(n.getStatus()) ? View.VISIBLE : View.INVISIBLE);
+        boolean unread = "UNREAD".equals(n.getStatus());
+        holder.binding.dotUnread.setVisibility(unread ? View.VISIBLE : View.INVISIBLE);
+        // Chưa đọc → nền xám rất nhạt, đọc rồi → nền trắng
+        holder.itemView.setBackgroundColor(unread ? 0xFFF3F3F3 : 0xFFFFFFFF);
 
         holder.itemView.setOnClickListener(v -> {
             if (clickListener != null) clickListener.onNotificationClick(n);

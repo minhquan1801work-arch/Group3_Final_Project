@@ -77,7 +77,8 @@
                     android:id="@+id/etPhone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="phone" />
+                    android:inputType="phone"
+                    android:maxLength="10" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Dropdown Tỉnh/Thành phố -->
@@ -97,18 +98,38 @@
                     android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Dropdown Quận/Huyện — load từ API sau khi chọn Tỉnh -->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilWard"
-                style="@style/Widget.Glassity.TextInputLayout"
+                android:id="@+id/tilDistrict"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Phường/Xã">
+                android:hint="Quận/Huyện"
+                app:boxStrokeColor="@color/color_field_border">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etWard"
+                <AutoCompleteTextView
+                    android:id="@+id/actDistrict"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Dropdown Phường/Xã — load từ API sau khi chọn Quận/Huyện -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilWard"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Phường/Xã"
+                app:boxStrokeColor="@color/color_field_border">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actWard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -117,7 +138,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:hint="Địa chỉ chi tiết (số nhà, tên đường...)">
+                android:hint="Số nhà, tên đường">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDetail"

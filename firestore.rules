@@ -1,0 +1,117 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+    // Đơn hàng đặt lúc chưa đăng nhập — customerId lưu literal "GUEST" (xem
+    // CheckoutActivity.placeOrder() + MainActivity.claimGuestOrders()).
+    function isGuestOrder() {
+      return request.resource.data.customerId == "GUEST";
+    }
+    // Admin (web quản trị admin_web/index.html): tài khoản có document trong
+    // collection "admins" — tạo tay trên Firebase Console: admins/{uid} = { role: "admin" }
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow read: if isOwner(uid); // tự check quyền của mình khi đăng nhập web admin
+      allow write: if false;       // chỉ tạo/xoá qua Firebase Console
+    }
+
+    match /customers/{uid} {
+      allow read: if isOwner(uid) || isAdmin(); // admin đọc tên/SĐT khách để hiện trên web quản trị
+      allow write: if isOwner(uid);
+      match /addresses/{addressId} {
+        allow read, write: if isOwner(uid);
+      }
+      match /vouchers/{voucherId} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow update, delete: if isSignedIn() && resource.data.customerId == request.auth.uid;
+    }
+
+    match /carts/{cartId} {
+      allow read, write: if isOwner(cartId);
+      match /cartDetails/{itemId} {
+        allow read, write: if isOwner(cartId);
+      }
+    }
+
+    match /orders/{orderId} {
+      // Đọc: chủ đơn (đăng nhập) HOẶC đơn khách (không có auth để so uid, mở
+      // theo orderId cụ thể — dùng để hiện màn "Xem đơn hàng" sau khi đặt)
+      // HOẶC admin (web quản trị xem toàn bộ đơn).
+      allow read: if (isSignedIn() && resource.data.customerId == request.auth.uid)
+                   || resource.data.customerId == "GUEST"
+                   || isAdmin();
+      allow create: if (isSignedIn() && request.resource.data.customerId == request.auth.uid)
+                     || isGuestOrder()
+                     || isAdmin();
+      allow update: if (isSignedIn() && resource.data.customerId == request.auth.uid)
+                     || isAdmin();
+      allow delete: if isAdmin();
+
+      match /orderDetails/{detailId} {
+        allow read: if isSignedIn()
+                     || get(/databases/$(database)/documents/orders/$(orderId)).data.customerId == "GUEST";
+        allow create: if isSignedIn()
+                     || get(/databases/$(database)/documents/orders/$(orderId)).data.customerId == "GUEST";
+        allow delete: if isAdmin(); // dọn kèm khi admin xoá đơn
+      }
+    }
+
+    match /payments/{paymentId} {
+      allow read: if (isSignedIn() && resource.data.customerId == request.auth.uid)
+                   || resource.data.customerId == "GUEST"
+                   || isAdmin();
+      allow create: if (isSignedIn() && request.resource.data.customerId == request.auth.uid)
+                     || isGuestOrder()
+                     || isAdmin();
+      allow update: if (isSignedIn() && resource.data.customerId == request.auth.uid)
+                     || isAdmin();
+    }
+
+    match /favorites/{favoriteId} {
+      allow read: if isSignedIn() && resource.data.customerId == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.customerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.customerId == request.auth.uid;
+    }
+
+    match /notifications/{notificationId} {
+      allow read, update: if isSignedIn() && resource.data.customerId == request.auth.uid;
+      allow create: if isSignedIn();
+    }
+
+    match /vouchers/{voucherId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    match /collections/{collectionId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

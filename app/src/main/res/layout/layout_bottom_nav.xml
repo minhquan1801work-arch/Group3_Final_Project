@@ -81,14 +81,14 @@
                 android:src="@drawable/ic_nav_notification"
                 app:tint="@color/nav_item_color_dark" />
 
-            <!-- Chấm đỏ thông báo chưa đọc — đè góc phải-trên icon chuông -->
+            <!-- Chấm đỏ thông báo chưa đọc — góc phải-trên icon chuông 40dp -->
             <View
                 android:id="@+id/dotNotification"
                 android:layout_width="8dp"
                 android:layout_height="8dp"
                 android:layout_gravity="center"
-                android:layout_marginStart="24dp"
-                android:layout_marginBottom="24dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/bg_dot_red"
                 android:visibility="gone" />
         </FrameLayout>

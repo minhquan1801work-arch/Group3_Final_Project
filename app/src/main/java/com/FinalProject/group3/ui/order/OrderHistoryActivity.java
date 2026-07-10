@@ -52,7 +52,9 @@ public class OrderHistoryActivity extends AppCompatActivity {
     private final List<Order> allOrders = new ArrayList<>();
     private int currentTab = 0;
 
-    private static final String[] TABS = {"Tất cả", "Chờ giao hàng", "Đã giao", "Đã hủy"};
+    // "Hoàn thành" = đơn đã giao xong nhưng CHƯA đánh giá — tách riêng để nhắc
+    // người dùng vào đánh giá (đơn đánh giá rồi vẫn nằm trong "Đã giao")
+    private static final String[] TABS = {"Tất cả", "Chờ giao hàng", "Đã giao", "Hoàn thành", "Đã hủy"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,7 +131,52 @@ public class OrderHistoryActivity extends AppCompatActivity {
         String s = o.getOrderStatus();
         if (tab == 1) return Arrays.asList("PENDING", "PROCESSING", "SHIPPED").contains(s);
         if (tab == 2) return "DELIVERED".equals(s);
+        if (tab == 3) return "DELIVERED".equals(s) && !o.isReviewed(); // Hoàn thành — chờ đánh giá
         return "CANCELLED".equals(s);
+    }
+
+    // Mua lại: mở trang chi tiết sản phẩm đầu tiên của đơn.
+    // Nếu sản phẩm đã bị gỡ / không tồn tại → báo và đưa về trang chủ.
+    private void reorder(String orderId) {
+        FirebaseHelper.getDb()
+                .collection(FirebaseHelper.COL_ORDERS)
+                .document(orderId)
+                .collection(FirebaseHelper.COL_ORDER_DETAILS)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    List<OrderDetail> details = snap.toObjects(OrderDetail.class);
+                    if (details.isEmpty()) {
+                        reorderFallback();
+                        return;
+                    }
+                    String productId = details.get(0).getProductId();
+                    new ProductRepository().getProductById(productId,
+                            new ProductRepository.ProductCallback() {
+                                @Override
+                                public void onSuccess(Product product) {
+                                    if (product == null || product.getName() == null) {
+                                        reorderFallback();
+                                        return;
+                                    }
+                                    com.FinalProject.group3.ui.catalog.ProductDetailActivity
+                                            .start(OrderHistoryActivity.this, productId);
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    reorderFallback();
+                                }
+                            });
+                })
+                .addOnFailureListener(e -> reorderFallback());
+    }
+
+    private void reorderFallback() {
+        Toast.makeText(this, "Sản phẩm không còn kinh doanh, mời bạn xem các sản phẩm khác",
+                Toast.LENGTH_LONG).show();
+        Intent i = new Intent(this, com.FinalProject.group3.MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(i);
     }
 
     // ── Adapter ──────────────────────────────────────────────────────────────
@@ -171,7 +218,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
             void bind(Order o) {
                 String status = o.getOrderStatus();
-                b.tvStatus.setText(statusLabel(status));
+                b.tvStatus.setText(statusLabel(o));
                 b.tvStatus.setTextColor(statusColor(status));
 
                 NumberFormat fmt = NumberFormat.getInstance(new Locale("vi", "VN"));
@@ -190,10 +237,14 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         b.btnReview.setText("Đã đánh giá");
                         b.btnReview.setEnabled(false);
                         b.btnReview.setAlpha(0.5f);
+                        b.btnReview.setBackgroundResource(R.drawable.bg_btn_wine_outline);
+                        b.btnReview.setTextColor(getColor(R.color.color_accent));
                     } else {
                         b.btnReview.setText("Đánh giá");
                         b.btnReview.setEnabled(true);
                         b.btnReview.setAlpha(1f);
+                        b.btnReview.setBackgroundResource(R.drawable.bg_btn_black_filled);
+                        b.btnReview.setTextColor(Color.WHITE);
                     }
                 } else if ("CANCELLED".equals(status)) {
                     b.btnReorder.setVisibility(View.VISIBLE);
@@ -205,9 +256,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 b.btnDetail.setOnClickListener(v ->
                         startActivity(OrderDetailActivity.intent(
                                 OrderHistoryActivity.this, o.getOrderId())));
-                b.btnReorder.setOnClickListener(v ->
-                        Toast.makeText(OrderHistoryActivity.this,
-                                "Tính năng Mua lại sắp ra mắt", Toast.LENGTH_SHORT).show());
+                b.btnReorder.setOnClickListener(v -> reorder(o.getOrderId()));
                 b.btnReview.setOnClickListener(v ->
                         startActivity(ReviewActivity.intent(
                                 OrderHistoryActivity.this, o.getOrderId())));
@@ -267,13 +316,14 @@ public class OrderHistoryActivity extends AppCompatActivity {
                         });
             }
 
-            private String statusLabel(String s) {
+            private String statusLabel(Order order) {
+                String s = order.getOrderStatus();
                 if (s == null) return "";
                 switch (s) {
                     case "PENDING":    return "Chờ xác nhận";
                     case "PROCESSING": return "Đang xử lý";
                     case "SHIPPED":    return "Đang giao";
-                    case "DELIVERED":  return "Hoàn thành";
+                    case "DELIVERED":  return order.isReviewed() ? "Đã giao" : "Đã giao - Chờ đánh giá";
                     case "CANCELLED":  return "Đã hủy";
                     default:           return s;
                 }

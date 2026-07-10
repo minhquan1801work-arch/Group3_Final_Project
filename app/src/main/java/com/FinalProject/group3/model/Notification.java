@@ -11,6 +11,7 @@ public class Notification {
     private String message;
     private String status; // "UNREAD", "READ"
     private String type;   // "ORDER", "PROMOTION", "SYSTEM"
+    private String orderId; // chỉ có khi type=ORDER — dùng để nhảy thẳng OrderDetailActivity
     @ServerTimestamp
     private Date createdAt;
 
@@ -40,4 +41,7 @@ public class Notification {
 
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
+
+    public String getOrderId() { return orderId; }
+    public void setOrderId(String orderId) { this.orderId = orderId; }
 }

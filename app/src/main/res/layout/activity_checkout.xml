@@ -172,6 +172,7 @@
                     android:background="@drawable/bg_chip_variant"
                     android:hint="Số điện thoại *"
                     android:inputType="phone"
+                    android:maxLength="10"
                     android:paddingHorizontal="10dp"
                     android:textColor="@color/color_text_primary"
                     android:textColorHint="@color/color_hint"
@@ -190,13 +191,56 @@
                     android:textColorHint="@color/color_hint"
                     android:textSize="13sp" />
 
-                <EditText
-                    android:id="@+id/etGuestAddress"
+                <!-- Tỉnh/Thành phố — dropdown, giống form Sổ địa chỉ của tài khoản đã đăng nhập -->
+                <AutoCompleteTextView
+                    android:id="@+id/actGuestProvince"
                     android:layout_width="match_parent"
                     android:layout_height="42dp"
                     android:layout_marginTop="8dp"
                     android:background="@drawable/bg_chip_variant"
-                    android:hint="Địa chỉ nhận hàng *"
+                    android:hint="Tỉnh/Thành phố *"
+                    android:inputType="none"
+                    android:paddingHorizontal="10dp"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_hint"
+                    android:textSize="13sp" />
+
+                <!-- Quận/Huyện — dropdown, load từ API sau khi chọn Tỉnh -->
+                <AutoCompleteTextView
+                    android:id="@+id/actGuestDistrict"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_chip_variant"
+                    android:hint="Quận/Huyện *"
+                    android:inputType="none"
+                    android:paddingHorizontal="10dp"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_hint"
+                    android:textSize="13sp" />
+
+                <!-- Phường/Xã — dropdown, load từ API sau khi chọn Quận/Huyện -->
+                <AutoCompleteTextView
+                    android:id="@+id/actGuestWard"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_chip_variant"
+                    android:hint="Phường/Xã *"
+                    android:inputType="none"
+                    android:paddingHorizontal="10dp"
+                    android:textColor="@color/color_text_primary"
+                    android:textColorHint="@color/color_hint"
+                    android:textSize="13sp" />
+
+                <!-- Số nhà / địa chỉ chi tiết -->
+                <EditText
+                    android:id="@+id/etGuestDetail"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_chip_variant"
+                    android:hint="Số nhà, tên đường... *"
                     android:inputType="textPostalAddress"
                     android:paddingHorizontal="10dp"
                     android:textColor="@color/color_text_primary"
@@ -208,7 +252,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="Vui lòng điền đủ họ tên, SĐT, email và địa chỉ"
+                    android:text="@string/err_guest_form_incomplete"
                     android:textColor="#D32F2F"
                     android:textSize="11sp"
                     android:visibility="gone" />
@@ -261,26 +305,40 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp">
 
-                    <RadioButton
-                        android:id="@+id/rbShipStandard"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:buttonTint="@color/color_btn_black"
-                        android:checked="true"
-                        android:text="@string/checkout_ship_saving"
-                        android:textColor="@color/color_text_primary"
-                        android:textSize="13sp" />
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/rbShipStandard"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/color_btn_black"
+                            android:checked="true"
+                            android:text="@string/checkout_ship_saving"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="36dp"
+                            android:text="3-4 ngày nhận"
+                            android:textColor="#9E9E9E"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvShipStandardFee"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:text="35.000đ"
                         android:textColor="@color/color_text_secondary"
                         android:textSize="12sp" />
@@ -296,25 +354,39 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="horizontal"
                     android:paddingHorizontal="12dp"
                     android:paddingVertical="4dp">
 
-                    <RadioButton
-                        android:id="@+id/rbShipFast"
+                    <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:buttonTint="@color/color_btn_black"
-                        android:text="@string/checkout_ship_fast"
-                        android:textColor="@color/color_text_primary"
-                        android:textSize="13sp" />
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/rbShipFast"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:buttonTint="@color/color_btn_black"
+                            android:text="@string/checkout_ship_fast"
+                            android:textColor="@color/color_text_primary"
+                            android:textSize="13sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="36dp"
+                            android:text="1-2 ngày nhận"
+                            android:textColor="#9E9E9E"
+                            android:textSize="11sp" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/tvShipFastFee"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
                         android:text="50.000đ"
                         android:textColor="@color/color_text_secondary"
                         android:textSize="12sp" />
