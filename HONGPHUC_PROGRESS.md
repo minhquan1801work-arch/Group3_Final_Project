@@ -407,3 +407,26 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 3. `CartRepository.addToCartReturningId()` cần tồn tại (dùng trong ProductDetail "Mua ngay")
 4. Firestore index: `whereArrayContainsAny` không cần composite index trừ khi combine thêm `where` khác
 5. `ProductRepository.getProductsByCollection(collection)` → cần field `collection` đúng trên Firestore docs
+
+---
+
+## Cập nhật 10/07/2026 — Import sản phẩm đợt 2 + Review thật
+
+### Import đợt 2 (script `import_batch2.js`)
+- Nguồn: sheet "Thông tin sản phẩm.xlsx" (38 SP) + folder ảnh kính (38 folder) + folder PHU KIEN (6 folder)
+- Kết quả: **32 SP mới tạo, 6 Glassity + 6 phụ kiện cập nhật ảnh thật → tổng 64 sản phẩm** trong Firestore
+- Ảnh upload Cloudinary path `glassity/products/{tên}/{n}`; tồn kho random 5–15/variant
+- Mục "12 SP ảnh demo" cũ đã giải quyết xong — không còn SP dùng ảnh demo
+
+### Màu variant + mô tả (script `apply_colors_batch2.js` + `colors_batch2.js`)
+- Xem thủ công từng ảnh của 38 folder để gán hex + tên màu tiếng Việt cho từng variant
+- Sinh mô tả tiếng Việt cho toàn bộ SP thiếu description (38 SP kính + phụ kiện)
+
+### Review thật trên trang sản phẩm ✅
+- `ProductDetailActivity`: bỏ `DEMO_REVIEWS`, query `reviews` where productId (sort client-side createdAt desc), sao động theo rating, ngày dd/MM/yyyy, thumbnails ảnh review (`item_review.xml` thêm HorizontalScrollView), rating trung bình + số lượng thật, empty state "Chưa có đánh giá"
+- `ReviewActivity`: lưu thêm `userName` (lấy từ customers/{uid}.name) khi gửi review
+- Seed dữ liệu (`seed_reviews.js`): **122 review tiếng Việt** từ 11 tài khoản khách thật, 1–3 review/SP, rating thiên 4–5 sao, ngày random trong 60 ngày — SP đã có review thật thì bỏ qua
+- Build assembleDebug PASS
+
+### Script chạy 1 lần (không commit secrets)
+`import_batch2.js`, `colors_batch2.js`, `apply_colors_batch2.js`, `seed_reviews.js` — cần `service-account.json` + `cloudinary-config.json` (gitignored)

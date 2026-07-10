@@ -493,6 +493,18 @@ public class ReviewActivity extends AppCompatActivity {
         if (videoUrl != null) review.put("videoUrl", videoUrl);
         review.put("createdAt", new Date());
 
+        // Lưu kèm tên hiển thị để trang sản phẩm show trực tiếp không cần join customers
+        FirebaseHelper.getDb().collection(FirebaseHelper.COL_CUSTOMERS).document(uid).get()
+                .addOnCompleteListener(t -> {
+                    if (t.isSuccessful() && t.getResult() != null) {
+                        String name = t.getResult().getString("name");
+                        if (name != null && !name.isEmpty()) review.put("userName", name);
+                    }
+                    doSaveReview(review);
+                });
+    }
+
+    private void doSaveReview(Map<String, Object> review) {
         FirebaseHelper.getDb().collection(FirebaseHelper.COL_REVIEWS).add(review)
                 .addOnSuccessListener(ref -> {
                     if (orderId != null) {

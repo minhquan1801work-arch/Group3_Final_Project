@@ -65,12 +65,6 @@ public class ProductDetailActivity extends AppCompatActivity {
         COLOR_NAMES.put("#4A90D9", "Xanh dương");
     }
 
-    // Review demo khớp Figma — TODO [B-next]: đọc từ collection "reviews" khi có
-    private static final String[][] DEMO_REVIEWS = {
-            {"@jessica.2501", "19/5/2026", "Giao hàng nhanh, kính chắc chắn, sẽ ủng hộ tiếp khi có tiền. Nhìu <3"},
-            {"@huyenguyen", "1/2026", "Kính đẹp y hình, đóng gói kỹ. Đeo nhẹ mặt, rất ưng!"},
-    };
-
     private ActivityProductDetailBinding binding;
     private final ProductRepository productRepo = new ProductRepository();
     private final CartRepository cartRepo = new CartRepository();
@@ -113,7 +107,6 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         setupQtyStepper();
         setupTabs();
-        bindDemoReviews();
 
         binding.btnAddToCart.setOnClickListener(v -> addToCart(false));
         binding.btnBuyNow.setOnClickListener(v -> addToCart(true));
@@ -125,6 +118,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         String productId = getIntent().getStringExtra(EXTRA_PRODUCT_ID);
         if (productId == null) { finish(); return; }
         loadProduct(productId);
+        loadReviews(productId);
     }
 
     @Override
@@ -382,26 +376,92 @@ public class ProductDetailActivity extends AppCompatActivity {
         }
     }
 
-    // ── Reviews demo (Figma DL_Review) ────────────────────────────────────────
-    private void bindDemoReviews() {
-        binding.tvRating.setText("4.9");
-        binding.tvRatingCount.setText("Đánh giá sản phẩm (" + DEMO_REVIEWS.length + ")");
+    // ── Reviews thật từ collection "reviews" (Figma DL_Review) ────────────────
+    private void loadReviews(String productId) {
+        FirebaseHelper.getDb().collection(FirebaseHelper.COL_REVIEWS)
+                .whereEqualTo("productId", productId)
+                .get()
+                .addOnSuccessListener(snap -> {
+                    if (binding == null) return;
+                    List<com.google.firebase.firestore.DocumentSnapshot> docs =
+                            new ArrayList<>(snap.getDocuments());
+                    // sort client-side theo createdAt desc (tránh cần composite index)
+                    java.util.Collections.sort(docs, (a, b) -> {
+                        com.google.firebase.Timestamp ta = a.getTimestamp("createdAt");
+                        com.google.firebase.Timestamp tb = b.getTimestamp("createdAt");
+                        if (ta == null || tb == null) return 0;
+                        return tb.compareTo(ta);
+                    });
+                    bindReviews(docs);
+                })
+                .addOnFailureListener(e -> {
+                    if (binding != null) bindReviews(new ArrayList<>());
+                });
+    }
 
+    private void bindReviews(List<com.google.firebase.firestore.DocumentSnapshot> docs) {
+        binding.llReviews.removeAllViews();
+        binding.tvRatingCount.setText("Đánh giá sản phẩm (" + docs.size() + ")");
+
+        if (docs.isEmpty()) {
+            binding.tvRating.setText("—");
+            android.widget.TextView empty = new android.widget.TextView(this);
+            empty.setText("Chưa có đánh giá cho sản phẩm này");
+            empty.setTextColor(getColor(R.color.color_text_secondary));
+            empty.setTextSize(12);
+            int pad = (int) (16 * getResources().getDisplayMetrics().density);
+            empty.setPadding(pad, pad / 2, pad, pad);
+            binding.llReviews.addView(empty);
+            return;
+        }
+
+        double sum = 0;
         LayoutInflater inflater = LayoutInflater.from(this);
-        for (String[] r : DEMO_REVIEWS) {
+        java.text.SimpleDateFormat fmt =
+                new java.text.SimpleDateFormat("dd/MM/yyyy", new Locale("vi", "VN"));
+        int thumbSize = (int) (64 * getResources().getDisplayMetrics().density);
+        int thumbGap = (int) (6 * getResources().getDisplayMetrics().density);
+
+        for (com.google.firebase.firestore.DocumentSnapshot d : docs) {
+            Long ratingL = d.getLong("rating");
+            int rating = ratingL == null ? 5 : ratingL.intValue();
+            sum += rating;
+
             ItemReviewBinding item = ItemReviewBinding.inflate(inflater, binding.llReviews, false);
-            item.tvReviewer.setText(r[0]);
-            item.tvReviewDate.setText(r[1]);
-            item.tvReviewText.setText(r[2]);
+            String name = d.getString("userName");
+            item.tvReviewer.setText(name != null && !name.isEmpty() ? name : "Khách hàng Glassity");
+            com.google.firebase.Timestamp ts = d.getTimestamp("createdAt");
+            item.tvReviewDate.setText(ts != null ? fmt.format(ts.toDate()) : "");
+            item.tvReviewText.setText(d.getString("comment"));
+
             int starSize = (int) (14 * getResources().getDisplayMetrics().density);
             for (int i = 0; i < 5; i++) {
                 ImageView star = new ImageView(this);
                 star.setLayoutParams(new ViewGroup.LayoutParams(starSize, starSize));
-                star.setImageResource(R.drawable.ic_star);
+                star.setImageResource(i < rating ? R.drawable.ic_star : R.drawable.ic_star_outline);
                 item.llStars.addView(star);
             }
+
+            // ảnh khách đính kèm (nếu có)
+            Object imgs = d.get("imageUrls");
+            if (imgs instanceof List && !((List<?>) imgs).isEmpty()) {
+                item.hsReviewImages.setVisibility(View.VISIBLE);
+                for (Object url : (List<?>) imgs) {
+                    ImageView iv = new ImageView(this);
+                    android.widget.LinearLayout.LayoutParams lp =
+                            new android.widget.LinearLayout.LayoutParams(thumbSize, thumbSize);
+                    lp.setMarginEnd(thumbGap);
+                    iv.setLayoutParams(lp);
+                    iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                    Glide.with(this).load(String.valueOf(url)).into(iv);
+                    item.llReviewImages.addView(iv);
+                }
+            }
+
             binding.llReviews.addView(item.getRoot());
         }
+
+        binding.tvRating.setText(String.format(new Locale("vi", "VN"), "%.1f", sum / docs.size()));
     }
 
     // ── Sản phẩm liên quan: cùng category, trừ chính nó ───────────────────────

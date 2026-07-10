@@ -255,6 +255,16 @@ public class HomeFragment extends Fragment {
         // Blog cards → LA.Blog1 (chọn kính theo dáng mặt) / LA.Blog2 (retro)
         binding.blogCard1.setOnClickListener(v -> BlogActivity.start(requireContext(), 1));
         binding.blogCard2.setOnClickListener(v -> BlogActivity.start(requireContext(), 2));
+
+        // Footer: About / Contact / Policy → gắn trang đích
+        binding.footerAbout.setOnClickListener(v -> startActivity(
+                com.FinalProject.group3.ui.account.PolicyActivity.intent(
+                        requireContext(), com.FinalProject.group3.ui.account.PolicyActivity.TYPE_ABOUT)));
+        binding.footerContact.setOnClickListener(v -> startActivity(
+                com.FinalProject.group3.ui.account.ContactActivity.intent(requireContext())));
+        binding.footerPolicy.setOnClickListener(v -> startActivity(
+                com.FinalProject.group3.ui.account.PolicyActivity.intent(
+                        requireContext(), com.FinalProject.group3.ui.account.PolicyActivity.TYPE_PRIVACY)));
     }
 
     // ── Load data ─────────────────────────────────────────────────────────────

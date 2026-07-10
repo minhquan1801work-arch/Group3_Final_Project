@@ -50,6 +50,22 @@
         android:textSize="12sp"
         tools:text="Giao hàng nhanh, kính chắc chắn, sẽ ủng hộ tiếp khi có tiền. Nhiều &lt;3" />
 
+    <!-- Ảnh khách đính kèm review (ẩn nếu không có) -->
+    <HorizontalScrollView
+        android:id="@+id/hsReviewImages"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:scrollbars="none"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/llReviewImages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

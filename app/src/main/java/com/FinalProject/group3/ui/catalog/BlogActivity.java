@@ -229,7 +229,7 @@ public class BlogActivity extends AppCompatActivity {
 
     private void setupFooter() {
         binding.footerAbout.setOnClickListener(v ->
-                Toast.makeText(this, "Về Glassity — sắp ra mắt", Toast.LENGTH_SHORT).show());
+                startActivity(PolicyActivity.intent(this, PolicyActivity.TYPE_ABOUT)));
         binding.footerContact.setOnClickListener(v ->
                 startActivity(ContactActivity.intent(this)));
         binding.footerPolicy.setOnClickListener(v ->
