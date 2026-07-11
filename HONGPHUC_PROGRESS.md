@@ -443,3 +443,11 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 - Bấm "Tất cả" ở `ProductDetailActivity` giờ mở trang này (trước đây Toast placeholder)
 - Tách logic gán 1 dòng review vào `ReviewViewBinder` (utils) dùng chung giữa `ProductDetailActivity` (mini list) và `ReviewAdapter` (RecyclerView của AllReviewsActivity) — tránh trùng code
 - Build assembleDebug PASS
+
+### Footer dùng chung — tách reuse (11/07/2026)
+- Tạo `app/src/main/res/layout/layout_footer_full.xml`: social icon (Tw/Ig/Yt) → liên hệ → link About/Contact/Policy → dòng bản quyền, gộp lại từ 2 bản copy-paste y hệt trước đó ở `fragment_home.xml` và `activity_about.xml`
+- Include bằng `<include android:id="@+id/incFooter" layout="@layout/layout_footer_full" />` — bắt buộc có `android:id` vì layout gốc dùng `<merge>`, ViewBinding cần id đó mới lộ được các view con (`footerAbout`, `footerContact`, `footerPolicy`, `footerTw`, `footerIg`, `footerYt`) ra qua `binding.incFooter.<id>`
+- Đã cập nhật `HomeFragment.setupClickListeners()` và `AboutActivity.setupFooter()` sang cú pháp `binding.incFooter.footerXxx`
+- `BlogActivity` vẫn giữ bản footer rút gọn riêng (không social icon) — không gộp vì khác cấu trúc, không phải thiếu sót
+- Đã ghi hướng dẫn chi tiết cho Quân trong `TODO_PHAN_CONG.md` (mục "Footer dùng chung") phòng khi thêm màn hình mới cần tái sử dụng
+- Build assembleDebug PASS

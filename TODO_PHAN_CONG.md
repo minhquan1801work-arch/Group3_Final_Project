@@ -71,6 +71,33 @@
 | Firestore Rules | ❓ cần kiểm tra trên Console (`allow read, write: if true`?) | Phúc |
 | Một số mục Profile | ⏳ Toast giữ chỗ | Quân |
 
+## Footer dùng chung (11/07) — lưu ý cho Quân nếu thêm màn hình mới
+
+Khối footer đầy đủ (social icon Twitter/Instagram/YouTube → liên hệ → link About/Contact/Policy → dòng bản quyền)
+đã tách ra `app/src/main/res/layout/layout_footer_full.xml`, không copy-paste tay nữa.
+
+- **Đang dùng ở:** `fragment_home.xml` (HomeFragment) và `activity_about.xml` (AboutActivity).
+- **Cách dùng ở màn mới:**
+  ```xml
+  <include
+      android:id="@+id/incFooter"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      layout="@layout/layout_footer_full" />
+  ```
+  ⚠️ Bắt buộc phải có `android:id` trên thẻ `<include>` — layout gốc dùng `<merge>` nên
+  ViewBinding cần id này để lộ các view con (`footerAbout`, `footerContact`, `footerPolicy`,
+  `footerTw`, `footerIg`, `footerYt`) ra ngoài qua `binding.incFooter.<id>`, không có id thì
+  build lỗi "cannot find symbol".
+- **Wire click trong Java** (xem `HomeFragment.setupClickListeners()` hoặc `AboutActivity.setupFooter()` làm mẫu):
+  ```java
+  binding.incFooter.footerAbout.setOnClickListener(v -> AboutActivity.start(requireContext()));
+  binding.incFooter.footerContact.setOnClickListener(v -> startActivity(ContactActivity.intent(...)));
+  binding.incFooter.footerPolicy.setOnClickListener(v -> startActivity(PolicyActivity.intent(..., TYPE_PRIVACY)));
+  ```
+- `BlogActivity` (`activity_blog.xml`) vẫn dùng bản footer rút gọn riêng (không social icon, nền trắng) —
+  chưa gộp vào layout chung vì khác cấu trúc, không phải bug.
+
 ## Việc chung (cả hai, trước khi nộp)
 
 - [ ] Build release, test trên máy thật/emulator hợp lệ (emulator hiện lỗi thiếu system image — xem ghi chú trong lịch sử chat, cần cài qua Android Studio SDK Manager)
