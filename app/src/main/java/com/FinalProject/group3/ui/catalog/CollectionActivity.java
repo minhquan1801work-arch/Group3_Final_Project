@@ -34,6 +34,11 @@ public class CollectionActivity extends AppCompatActivity {
     private static final String URL_ESSENTIAL   = CLOUD + "v1783502208/7aec1cc6374895c92464c3118255d38449be11ee_yzemoi.png";
     private static final String URL_SUNLIGHT    = CLOUD + "v1783502207/36566f6bfcef59072645817ac9273fc3824ad0c3_msnssy.png";
 
+    // Ảnh hero riêng cho trang chi tiết 1 BST — khác ảnh preview (Home + danh sách BST)
+    private static final String URL_HERO_MONOCHROME = CLOUD + "v1783354469/glassity/site/hero_bg1.png";
+    private static final String URL_HERO_ESSENTIAL   = CLOUD + "v1783354471/glassity/site/hero_bg2.png";
+    private static final String URL_HERO_SUNLIGHT    = CLOUD + "v1783354475/glassity/site/hero_bg3.png";
+
     public static final String COL_MONOCHROME = "Monochrome Collection";
     public static final String COL_ESSENTIAL  = "Essential Acetate";
     public static final String COL_SUNLIGHT   = "Sunlight Studio";
@@ -91,10 +96,10 @@ public class CollectionActivity extends AppCompatActivity {
 
         String heroUrl;
         switch (collection) {
-            case COL_ESSENTIAL: heroUrl = URL_ESSENTIAL; break;
-            case COL_SUNLIGHT:  heroUrl = URL_SUNLIGHT;  break;
+            case COL_ESSENTIAL: heroUrl = URL_HERO_ESSENTIAL; break;
+            case COL_SUNLIGHT:  heroUrl = URL_HERO_SUNLIGHT;  break;
             case COL_MONOCHROME:
-            default:            heroUrl = URL_MONOCHROME; break;
+            default:            heroUrl = URL_HERO_MONOCHROME; break;
         }
         com.bumptech.glide.Glide.with(this).load(heroUrl).centerCrop().into(binding.imgHero);
         binding.tvHeroTitle.setText(collection.toUpperCase().replace(" ", "\n"));

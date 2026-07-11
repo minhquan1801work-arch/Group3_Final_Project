@@ -554,3 +554,27 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 - `activity_product_detail.xml`: khối "Màu sắc" + "Số lượng" dời từ dưới phần review lên ngay sau `tvVariant` (ngay sau card sản phẩm: giá/tên/kiểu dáng), trước tabs Đánh giá/Chi tiết/Dành cho bạn
 - Thêm `ImageView imgSizeDiagram` ở đầu section "Kích thước sản phẩm" (trước bảng số liệu), load ảnh sơ đồ tên bộ phận kính (Tròng/Gọng/Càng kính) từ Cloudinary có sẵn (`guide_diagram.png`) qua Glide trong `ProductDetailActivity.onCreate()`
 - Build assembleDebug PASS
+
+### Merge nhánh Quân (minhquanver2) vào main (11/07/2026)
+- 6 file conflict: `HomeFragment.java` (7), `fragment_home.xml` (4), `item_hero_banner.xml` (2), `themes.xml` (1), `ic_launcher_background.xml`, `ic_launcher_foreground.xml` (deleted by us)
+- Nguyên nhân: nhánh Quân tách trước khi làm loạt việc tối 11/07 (hero carousel, promo banner, blog ảnh, About link, footer dùng chung) → hầu hết theirs chỉ là bản cũ của đúng những chỗ vừa sửa
+- **Giữ Ours** cho: HomeFragment.java, fragment_home.xml, item_hero_banner.xml, themes.xml (theirs không có gì mới/đã lỗi thời)
+- **Giữ Theirs** cho app icon (theo lựa chọn của user): `ic_launcher_background.xml` (nền cream #EFE9E1) + `ic_launcher_foreground.xml` (vector 2 vòng tròn kính viền đen `#322D29`, tự vẽ bằng path, KHÔNG dùng ảnh `logo_primary.png` nữa)
+- Đồng bộ theo hướng đã chọn: sửa `mipmap-anydpi-v26/ic_launcher(.round).xml` trỏ về `@drawable/ic_launcher_foreground` (vector), xóa PNG foreground mồ côi, **render lại toàn bộ icon legacy** (`mipmap-mdpi→xxxhdpi/ic_launcher(.round).png`, minSdk 24 cần bản non-adaptive) bằng script Python/PIL vẽ đúng hình học vector của Quân (2 vòng tròn tâm (39,54)/(69,54) bán kính 14, cầu nối, nền cream) để nhất quán giữa icon adaptive (Android 8+) và legacy (Android 7-)
+- File `ic_logo_glassity.xml` (vector logo dùng ở Welcome/Login/Signup của Quân) giữ nguyên, không đụng
+- Build assembleDebug PASS, 2 commit: merge commit + cleanup PNG mồ côi. **Chưa push** — cần bạn xác nhận trước khi push lên origin/main
+
+### App icon: đổi từ vector tự vẽ sang logo thật submark (11/07/2026)
+- Sau khi merge, app icon đang dùng vector tự vẽ của Quân (2 vòng tròn path) — user gửi lại đúng ảnh `logo_submark.png` (asset thật từ designer, đã có sẵn trong `drawable/` từ trước) và yêu cầu dùng ảnh này thay vector, vẫn giữ nền cream `#EFE9E1`
+- Xóa `drawable/ic_launcher_foreground.xml` (vector), render lại toàn bộ icon (`mipmap-mdpi→xxxhdpi/ic_launcher(.round).png` + `mipmap-xxxhdpi/ic_launcher_foreground.png` cho adaptive icon) bằng `logo_submark.png` đặt giữa nền cream qua script Python/PIL
+- 2 file `mipmap-anydpi-v26/ic_launcher(.round).xml` trỏ foreground về `@mipmap/ic_launcher_foreground` (bitmap) thay vì `@drawable/ic_launcher_foreground` (vector, đã xóa)
+- Build assembleDebug PASS, đã stage — chưa commit
+
+### CollectionActivity: ảnh hero detail khác ảnh preview (11/07/2026)
+- Trước đó trang chi tiết 1 BST (showSingle) dùng chung ảnh hero với preview ngoài Home + danh sách BST (URL_MONOCHROME/ESSENTIAL/SUNLIGHT) — giờ tách riêng
+- Thêm `URL_HERO_MONOCHROME/ESSENTIAL/SUNLIGHT` dùng `hero_bg1/hero_bg2/hero_bg3` có sẵn trên Cloudinary (`glassity/site/`), theo đúng thứ tự Monochrome=1, Essential=2, Sunlight=3
+- Build assembleDebug PASS
+
+### CollectionActivity: tên BST dời xuống cạnh dưới hero (11/07/2026)
+- `tvHeroTitle` trước ở cạnh trên (`layout_gravity="top"`, marginTop 52dp) che mất phần trên ảnh chính — dời xuống cạnh dưới (`layout_gravity="bottom"`, marginBottom 48dp), vẫn nằm trên sheet trắng "HÀNG MỚI VỀ" bo góc đè lên hero (-24dp), không bị chồng lấn
+- Build assembleDebug PASS
