@@ -369,7 +369,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                             }
                                             if (imgUrl != null) {
                                                 Glide.with(b.ivProduct.getContext())
-                                                        .load(imgUrl)
+                                                        .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgUrl, 250))
                                                         .centerCrop()
                                                         .into(b.ivProduct);
                                             }

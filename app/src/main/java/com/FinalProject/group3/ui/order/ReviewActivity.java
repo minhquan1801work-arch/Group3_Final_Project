@@ -361,7 +361,8 @@ public class ReviewActivity extends AppCompatActivity {
                                     List<String> imgs = product.getImages();
                                     if (imgs != null && !imgs.isEmpty()) {
                                         Glide.with(ReviewActivity.this)
-                                                .load(imgs.get(0)).centerCrop()
+                                                .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgs.get(0), 250))
+                                                .centerCrop()
                                                 .into(binding.ivProduct);
                                     }
                                 }

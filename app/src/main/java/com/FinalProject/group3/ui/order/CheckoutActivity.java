@@ -819,7 +819,7 @@ public class CheckoutActivity extends AppCompatActivity {
                 if (imgUrl == null && p.getImages() != null && !p.getImages().isEmpty())
                     imgUrl = p.getImages().get(0);
                 if (imgUrl != null)
-                    Glide.with(holder.binding.ivProduct).load(imgUrl)
+                    Glide.with(holder.binding.ivProduct).load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgUrl, 250))
                             .placeholder(R.drawable.bg_product_placeholder)
                             .into(holder.binding.ivProduct);
             }

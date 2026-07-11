@@ -55,6 +55,14 @@ public class FavoriteActivity extends AppCompatActivity {
         binding.btnBack.setOnClickListener(v -> finish());
         binding.rvFavorites.setAdapter(adapter);
 
+        // Logo header → về thẳng Trang chủ
+        binding.imgLogo.setOnClickListener(v -> {
+            Intent intent = new Intent(this, com.FinalProject.group3.MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_HOME, true);
+            startActivity(intent);
+        });
+
         // Icon giỏ hàng ở header → mở tab Giỏ hàng
         binding.btnCart.setOnClickListener(v -> {
             Intent intent = new Intent(this, com.FinalProject.group3.MainActivity.class);
@@ -154,7 +162,7 @@ public class FavoriteActivity extends AppCompatActivity {
             }
             if (imgUrl == null && p.getImages() != null && !p.getImages().isEmpty())
                 imgUrl = p.getImages().get(0);
-            Glide.with(b.ivProduct).load(imgUrl)
+            Glide.with(b.ivProduct).load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgUrl, 250))
                     .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                     .into(b.ivProduct);
 

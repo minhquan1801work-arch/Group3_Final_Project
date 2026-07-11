@@ -28,9 +28,11 @@
             app:tint="@color/color_text_primary" />
 
         <ImageView
+            android:id="@+id/imgLogo"
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Glassity"
             android:src="@drawable/logo_simplified" />
 

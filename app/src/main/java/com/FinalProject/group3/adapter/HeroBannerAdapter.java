@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.FinalProject.group3.R;
 import com.FinalProject.group3.databinding.ItemHeroBannerBinding;
+import com.FinalProject.group3.utils.CloudinaryUtil;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.util.List;
 
@@ -50,7 +52,12 @@ public class HeroBannerAdapter extends RecyclerView.Adapter<HeroBannerAdapter.VH
         if (url != null && !url.isEmpty()) {
             Glide.with(holder.b.ivBanner.getContext())
                     .load(url)
+                    .thumbnail(Glide.with(holder.b.ivBanner.getContext())
+                            .load(CloudinaryUtil.blurPlaceholder(url))
+                            .centerCrop()
+                            .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC))
                     .placeholder(R.color.brand_dark)
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                     .centerCrop()
                     .into(holder.b.ivBanner);
         } else {

@@ -105,11 +105,20 @@ public class ProductDetailActivity extends AppCompatActivity {
             startActivity(i);
         });
 
+        // Logo header → về thẳng Trang chủ
+        binding.imgHeaderLogo.setOnClickListener(v -> {
+            Intent i = new Intent(this, com.FinalProject.group3.MainActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            i.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_HOME, true);
+            startActivity(i);
+        });
+
         setupQtyStepper();
         setupTabs();
 
         Glide.with(this)
-                .load("https://res.cloudinary.com/aa1g9udv/image/upload/v1783354481/glassity/site/guide_diagram.png")
+                .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(
+                        "https://res.cloudinary.com/aa1g9udv/image/upload/v1783354481/glassity/site/guide_diagram.png", 600))
                 .into(binding.imgSizeDiagram);
 
         binding.btnAddToCart.setOnClickListener(v -> addToCart(false));
@@ -603,8 +612,9 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
+            String url = urls.isEmpty() ? null : urls.get(position);
             Glide.with(holder.itemView)
-                    .load(urls.isEmpty() ? null : urls.get(position))
+                    .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(url, 800))
                     .placeholder(R.drawable.bg_product_placeholder)
                     .error(R.drawable.bg_product_placeholder)
                     .into((ImageView) holder.itemView);
@@ -646,7 +656,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull VH holder, int position) {
             Glide.with(holder.itemView)
-                    .load(urls.get(position))
+                    .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(urls.get(position), 200))
                     .placeholder(R.drawable.bg_product_placeholder)
                     .error(R.drawable.bg_product_placeholder)
                     .centerCrop()

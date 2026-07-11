@@ -82,7 +82,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         String imageUrl = resolveThumbnailUrl(product);
         List<ProductVariant> variants = product.getVariants();
         Glide.with(holder.itemView.getContext())
-                .load(imageUrl)
+                .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imageUrl, 400))
+                .thumbnail(Glide.with(holder.itemView.getContext())
+                        .load(com.FinalProject.group3.utils.CloudinaryUtil.blurPlaceholder(imageUrl))
+                        .centerCrop())
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .error(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)

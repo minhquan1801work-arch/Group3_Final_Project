@@ -30,7 +30,7 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/f_auto,q_auto/";
 
     // Hero: 3 portrait thời trang đeo kính (khớp Figma)
     private static final List<String> HERO_URLS = Arrays.asList(
@@ -82,11 +82,20 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        preloadHeroImages();
         setupAdapters();
         setupHeroCarousel();
         setupStaticImages();
         setupClickListeners();
         loadProducts();
+    }
+
+    /** Bắn trước request tải 3 ảnh hero ngay từ đầu — song song với Firestore/layout,
+     *  để lúc carousel hiển thị thì ảnh đã có sẵn/gần xong trong cache Glide. */
+    private void preloadHeroImages() {
+        for (String url : HERO_URLS) {
+            com.bumptech.glide.Glide.with(this).load(url).preload();
+        }
     }
 
     @Override

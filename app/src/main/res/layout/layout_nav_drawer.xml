@@ -26,8 +26,10 @@
             app:layout_constraintBottom_toBottomOf="parent" />
 
         <ImageView
+            android:id="@+id/imgDrawerLogo"
             android:layout_width="wrap_content"
             android:layout_height="22dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Glassity"
             android:src="@drawable/logo_simplified"
             app:layout_constraintBottom_toBottomOf="parent"

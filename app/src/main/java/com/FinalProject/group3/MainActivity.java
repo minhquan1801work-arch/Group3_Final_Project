@@ -123,6 +123,22 @@ public class MainActivity extends AppCompatActivity {
         drawerView.findViewById(R.id.btnDrawerClose).setOnClickListener(v ->
                 drawerLayout.closeDrawer(Gravity.START));
 
+        // Logo header drawer → đóng drawer + về tab Trang chủ
+        drawerView.findViewById(R.id.imgDrawerLogo).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.navHostFragment);
+            if (navHost != null) {
+                NavController nc = navHost.getNavController();
+                if (nc.getCurrentDestination() == null
+                        || nc.getCurrentDestination().getId() != R.id.homeFragment) {
+                    nc.navigate(R.id.homeFragment, null, new androidx.navigation.NavOptions.Builder()
+                            .setPopUpTo(R.id.homeFragment, true)
+                            .build());
+                }
+            }
+        });
+
         drawerView.findViewById(R.id.btnDrawerSearch).setOnClickListener(v -> {
             drawerLayout.closeDrawer(Gravity.START);
             startActivity(new android.content.Intent(this, SearchActivity.class));

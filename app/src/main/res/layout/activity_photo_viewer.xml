@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Xem ảnh review full-size: nền đen, pinch-zoom, vuốt ngang nếu nhiều ảnh -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/vpPhotos"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tvCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="16dp"
+        android:background="#66000000"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="4dp"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        tools:text="1 / 3"
+        xmlns:tools="http://schemas.android.com/tools" />
+
+    <ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="top|start"
+        android:layout_margin="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Đóng"
+        android:padding="10dp"
+        android:src="@drawable/ic_close"
+        app:tint="@color/white"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+</FrameLayout>

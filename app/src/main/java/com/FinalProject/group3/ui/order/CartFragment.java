@@ -431,7 +431,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             if (imgUrl == null && product.getImages() != null && !product.getImages().isEmpty())
                 imgUrl = product.getImages().get(0);
             if (imgUrl != null)
-                com.bumptech.glide.Glide.with(ivProduct).load(imgUrl)
+                com.bumptech.glide.Glide.with(ivProduct).load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgUrl, 250))
                         .placeholder(R.drawable.bg_product_placeholder).into(ivProduct);
             tvStock.setText("Kho: " + stock);
             // Kẹp số lượng theo kho của variant mới

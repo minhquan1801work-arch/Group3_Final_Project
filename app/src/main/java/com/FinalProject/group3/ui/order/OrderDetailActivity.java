@@ -242,7 +242,7 @@ public class OrderDetailActivity extends AppCompatActivity {
                     List<String> imgs = od.getProduct().getImages();
                     if (imgs != null && !imgs.isEmpty()) {
                         Glide.with(b.ivProduct.getContext())
-                                .load(imgs.get(0))
+                                .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgs.get(0), 250))
                                 .centerCrop()
                                 .into(b.ivProduct);
                     }

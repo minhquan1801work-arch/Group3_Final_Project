@@ -130,7 +130,7 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 imgUrl = product.getImages().get(0);
             }
             if (imgUrl != null) {
-                Glide.with(b.ivProduct).load(imgUrl)
+                Glide.with(b.ivProduct).load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgUrl, 250))
                         .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                         .into(b.ivProduct);
             }

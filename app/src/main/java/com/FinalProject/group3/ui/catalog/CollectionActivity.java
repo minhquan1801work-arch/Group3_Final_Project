@@ -29,7 +29,7 @@ public class CollectionActivity extends AppCompatActivity {
 
     public static final String EXTRA_COLLECTION = "extra_collection";
 
-    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/f_auto,q_auto/";
     private static final String URL_MONOCHROME = CLOUD + "v1783502208/d21ee09b2dcb18b17af1ec5262d245334b74241b_lwh1kx.png";
     private static final String URL_ESSENTIAL   = CLOUD + "v1783502208/7aec1cc6374895c92464c3118255d38449be11ee_yzemoi.png";
     private static final String URL_SUNLIGHT    = CLOUD + "v1783502207/36566f6bfcef59072645817ac9273fc3824ad0c3_msnssy.png";

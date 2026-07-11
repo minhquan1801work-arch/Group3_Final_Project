@@ -54,13 +54,20 @@ public final class ReviewViewBinder {
             item.hsReviewImages.setVisibility(View.VISIBLE);
             int thumbSize = (int) (64 * density);
             int thumbGap = (int) (6 * density);
-            for (Object url : (List<?>) imgs) {
+
+            java.util.ArrayList<String> urls = new java.util.ArrayList<>();
+            for (Object url : (List<?>) imgs) urls.add(String.valueOf(url));
+
+            for (int i = 0; i < urls.size(); i++) {
+                final int index = i;
                 ImageView iv = new ImageView(context);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(thumbSize, thumbSize);
                 lp.setMarginEnd(thumbGap);
                 iv.setLayoutParams(lp);
                 iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                Glide.with(context).load(String.valueOf(url)).into(iv);
+                Glide.with(context).load(CloudinaryUtil.optimize(urls.get(i), 200)).into(iv);
+                iv.setOnClickListener(v ->
+                        com.FinalProject.group3.ui.catalog.PhotoViewerActivity.start(context, urls, index));
                 item.llReviewImages.addView(iv);
             }
         } else {

@@ -578,3 +578,55 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 ### CollectionActivity: tên BST dời xuống cạnh dưới hero (11/07/2026)
 - `tvHeroTitle` trước ở cạnh trên (`layout_gravity="top"`, marginTop 52dp) che mất phần trên ảnh chính — dời xuống cạnh dưới (`layout_gravity="bottom"`, marginBottom 48dp), vẫn nằm trên sheet trắng "HÀNG MỚI VỀ" bo góc đè lên hero (-24dp), không bị chồng lấn
 - Build assembleDebug PASS
+
+### Fix tốc độ tải ảnh + test review có ảnh (11/07/2026)
+
+**A. Tối ưu ảnh Cloudinary (nguyên nhân chậm khi mở app):**
+- Rà toàn bộ 46 chỗ gọi Glide — xác nhận không có blocking call/Firestore đồng bộ nào, chậm là do **ảnh tải nguyên bản gốc** (800KB-2MB) không có tham số resize/nén, và Home cold-start bắn ~13+ request ảnh cùng lúc
+- Tạo `utils/CloudinaryUtil.java`: helper chèn `f_auto,q_auto[,w_x]` vào URL Cloudinary trước khi đưa Glide load (đổi định dạng WebP/AVIF tự động + nén chất lượng tự động + resize đúng kích thước hiển thị)
+- Bake `f_auto,q_auto` thẳng vào hằng số `CLOUD` dùng chung ở 4 file (`HomeFragment`, `BlogActivity`, `CollectionActivity`, `AboutActivity`) — tự động fix toàn bộ hero/tile/blog/about, không cần sửa từng dòng
+- Áp `CloudinaryUtil.optimize(url, width)` cho toàn bộ chỗ load ảnh sản phẩm từ Firestore: `ProductAdapter`, `FeaturedProductAdapter`, `CollectionProductAdapter`, `SearchSuggestAdapter` (w=400 — card/grid), `CartAdapter`, `FavoriteActivity`, `CartFragment`, `CheckoutActivity`, `OrderDetailActivity`, `OrderHistoryActivity`, `ReviewActivity` (w=250 — thumbnail nhỏ), `ProductDetailActivity` (ảnh chính w=800, thumbnail row w=200, size-diagram w=600), `ReviewViewBinder` (ảnh review w=200)
+- KHÔNG đụng: ảnh QR VietQR (`PaymentResultActivity`, không phải Cloudinary), ảnh camera/gallery cục bộ trong `ReviewActivity` (URI máy, không phải URL Cloudinary — sửa vào sẽ hỏng)
+- Build assembleDebug PASS
+
+**B. Test review có ảnh (data thật để kiểm tra UI):**
+- Rà `ReviewViewBinder.java` + `item_review.xml` kỹ — logic đúng, không bug, nhưng **122 review seed cũ không review nào có ảnh** → chưa từng test bằng mắt
+- Tạo 6 review có ảnh (script tạm `seed_reviews_with_images.js`, đã xóa sau khi chạy), gán vào tài khoản khách thật, dùng ảnh sẵn có của chính sản phẩm làm ảnh minh họa (không phải ảnh khách thật — chỉ để test UI hiển thị đúng):
+  - **Cyber Fashion Sunglasses**: Lê Minh Cường (1 ảnh), Hoàng Quốc Em (2 ảnh)
+  - **Unique Design Fashion Sunglasses**: Quynh Nhu (1 ảnh), Quan Nguyen Minh (3 ảnh)
+  - **Modern Square Sunglasses Style**: Lanion (1 ảnh), Quan Nguyen Minh (3 ảnh)
+- User cần tự mở app kiểm tra 3 sản phẩm trên (đúng 3 sản phẩm đang gắn ở hero banner trang chủ) để xác nhận ảnh review hiển thị đúng
+
+### Xem ảnh review full-size + preload/blur-up ảnh (12/07/2026)
+
+**A. Xem ảnh review full-size (pinch-zoom):**
+- Thêm thư viện `com.github.chrisbanes:PhotoView:2.3.0` (qua JitPack, thêm repo trong `settings.gradle.kts`)
+- Mới: `PhotoViewerActivity` + `PhotoViewerAdapter` + `activity_photo_viewer.xml`/`item_photo_viewer.xml` — màn hình toàn màn hình nền đen, ViewPager2 chứa PhotoView (pinch-zoom + pan), đếm số ảnh góc trên "1/3", nút đóng, vuốt ngang qua lại nếu review có nhiều ảnh
+- `ReviewViewBinder.java`: mỗi thumbnail ảnh review giờ có `OnClickListener` mở `PhotoViewerActivity` với đúng danh sách ảnh + vị trí đã bấm
+
+**B. Preload + blur-up placeholder (giảm cảm giác chờ):**
+- `CloudinaryUtil.blurPlaceholder(url)`: tạo URL ảnh siêu nhẹ + mờ (`w_40,e_blur:1000,q_1,f_auto`) hiện ngay lập tức trong lúc chờ tải bản đẹp — kỹ thuật "blur-up" giống Instagram/Medium
+- `HeroBannerAdapter`: dùng `.thumbnail(...)` load bản mờ trước, giữ `diskCacheStrategy(AUTOMATIC)`
+- `HomeFragment`: thêm `preloadHeroImages()` gọi `Glide.preload()` cho 3 URL hero ngay đầu `onViewCreated()` — bắn request tải song song với Firestore/layout thay vì đợi carousel bind xong mới tải
+- `ProductAdapter`, `FeaturedProductAdapter`: cùng thêm `.thumbnail()` blur-up cho ảnh sản phẩm (grid Home + ProductList)
+- Build assembleDebug PASS
+
+### Fix: PhotoViewerActivity thiếu nút đóng do đè status bar (12/07/2026)
+- Cùng loại lỗi với drawer trước đó — quên gọi `InsetsUtil.applySystemBarsPadding()` khi tạo `PhotoViewerActivity`, khiến nút đóng (top|start) núp dưới status bar, không bấm được
+- Thêm dòng gọi InsetsUtil ngay sau `setContentView()`, đúng pattern chuẩn dùng ở mọi Activity khác trong app
+- Build assembleDebug PASS
+
+### Rà soát toàn bộ logo header — gắn nút về Trang chủ còn thiếu (12/07/2026)
+User phát hiện logo ở ProductDetail bấm không có gì — rà lại cả 6 chỗ dùng `logo_simplified` trong app, phát hiện **4/6 chưa gắn click** (trước đó chỉ đổi text→ảnh, quên wire listener):
+
+| File | Trạng thái trước | Đã sửa |
+|---|---|---|
+| `fragment_home.xml` (Home) | ✅ Đã có (cuộn lên đầu) | — |
+| `activity_blog.xml` (Blog, btnHome) | ✅ Đã có (về Home) | — |
+| `activity_product_detail.xml` | ❌ Thiếu | Thêm `imgHeaderLogo` click → `MainActivity` + `EXTRA_OPEN_HOME` |
+| `fragment_profile.xml` (header) | ❌ Thiếu | Thêm `imgLogo` click → `NavController.navigate(R.id.homeFragment)` (cùng Activity, dùng Nav thay vì mở Intent mới) |
+| `activity_favorite.xml` | ❌ Thiếu, còn chưa có `id` | Thêm `id="imgLogo"` + click → `MainActivity` + `EXTRA_OPEN_HOME` |
+| `layout_nav_drawer.xml` | ❌ Thiếu, còn chưa có `id` | Thêm `id="imgDrawerLogo"` + click trong `MainActivity.setupDrawer()`: đóng drawer + `NavController.navigate(R.id.homeFragment)` |
+
+Tiện thể thêm `background="?attr/selectableItemBackgroundBorderless"` cho các logo còn thiếu hiệu ứng ripple khi bấm (đồng bộ toàn app).
+Build assembleDebug PASS

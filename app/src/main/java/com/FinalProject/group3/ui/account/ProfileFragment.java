@@ -45,6 +45,11 @@ public class ProfileFragment extends Fragment {
             }
         });
 
+        // Logo header → về tab Trang chủ
+        binding.imgLogo.setOnClickListener(v ->
+                androidx.navigation.fragment.NavHostFragment.findNavController(this)
+                        .navigate(R.id.homeFragment));
+
         // ── Guest (chưa đăng nhập): ẩn thẻ barcode, các nút yêu cầu đăng nhập ──
         FirebaseUser user = FirebaseHelper.getAuth().getCurrentUser();
         if (user == null) {

@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide;
  */
 public class AboutActivity extends AppCompatActivity {
 
-    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/f_auto,q_auto/";
     private static final String URL_HERO =
             CLOUD + "v1783747666/glassity/site/about/hero_mickey.png";
     private static final String URL_BRAND =

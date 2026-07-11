@@ -58,6 +58,11 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.catalog.PhotoViewerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Group3_Final_Project" />
+
+        <activity
             android:name=".ui.account.FavoriteActivity"
             android:exported="false" />
 

@@ -64,7 +64,10 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
         }
         if (url == null && p.getImages() != null && !p.getImages().isEmpty()) url = p.getImages().get(0);
         Glide.with(holder.itemView.getContext())
-                .load(url)
+                .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(url, 400))
+                .thumbnail(Glide.with(holder.itemView.getContext())
+                        .load(com.FinalProject.group3.utils.CloudinaryUtil.blurPlaceholder(url))
+                        .centerCrop())
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .error(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)

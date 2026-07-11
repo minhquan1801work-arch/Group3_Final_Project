@@ -63,7 +63,7 @@ public class CollectionProductAdapter extends RecyclerView.Adapter<CollectionPro
         if (url == null && p.getImages() != null && !p.getImages().isEmpty()) url = p.getImages().get(0);
 
         Glide.with(holder.itemView.getContext())
-                .load(url)
+                .load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(url, 400))
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .error(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .centerCrop()

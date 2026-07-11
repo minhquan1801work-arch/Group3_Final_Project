@@ -29,6 +29,7 @@
         android:id="@+id/imgHeaderLogo"
         android:layout_width="0dp"
         android:layout_height="56dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="Glassity"
         android:padding="16dp"
         android:scaleType="fitCenter"

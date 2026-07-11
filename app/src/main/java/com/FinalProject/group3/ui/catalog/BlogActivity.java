@@ -33,7 +33,7 @@ import java.util.List;
 public class BlogActivity extends AppCompatActivity {
 
     private static final String EXTRA_BLOG_ID = "blog_id";
-    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/f_auto,q_auto/";
 
     // Ảnh hero + card của 3 bài
     private static final String[] HERO = {
