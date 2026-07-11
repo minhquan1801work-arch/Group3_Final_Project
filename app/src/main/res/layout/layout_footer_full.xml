@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Footer đầy đủ (Figma): social icon → contact info → link About/Contact/Policy → copyright.
+     Dùng chung cho Home, About — include với id (vd @+id/incFooter), truy cập qua
+     binding.incFooter.footerAbout / footerContact / footerPolicy. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="#F7F5F2"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingVertical="28dp">
+
+        <!-- Social icons -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <ImageView
+                android:id="@+id/footerTw"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_social_x" />
+            <ImageView
+                android:id="@+id/footerIg"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginHorizontal="20dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_social_ig" />
+            <ImageView
+                android:id="@+id/footerYt"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:padding="8dp"
+                android:src="@drawable/ic_social_yt" />
+        </LinearLayout>
+
+        <!-- Ornament ─◇─ -->
+        <LinearLayout
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <View android:layout_width="0dp" android:layout_height="0.7dp"
+                android:layout_weight="1" android:background="#C9C3BB" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp" android:text="&#x25C7;"
+                android:textColor="#C9C3BB" android:textSize="10sp" />
+            <View android:layout_width="0dp" android:layout_height="0.7dp"
+                android:layout_weight="1" android:background="#C9C3BB" />
+        </LinearLayout>
+
+        <!-- Contact info -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="serif"
+            android:text="support@glassity.com"
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="serif"
+            android:text="+8386 123 789"
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="serif"
+            android:text="08:00 - 22:00 - Mỗi ngày"
+            android:textColor="@color/color_text_primary"
+            android:textSize="13sp" />
+
+        <!-- Ornament ─◇─ -->
+        <LinearLayout
+            android:layout_width="220dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+            <View android:layout_width="0dp" android:layout_height="0.7dp"
+                android:layout_weight="1" android:background="#C9C3BB" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp" android:text="&#x25C7;"
+                android:textColor="#C9C3BB" android:textSize="10sp" />
+            <View android:layout_width="0dp" android:layout_height="0.7dp"
+                android:layout_weight="1" android:background="#C9C3BB" />
+        </LinearLayout>
+
+        <!-- Links: About / Contact / Policy -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:orientation="horizontal">
+            <TextView
+                android:id="@+id/footerAbout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:fontFamily="serif"
+                android:padding="6dp"
+                android:text="About"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/footerContact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="28dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:fontFamily="serif"
+                android:padding="6dp"
+                android:text="Contact"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp" />
+            <TextView
+                android:id="@+id/footerPolicy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:fontFamily="serif"
+                android:padding="6dp"
+                android:text="Policy"
+                android:textColor="@color/color_text_primary"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="#EDEAE5"
+            android:gravity="center"
+            android:paddingVertical="10dp"
+            android:text="Glassity© Bản quyền được bảo hộ."
+            android:textColor="@color/color_text_secondary"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+</LinearLayout>

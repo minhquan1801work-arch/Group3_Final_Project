@@ -430,3 +430,16 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 
 ### Script chạy 1 lần (không commit secrets)
 `import_batch2.js`, `colors_batch2.js`, `apply_colors_batch2.js`, `seed_reviews.js` — cần `service-account.json` + `cloudinary-config.json` (gitignored)
+
+### Sửa trang "Về Glassity" theo phản hồi (11/07/2026)
+- Banner "Khám phá Glassity" ở Home giờ mở `AboutActivity` thay vì `ProductListActivity` (đúng theo Figma)
+- Bỏ carousel tự động (Handler/Runnable) ở hero — thay bằng 2 ảnh TĨNH: banner "Khám phá Glassity" (dùng chung ảnh với Home) + ảnh Mickey thương hiệu, đúng bản mockup tĩnh gửi kèm
+- Sửa lỗi ảnh certification bị viền đen: bỏ `background="@drawable/bg_product_placeholder"` (nền đen) trên ImageView + đổi sang `wrap_content` height thay vì height cố định ép fitCenter
+- Tách footer (social icon + liên hệ + link About/Contact/Policy + copyright) dùng chung giữa Home và About ra `layout_footer_full.xml`, include bằng id `incFooter`, truy cập qua `binding.incFooter.footerXxx` (ViewBinding nested-binding pattern cho include có id)
+- Build assembleDebug PASS, không còn cảnh báo
+
+### Trang "Tất cả đánh giá" (11/07/2026)
+- `AllReviewsActivity` mới: header "< Đánh giá sản phẩm ... X.X★" + RecyclerView đầy đủ review (không giới hạn số lượng), empty state khi chưa có review
+- Bấm "Tất cả" ở `ProductDetailActivity` giờ mở trang này (trước đây Toast placeholder)
+- Tách logic gán 1 dòng review vào `ReviewViewBinder` (utils) dùng chung giữa `ProductDetailActivity` (mini list) và `ReviewAdapter` (RecyclerView của AllReviewsActivity) — tránh trùng code
+- Build assembleDebug PASS

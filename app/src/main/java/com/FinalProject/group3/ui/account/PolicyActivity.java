@@ -21,7 +21,6 @@ public class PolicyActivity extends AppCompatActivity {
     public static final String TYPE_PRIVACY = "privacy";
     public static final String TYPE_SHIPPING = "shipping";
     public static final String TYPE_TERMS = "terms";
-    public static final String TYPE_ABOUT = "about";
 
     private static final String EXTRA_TYPE = "policy_type";
 
@@ -47,7 +46,6 @@ public class PolicyActivity extends AppCompatActivity {
             case TYPE_PRIVACY:  title = "CHÍNH SÁCH BẢO MẬT";  html = PRIVACY_HTML;  break;
             case TYPE_SHIPPING: title = "CHÍNH SÁCH\nGIAO HÀNG VÀ KIỂM TRA"; html = SHIPPING_HTML; break;
             case TYPE_TERMS:    title = "ĐIỀU KHOẢN SỬ DỤNG";  html = TERMS_HTML;    break;
-            case TYPE_ABOUT:    title = "VỀ GLASSITY";         html = ABOUT_HTML;    break;
             default:            title = "CÂU HỎI THƯỜNG GẶP";  html = FAQ_HTML;      break;
         }
         binding.tvPolicyTitle.setText(title);
@@ -148,22 +146,6 @@ public class PolicyActivity extends AppCompatActivity {
         + "Glassity có quyền cập nhật, chỉnh sửa Điều khoản sử dụng bất kỳ lúc nào. Phiên bản mới nhất sẽ được đăng tải trên ứng dụng và có hiệu lực ngay khi công bố.<br>"
         + "<b>9. Liên hệ</b><br>"
         + "Mọi thắc mắc liên quan đến Điều khoản sử dụng vui lòng liên hệ hotline 1900 8386 hoặc email glassity@gmail.com.vn.";
-
-    // ── Nội dung tĩnh — Về Glassity (footer "About") ──────────────────────────
-    private static final String ABOUT_HTML =
-        "<b>Glassity Eyewear</b><br>"
-        + "Glassity là thương hiệu kính mắt thời trang, ra đời với mong muốn mang đến những mẫu gọng kính chất lượng, "
-        + "thiết kế hiện đại và giá cả hợp lý cho mọi khách hàng Việt Nam.<br><br>"
-        + "<b>Sứ mệnh</b><br>"
-        + "Chúng tôi tin rằng một chiếc kính không chỉ giúp bạn nhìn rõ hơn mà còn là điểm nhấn thể hiện phong cách riêng. "
-        + "Glassity không ngừng tìm kiếm những mẫu gọng kính mới, phù hợp với nhiều dáng khuôn mặt và cá tính khác nhau.<br><br>"
-        + "<b>Cam kết</b><br>"
-        + "• Sản phẩm chính hãng, chất liệu bền, nhẹ và an toàn cho người dùng.<br>"
-        + "• Hỗ trợ đổi trả, bảo hành rõ ràng, minh bạch.<br>"
-        + "• Dịch vụ chăm sóc khách hàng tận tâm, phản hồi nhanh chóng.<br><br>"
-        + "<b>Thông tin liên hệ</b><br>"
-        + "Địa chỉ: 669 Quốc lộ 1A, Khu phố 6, Thành phố Thủ Đức, Thành phố Hồ Chí Minh, Việt Nam.<br>"
-        + "Hotline: 1900 8386 &nbsp;|&nbsp; Email: glassity@gmail.com.vn";
 
     // ── Nội dung tĩnh (theo Figma DL_Warranty — Giao hàng & Kiểm tra) ─────────
     private static final String SHIPPING_HTML =

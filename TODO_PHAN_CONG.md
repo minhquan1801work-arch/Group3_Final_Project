@@ -63,9 +63,9 @@
 |---|---|---|
 | Review trên trang SP | ✅ XONG 10/07 — query thật + seed 122 review | Phúc |
 | `HERO_PRODUCT_IDS` | ⏳ 3 slot rỗng — bấm hero Toast "Sắp ra mắt" (HomeFragment đầu file) | Phúc điền ID |
-| Footer About/Contact/Policy | ✅ XONG 10/07 — HomeFragment + BlogActivity đều gắn `PolicyActivity`/`ContactActivity` | Phúc |
+| Footer About/Contact/Policy | ✅ XONG 11/07 — About mở `AboutActivity` (trang riêng theo Figma LA.About Glassity), Contact/Policy vẫn `ContactActivity`/`PolicyActivity` | Phúc |
 | Tìm bằng ảnh (camera Search) | ⏳ Toast giữ chỗ | Phúc (ưu tiên thấp) |
-| "Về Glassity" trong BlogActivity | ✅ XONG 10/07 — mở `PolicyActivity.TYPE_ABOUT` | Phúc |
+| "Về Glassity" trong BlogActivity | ✅ XONG 11/07 — mở `AboutActivity` | Phúc |
 | 12 SP ảnh demo (6 kính cận + 6 phụ kiện) | ✅ XONG 10/07 — đã thay ảnh thật (import đợt 2) | Phúc |
 | Web Admin | ❌ chưa có | Quân |
 | Firestore Rules | ❓ cần kiểm tra trên Console (`allow read, write: if true`?) | Phúc |

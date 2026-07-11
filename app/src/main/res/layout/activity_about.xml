@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- LA.About Glassity (Figma) — trang giới thiệu thương hiệu -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <!-- Header: < Quay lại -->
+    <LinearLayout
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="12dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:contentDescription="@null"
+            android:rotation="180"
+            android:src="@drawable/ic_chevron_right"
+            app:tint="@color/color_text_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:text="Quay lại"
+            android:textColor="@color/color_text_primary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Ảnh giới thiệu (tĩnh) -->
+            <ImageView
+                android:id="@+id/imgHero"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:background="@drawable/bg_product_placeholder"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop" />
+
+            <!-- Đoạn giới thiệu ngắn -->
+            <TextView
+                android:id="@+id/tvIntro"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:lineSpacingExtra="4dp"
+                android:paddingHorizontal="16dp"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="13sp"
+                tools:text="Glassity là thương hiệu kính mắt hiện đại..." />
+
+            <!-- Ảnh minh họa thương hiệu (tĩnh, hiện full không crop) -->
+            <ImageView
+                android:id="@+id/imgBrand"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter" />
+
+            <!-- Sứ mệnh -->
+            <TextView
+                style="@style/AboutSectionTitle"
+                android:text="Sứ mệnh" />
+            <TextView
+                android:id="@+id/tvMission"
+                style="@style/AboutSectionBody"
+                tools:text="Mang đến những thiết kế kính mắt..." />
+
+            <!-- Tầm nhìn -->
+            <TextView
+                style="@style/AboutSectionTitle"
+                android:text="Tầm nhìn" />
+            <TextView
+                android:id="@+id/tvVision"
+                style="@style/AboutSectionBody"
+                tools:text="Hướng tới trở thành thương hiệu kính mắt..." />
+
+            <!-- Giấy chứng nhận -->
+            <TextView
+                style="@style/AboutSectionTitle"
+                android:text="Giấy chứng nhận EssilorLuxottica tại Glassity" />
+            <TextView
+                android:id="@+id/tvCert"
+                style="@style/AboutSectionBody"
+                tools:text="EssilorLuxottica là một trong những tập đoàn lớn..." />
+            <ImageView
+                android:id="@+id/imgCertification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:layout_marginHorizontal="16dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter" />
+
+            <!-- Thành tựu -->
+            <TextView
+                style="@style/AboutSectionTitle"
+                android:text="Thành tựu" />
+            <TextView
+                android:id="@+id/tvAwards"
+                style="@style/AboutSectionBody"
+                tools:text="Glassity vinh dự đạt giải thưởng Top 10..." />
+            <ImageView
+                android:id="@+id/imgAwards"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginHorizontal="16dp"
+                android:adjustViewBounds="true"
+                android:contentDescription="@null"
+                android:scaleType="fitCenter" />
+
+            <!-- Footer liên hệ (dùng chung với Home) -->
+            <include
+                android:id="@+id/incFooter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                layout="@layout/layout_footer_full" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>

@@ -228,8 +228,7 @@ public class BlogActivity extends AppCompatActivity {
     }
 
     private void setupFooter() {
-        binding.footerAbout.setOnClickListener(v ->
-                startActivity(PolicyActivity.intent(this, PolicyActivity.TYPE_ABOUT)));
+        binding.footerAbout.setOnClickListener(v -> AboutActivity.start(this));
         binding.footerContact.setOnClickListener(v ->
                 startActivity(ContactActivity.intent(this)));
         binding.footerPolicy.setOnClickListener(v ->

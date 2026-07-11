@@ -246,23 +246,20 @@ public class HomeFragment extends Fragment {
         binding.faceVuong.setOnClickListener(v ->
                 ProductListActivity.start(requireContext(), null, ProductListActivity.SHAPE_VUONG, "Kính mặt vuông"));
 
-        // Banner "Khám phá Glassity" → mở tất cả sản phẩm; link gạch chân theo Figma
+        // Banner "Khám phá Glassity" → mở trang giới thiệu thương hiệu; link gạch chân theo Figma
         binding.tvKhamPhaLink.setPaintFlags(
                 binding.tvKhamPhaLink.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
-        binding.bannerKhamPha.setOnClickListener(v ->
-                ProductListActivity.startAll(requireContext()));
+        binding.bannerKhamPha.setOnClickListener(v -> AboutActivity.start(requireContext()));
 
         // Blog cards → LA.Blog1 (chọn kính theo dáng mặt) / LA.Blog2 (retro)
         binding.blogCard1.setOnClickListener(v -> BlogActivity.start(requireContext(), 1));
         binding.blogCard2.setOnClickListener(v -> BlogActivity.start(requireContext(), 2));
 
         // Footer: About / Contact / Policy → gắn trang đích
-        binding.footerAbout.setOnClickListener(v -> startActivity(
-                com.FinalProject.group3.ui.account.PolicyActivity.intent(
-                        requireContext(), com.FinalProject.group3.ui.account.PolicyActivity.TYPE_ABOUT)));
-        binding.footerContact.setOnClickListener(v -> startActivity(
+        binding.incFooter.footerAbout.setOnClickListener(v -> AboutActivity.start(requireContext()));
+        binding.incFooter.footerContact.setOnClickListener(v -> startActivity(
                 com.FinalProject.group3.ui.account.ContactActivity.intent(requireContext())));
-        binding.footerPolicy.setOnClickListener(v -> startActivity(
+        binding.incFooter.footerPolicy.setOnClickListener(v -> startActivity(
                 com.FinalProject.group3.ui.account.PolicyActivity.intent(
                         requireContext(), com.FinalProject.group3.ui.account.PolicyActivity.TYPE_PRIVACY)));
     }

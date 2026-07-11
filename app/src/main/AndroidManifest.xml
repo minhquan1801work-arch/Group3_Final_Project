@@ -50,6 +50,14 @@
             android:exported="false" />
 
         <activity
+            android:name=".ui.catalog.AboutActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.catalog.AllReviewsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ui.account.FavoriteActivity"
             android:exported="false" />
 

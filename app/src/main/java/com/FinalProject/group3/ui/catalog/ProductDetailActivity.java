@@ -111,7 +111,7 @@ public class ProductDetailActivity extends AppCompatActivity {
         binding.btnAddToCart.setOnClickListener(v -> addToCart(false));
         binding.btnBuyNow.setOnClickListener(v -> addToCart(true));
         binding.btnAllReviews.setOnClickListener(v ->
-                Toast.makeText(this, "Tất cả đánh giá — sẽ làm ở bước tiếp theo", Toast.LENGTH_SHORT).show());
+                AllReviewsActivity.start(this, getIntent().getStringExtra(EXTRA_PRODUCT_ID)));
 
         binding.ivFavorite.setOnClickListener(v -> onFavoriteClick());
 
@@ -417,47 +417,10 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         double sum = 0;
         LayoutInflater inflater = LayoutInflater.from(this);
-        java.text.SimpleDateFormat fmt =
-                new java.text.SimpleDateFormat("dd/MM/yyyy", new Locale("vi", "VN"));
-        int thumbSize = (int) (64 * getResources().getDisplayMetrics().density);
-        int thumbGap = (int) (6 * getResources().getDisplayMetrics().density);
-
         for (com.google.firebase.firestore.DocumentSnapshot d : docs) {
-            Long ratingL = d.getLong("rating");
-            int rating = ratingL == null ? 5 : ratingL.intValue();
-            sum += rating;
-
+            sum += com.FinalProject.group3.utils.ReviewViewBinder.ratingOf(d);
             ItemReviewBinding item = ItemReviewBinding.inflate(inflater, binding.llReviews, false);
-            String name = d.getString("userName");
-            item.tvReviewer.setText(name != null && !name.isEmpty() ? name : "Khách hàng Glassity");
-            com.google.firebase.Timestamp ts = d.getTimestamp("createdAt");
-            item.tvReviewDate.setText(ts != null ? fmt.format(ts.toDate()) : "");
-            item.tvReviewText.setText(d.getString("comment"));
-
-            int starSize = (int) (14 * getResources().getDisplayMetrics().density);
-            for (int i = 0; i < 5; i++) {
-                ImageView star = new ImageView(this);
-                star.setLayoutParams(new ViewGroup.LayoutParams(starSize, starSize));
-                star.setImageResource(i < rating ? R.drawable.ic_star : R.drawable.ic_star_outline);
-                item.llStars.addView(star);
-            }
-
-            // ảnh khách đính kèm (nếu có)
-            Object imgs = d.get("imageUrls");
-            if (imgs instanceof List && !((List<?>) imgs).isEmpty()) {
-                item.hsReviewImages.setVisibility(View.VISIBLE);
-                for (Object url : (List<?>) imgs) {
-                    ImageView iv = new ImageView(this);
-                    android.widget.LinearLayout.LayoutParams lp =
-                            new android.widget.LinearLayout.LayoutParams(thumbSize, thumbSize);
-                    lp.setMarginEnd(thumbGap);
-                    iv.setLayoutParams(lp);
-                    iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                    Glide.with(this).load(String.valueOf(url)).into(iv);
-                    item.llReviewImages.addView(iv);
-                }
-            }
-
+            com.FinalProject.group3.utils.ReviewViewBinder.bind(this, item, d);
             binding.llReviews.addView(item.getRoot());
         }
 
