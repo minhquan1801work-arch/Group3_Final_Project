@@ -35,17 +35,41 @@ public class BlogActivity extends AppCompatActivity {
     private static final String EXTRA_BLOG_ID = "blog_id";
     private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
 
-    // Ảnh hero + card của 3 bài (tái dùng ảnh site đã upload Cloudinary)
+    // Ảnh hero + card của 3 bài
     private static final String[] HERO = {
-            CLOUD + "v1783354481/glassity/site/guide_diagram.png",     // Blog 1
-            CLOUD + "v1783355123/glassity/site/blog_login_signup.jpg", // Blog 2
-            CLOUD + "v1783354471/glassity/site/hero_bg2.png"           // Blog 3
+            CLOUD + "v1783753558/glassity/site/blog/hero_trend2026.png", // Blog 1
+            CLOUD + "v1783753564/glassity/site/blog/hero_retro.png",     // Blog 2
+            CLOUD + "v1783753566/glassity/site/blog/hero_summer.png"     // Blog 3
     };
     private static final String[] TITLES = {
             "Gọng Kính Hot Trend 2026",
             "Sự trở lại của gọng kính Retro",
             "Bí kíp chọn kính mát an toàn"
     };
+
+    // Ảnh minh họa trong bài (đợt bổ sung 11/07)
+    private static final String URL_RETRO_90S_GROUP =
+            CLOUD + "v1783753569/glassity/site/blog/retro_90s_group.png";
+    private static final String URL_RETRO_STREETSTYLE =
+            CLOUD + "v1783753572/glassity/site/blog/retro_streetstyle.png";
+    private static final String URL_CHEAP_SUNGLASSES_MARKET =
+            CLOUD + "v1783753573/glassity/site/blog/cheap_sunglasses_market.png";
+
+    // 5 thumbnail "Gọng kính hot trend 2026" (Blog 1)
+    private static final String[][] TREND_ITEMS = {
+            {CLOUD + "v1783753575/glassity/site/blog/trend_thick.png", "Gọng dày\ncá tính"},
+            {CLOUD + "v1783753576/glassity/site/blog/trend_metal.png", "Gọng kim loại\ntối giản"},
+            {CLOUD + "v1783753577/glassity/site/blog/trend_clear.png", "Gọng trong\nnhẹ nhàng"},
+            {CLOUD + "v1783753578/glassity/site/blog/trend_cateye.png", "Mắt mèo\nnhẹ nhàng"},
+            {CLOUD + "v1783753579/glassity/site/blog/trend_aviator.png", "Phi công\nthời thượng"},
+    };
+
+    // 5 ảnh dáng mặt (Blog 1) — dùng chung link với HomeFragment
+    private static final String URL_SHAPE_TRON       = CLOUD + "v1783354487/glassity/site/shape_tron.png";
+    private static final String URL_SHAPE_TRAI_XOAN  = CLOUD + "v1783354492/glassity/site/shape_trai_xoan.png";
+    private static final String URL_SHAPE_TRAI_TIM   = CLOUD + "v1783354498/glassity/site/shape_trai_tim.png";
+    private static final String URL_SHAPE_KIM_CUONG  = CLOUD + "v1783354502/glassity/site/shape_kim_cuong.png";
+    private static final String URL_SHAPE_VUONG      = CLOUD + "v1783354507/glassity/site/shape_vuong.png";
 
     private ActivityBlogBinding binding;
     private final ProductRepository productRepo = new ProductRepository();
@@ -64,6 +88,14 @@ public class BlogActivity extends AppCompatActivity {
         com.FinalProject.group3.utils.InsetsUtil.applySystemBarsPadding(binding.getRoot());
 
         binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnHome.setOnClickListener(v -> {
+            // Về thẳng MainActivity, xóa hết stack phía trên, ép về tab Trang chủ
+            Intent intent = new Intent(this, com.FinalProject.group3.MainActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_HOME, true);
+            startActivity(intent);
+            finish();
+        });
 
         blogId = getIntent().getIntExtra(EXTRA_BLOG_ID, 1);
         if (blogId < 1 || blogId > 3) blogId = 1;
@@ -93,21 +125,22 @@ public class BlogActivity extends AppCompatActivity {
                 + "<b>Gọng trong nhẹ nhàng</b> — tự nhiên, hiện đại, không thể lỗi mốt.<br>"
                 + "<b>Mắt mèo nhẹ nhàng</b> — nữ tính, quyến rũ, không bao giờ lỗi thời.<br>"
                 + "<b>Phi công thời thượng</b> — phóng khoáng, thời trang, đậm chất cuốn hút.");
+        addTrendRow(TREND_ITEMS);
 
         addSectionTitle("CÁCH CHỌN KÍNH\nPHÙ HỢP VỚI DÁNG MẶT");
-        addParagraph("<b>Mặt Tròn</b><br>Gương mặt tròn nên ưu tiên gọng vuông hoặc chữ nhật để "
+        addFaceRow(URL_SHAPE_TRON, "<b>Mặt Tròn</b><br>Gương mặt tròn nên ưu tiên gọng vuông hoặc chữ nhật để "
                 + "tạo hiệu ứng thanh thoát. Tránh các mẫu gọng tròn bản lớn vì chúng dễ làm khuôn mặt trông tròn hơn.<br>"
                 + "<b>Phù hợp:</b> gọng vuông, chữ nhật, gọng wayfarer.");
-        addParagraph("<b>Mặt Trái Xoan</b><br>Mặt trái xoan có tỷ lệ cân đối nên phù hợp với hầu hết "
+        addFaceRow(URL_SHAPE_TRAI_XOAN, "<b>Mặt Trái Xoan</b><br>Mặt trái xoan có tỷ lệ cân đối nên phù hợp với hầu hết "
                 + "các kiểu gọng kính. Bạn có thể thoải mái lựa chọn mẫu gọng theo phong cách và sở thích "
                 + "cá nhân để thể hiện cá tính riêng.<br><b>Phù hợp:</b> hầu hết kiểu dáng vuông, tròn, oval…");
-        addParagraph("<b>Mặt Trái Tim</b><br>Nên ưu tiên các mẫu gọng mảnh hoặc có phần dưới rộng để "
+        addFaceRow(URL_SHAPE_TRAI_TIM, "<b>Mặt Trái Tim</b><br>Nên ưu tiên các mẫu gọng mảnh hoặc có phần dưới rộng để "
                 + "cân đối khuôn mặt. Tránh gọng mắt mèo có đuôi quá nhọn vì dễ làm phần trán trông rộng hơn.<br>"
                 + "<b>Phù hợp:</b> gọng oval, gọng tròn, gọng browline.");
-        addParagraph("<b>Mặt Kim Cương</b><br>Các mẫu gọng oval hoặc không viền để cân bằng đường nét "
+        addFaceRow(URL_SHAPE_KIM_CUONG, "<b>Mặt Kim Cương</b><br>Các mẫu gọng oval hoặc không viền để cân bằng đường nét "
                 + "khuôn mặt của người có dáng mặt kim cương. Tránh chọn gọng quá nhỏ hoặc quá hồ vì có thể "
                 + "làm nổi bật phần gò má.<br><b>Phù hợp:</b> gọng oval, cat-eye nhẹ…");
-        addParagraph("<b>Mặt Vuông</b><br>Nên chọn những mẫu gọng có đường nét bo tròn hoặc oval để "
+        addFaceRow(URL_SHAPE_VUONG, "<b>Mặt Vuông</b><br>Nên chọn những mẫu gọng có đường nét bo tròn hoặc oval để "
                 + "làm mềm các góc cạnh trên khuôn mặt. Hạn chế sử dụng gọng vuông dày vì sẽ khiến khuôn mặt "
                 + "trông cứng hơn.<br><b>Phù hợp:</b> gọng tròn, oval, gọng bầu dục.");
     }
@@ -119,6 +152,7 @@ public class BlogActivity extends AppCompatActivity {
                 + "những năm 1990 — kỷ nguyên của sự tối giản nhưng đầy nổi loạn. Chiếm trọn tâm điểm trên "
                 + "các sàn diễn và street style thế giới lúc này không gì khác ngoài sự trở lại đầy kiêu hãnh "
                 + "của những chiếc gọng kính dáng Oval cổ điển.");
+        addImage(URL_RETRO_90S_GROUP);
 
         addSectionTitle("DÁNG KÍNH OVAL RETRO \"HỒI SINH\"?");
         addParagraph("Không phải ngẫu nhiên mà dáng kính Oval mạ vàng từ thập niên 90s lại chiếm sóng "
@@ -136,6 +170,7 @@ public class BlogActivity extends AppCompatActivity {
                 + "như Bella Hadid, Kendall Jenner hay các fashionista Gen Z, gọng kính Oval cổ điển chính là "
                 + "\"vũ khí bí mật\" để tạo nên diện mạo chic và lôi cuốn. Retro không có nghĩa là cũ kỹ — "
                 + "retro chính là sự sành điệu vượt thời gian.");
+        addImage(URL_RETRO_STREETSTYLE);
 
         addSectionTitle("TIÊU ĐIỂM SẢN PHẨM: ĐÓN ĐẦU XU HƯỚNG\nCÙNG GỌNG OVAL ĐỔI MỚI");
         addParagraph("<b>Khung gọng mạ vàng cao cấp:</b> đường viền mảnh mai, mang lại vẻ ngoài "
@@ -153,6 +188,7 @@ public class BlogActivity extends AppCompatActivity {
                 + "của đại dương. Thế nhưng, bạn có biết chọn kính đi biển khác hoàn toàn với kính đeo thường ngày?");
 
         addSectionTitle("TÁC HẠI KHÔN LƯỜNG TỪ KÍNH RÂM GIÁ RẺ");
+        addImage(URL_CHEAP_SUNGLASSES_MARKET);
         addParagraph("Nhiều người có thói quen mua đại những chiếc kính râm giá rẻ vài chục nghìn được "
                 + "bày bán dọc các khu du lịch biển hoặc trên sàn TMĐT vì nghĩ \"chỉ đeo chụp ảnh rồi thôi\". "
                 + "Đây là một sai lầm cực kỳ nguy hiểm:<br>"
@@ -228,10 +264,10 @@ public class BlogActivity extends AppCompatActivity {
     }
 
     private void setupFooter() {
-        binding.footerAbout.setOnClickListener(v -> AboutActivity.start(this));
-        binding.footerContact.setOnClickListener(v ->
+        binding.incFooter.footerAbout.setOnClickListener(v -> AboutActivity.start(this));
+        binding.incFooter.footerContact.setOnClickListener(v ->
                 startActivity(ContactActivity.intent(this)));
-        binding.footerPolicy.setOnClickListener(v ->
+        binding.incFooter.footerPolicy.setOnClickListener(v ->
                 startActivity(PolicyActivity.intent(this, PolicyActivity.TYPE_PRIVACY)));
     }
 
@@ -260,12 +296,92 @@ public class BlogActivity extends AppCompatActivity {
         tv.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT));
         tv.setTextSize(13);
         tv.setLineSpacing(dp(3), 1f);
-        tv.setTextColor(getColor(R.color.color_text_secondary));
+        tv.setTextColor(getColor(R.color.color_text_body));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.topMargin = dp(10);
         tv.setLayoutParams(lp);
         binding.llContent.addView(tv);
+    }
+
+    /** Ảnh minh họa full-width trong bài */
+    private void addImage(String url) {
+        ImageView iv = new ImageView(this);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, dp(180));
+        lp.topMargin = dp(12);
+        iv.setLayoutParams(lp);
+        Glide.with(this).load(url).centerCrop().into(iv);
+        binding.llContent.addView(iv);
+    }
+
+    /** Dãy 5 thumbnail vuông + caption (Blog 1: "Gọng kính hot trend 2026") */
+    private void addTrendRow(String[][] items) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rowLp.topMargin = dp(12);
+        row.setLayoutParams(rowLp);
+
+        for (String[] item : items) {
+            LinearLayout col = new LinearLayout(this);
+            col.setOrientation(LinearLayout.VERTICAL);
+            col.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
+            LinearLayout.LayoutParams colLp = new LinearLayout.LayoutParams(
+                    0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            col.setLayoutParams(colLp);
+
+            ImageView iv = new ImageView(this);
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            iv.setLayoutParams(new LinearLayout.LayoutParams(dp(56), dp(56)));
+            iv.setBackgroundResource(R.drawable.bg_product_placeholder_light);
+            Glide.with(this).load(item[0]).centerCrop().into(iv);
+            col.addView(iv);
+
+            TextView caption = new TextView(this);
+            caption.setText(item[1]);
+            caption.setTextSize(9.5f);
+            caption.setGravity(android.view.Gravity.CENTER);
+            caption.setTextColor(getColor(R.color.color_text_secondary));
+            LinearLayout.LayoutParams capLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            capLp.topMargin = dp(4);
+            caption.setLayoutParams(capLp);
+            col.addView(caption);
+
+            row.addView(col);
+        }
+        binding.llContent.addView(row);
+    }
+
+    /** 1 dòng "dáng mặt": ảnh vuông bên trái + đoạn văn bên phải (Blog 1) */
+    private void addFaceRow(String imageUrl, String html) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        LinearLayout.LayoutParams rowLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        rowLp.topMargin = dp(12);
+        row.setLayoutParams(rowLp);
+
+        ImageView iv = new ImageView(this);
+        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        LinearLayout.LayoutParams ivLp = new LinearLayout.LayoutParams(dp(64), dp(64));
+        ivLp.setMarginEnd(dp(10));
+        iv.setLayoutParams(ivLp);
+        Glide.with(this).load(imageUrl).centerCrop().into(iv);
+        row.addView(iv);
+
+        TextView tv = new TextView(this);
+        tv.setText(Html.fromHtml(html, Html.FROM_HTML_MODE_COMPACT));
+        tv.setTextSize(13);
+        tv.setLineSpacing(dp(3), 1f);
+        tv.setTextColor(getColor(R.color.color_text_body));
+        tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(tv);
+
+        binding.llContent.addView(row);
     }
 
     private int dp(int value) {

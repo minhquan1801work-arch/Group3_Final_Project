@@ -32,6 +32,9 @@
     <color name="color_btn_black">#111111</color>  <!-- nút đen Figma -->
     <color name="color_voucher_yellow">#F5A623</color>
 
+    <!-- Đoạn văn dài (Blog) — đậm hơn color_text_secondary để dễ đọc -->
+    <color name="color_text_body">#5C544C</color>
+
     <!-- Footer floating pill (dark) -->
     <color name="nav_pill_dark">#292526</color> <!-- Figma: Foundation/Neutral/grey-13 -->
     <color name="nav_icon_active">#FFFFFF</color>

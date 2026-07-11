@@ -52,8 +52,9 @@ public class HomeFragment extends Fragment {
     private static final String URL_ESSENTIAL   = CLOUD + "v1783502208/7aec1cc6374895c92464c3118255d38449be11ee_yzemoi.png";
     private static final String URL_SUNLIGHT    = CLOUD + "v1783502207/36566f6bfcef59072645817ac9273fc3824ad0c3_msnssy.png";
     private static final String URL_KHAM_PHA    = CLOUD + "v1783355119/glassity/site/kham_pha_flowers.jpg";
-    private static final String URL_BLOG_GUIDE  = CLOUD + "v1783354481/glassity/site/guide_diagram.png";
-    private static final String URL_BLOG_TREND  = CLOUD + "v1783355123/glassity/site/blog_login_signup.jpg";
+    private static final String URL_BLOG1 = CLOUD + "v1783753558/glassity/site/blog/hero_trend2026.png";
+    private static final String URL_BLOG2 = CLOUD + "v1783753564/glassity/site/blog/hero_retro.png";
+    private static final String URL_BLOG3 = CLOUD + "v1783753566/glassity/site/blog/hero_summer.png";
 
     private static final String URL_SHAPE_TRON       = CLOUD + "v1783354487/glassity/site/shape_tron.png";
     private static final String URL_SHAPE_TRAI_XOAN  = CLOUD + "v1783354492/glassity/site/shape_trai_xoan.png";
@@ -194,8 +195,9 @@ public class HomeFragment extends Fragment {
         com.bumptech.glide.Glide.with(this).load(URL_ESSENTIAL).centerCrop().into(binding.imgEssential);
         com.bumptech.glide.Glide.with(this).load(URL_SUNLIGHT).centerCrop().into(binding.imgSunlight);
         com.bumptech.glide.Glide.with(this).load(URL_KHAM_PHA).centerCrop().into(binding.imgKhamPha);
-        com.bumptech.glide.Glide.with(this).load(URL_BLOG_GUIDE).centerCrop().into(binding.imgBlog1);
-        com.bumptech.glide.Glide.with(this).load(URL_BLOG_TREND).centerCrop().into(binding.imgBlog2);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG1).centerCrop().into(binding.imgBlog1);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG2).centerCrop().into(binding.imgBlog2);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG3).centerCrop().into(binding.imgBlog3);
 
         com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRON).centerCrop().into(binding.imgFaceTron);
         com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRAI_XOAN).centerCrop().into(binding.imgFaceTraiXoan);
@@ -212,6 +214,10 @@ public class HomeFragment extends Fragment {
                 ((com.FinalProject.group3.MainActivity) getActivity()).openDrawer();
             }
         });
+
+        // Logo header → đã ở Home, cuộn lên đầu trang
+        binding.imgLogo.setOnClickListener(v ->
+                ((androidx.core.widget.NestedScrollView) binding.getRoot()).smoothScrollTo(0, 0));
 
         binding.btnSearch.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), SearchActivity.class)));
@@ -254,6 +260,7 @@ public class HomeFragment extends Fragment {
         // Blog cards → LA.Blog1 (chọn kính theo dáng mặt) / LA.Blog2 (retro)
         binding.blogCard1.setOnClickListener(v -> BlogActivity.start(requireContext(), 1));
         binding.blogCard2.setOnClickListener(v -> BlogActivity.start(requireContext(), 2));
+        binding.blogCard3.setOnClickListener(v -> BlogActivity.start(requireContext(), 3));
 
         // Footer: About / Contact / Policy → gắn trang đích
         binding.incFooter.footerAbout.setOnClickListener(v -> AboutActivity.start(requireContext()));

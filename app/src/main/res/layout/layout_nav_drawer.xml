@@ -25,14 +25,11 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
+        <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:letterSpacing="0.08"
-            android:text="Glassity"
-            android:textColor="@color/color_text_primary"
-            android:textSize="20sp"
-            android:textStyle="bold"
+            android:layout_height="22dp"
+            android:contentDescription="Glassity"
+            android:src="@drawable/logo_simplified"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -376,6 +373,30 @@
                 android:paddingStart="36dp"
                 android:paddingEnd="20dp"
                 android:text="Cách Chọn Kính Cho Từng Dáng Khuôn Mặt"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuBlogRetro"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Sự Trở Lại Của Gọng Kính Retro"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/menuBlogMuaHe"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="?attr/selectableItemBackground"
+                android:gravity="center_vertical"
+                android:paddingStart="36dp"
+                android:paddingEnd="20dp"
+                android:text="Bí Kíp Chọn Kính Mát Chuẩn Mùa Hè"
                 android:textColor="@color/color_text_secondary"
                 android:textSize="14sp" />
 

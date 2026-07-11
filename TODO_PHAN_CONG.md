@@ -63,6 +63,8 @@
 |---|---|---|
 | Review trên trang SP | ✅ XONG 10/07 — query thật + seed 122 review | Phúc |
 | `HERO_PRODUCT_IDS` | ⏳ 3 slot rỗng — bấm hero Toast "Sắp ra mắt" (HomeFragment đầu file) | Phúc điền ID |
+| Drawer "Về Glassity" | ✅ XONG 11/07 — trước chỉ đóng drawer, giờ mở `AboutActivity` | Phúc |
+| Home chỉ hiện 2/3 blog card | ✅ XONG 11/07 — thêm `blogCard3`, sửa tiêu đề 2 card cũ khớp đúng bài | Phúc |
 | Footer About/Contact/Policy | ✅ XONG 11/07 — About mở `AboutActivity` (trang riêng theo Figma LA.About Glassity), Contact/Policy vẫn `ContactActivity`/`PolicyActivity` | Phúc |
 | Tìm bằng ảnh (camera Search) | ⏳ Toast giữ chỗ | Phúc (ưu tiên thấp) |
 | "Về Glassity" trong BlogActivity | ✅ XONG 11/07 — mở `AboutActivity` | Phúc |
@@ -95,8 +97,26 @@ Khối footer đầy đủ (social icon Twitter/Instagram/YouTube → liên hệ
   binding.incFooter.footerContact.setOnClickListener(v -> startActivity(ContactActivity.intent(...)));
   binding.incFooter.footerPolicy.setOnClickListener(v -> startActivity(PolicyActivity.intent(..., TYPE_PRIVACY)));
   ```
-- `BlogActivity` (`activity_blog.xml`) vẫn dùng bản footer rút gọn riêng (không social icon, nền trắng) —
-  chưa gộp vào layout chung vì khác cấu trúc, không phải bug.
+- **Cập nhật 11/07 (đợt sau):** `BlogActivity` (`activity_blog.xml`) đã gộp vào layout chung luôn (trước đó dòng
+  note này nói còn tách riêng — giờ hết đúng rồi), nên hiện tại Home + About + Blog đều dùng chung 1 footer.
+
+## Logo thương hiệu — app icon + Toast (11/07) — lưu ý cho Quân
+
+Đã đổi bộ nhận diện thương hiệu, có 1 điểm quan trọng liên quan tới **mọi Toast trong toàn app** kể cả code của Quân:
+
+- **App icon** (`mipmap-*dpi/ic_launcher*`, `mipmap-anydpi-v26/ic_launcher*.xml`) đã đổi từ robot Android mặc định
+  sang logo Glassity thật. `drawable/ic_launcher_background.xml` giờ là nền trắng phẳng (trước là pattern xanh lá
+  của template mặc định).
+- **Vì sao liên quan tới Toast:** từ Android 11+ hệ thống **tự động chèn icon app** vào cạnh mọi `Toast.makeText(...)`
+  — hành vi này do OS kiểm soát, không có API nào để app tự chọn icon riêng cho Toast. Nếu trước đây bạn thấy Toast
+  hiện con robot Android (vd Toast "tính năng chưa có sẵn"), đó là vì app icon lúc đó vẫn là robot mặc định —
+  **không phải bug trong code Toast**, và **không cần sửa gì thêm ở chỗ gọi `Toast.makeText`** — đổi app icon là
+  tự động fix hết mọi Toast trong app cùng lúc.
+- ⚠️ Nếu bạn build lại mà vẫn thấy robot: **uninstall app cũ trước khi cài lại** — Android cache icon theo
+  package, cài đè không luôn refresh icon.
+- Asset `drawable/logo_submark.png` (hình kính, không chữ, nền trong suốt) đã chuẩn bị sẵn — dành cho
+  `NotificationCompat.Builder.setSmallIcon()` nếu sau này bạn làm push notification thật (FCM), lúc đó mới có
+  chỗ dùng thật sự vì hiện app chưa có hệ thống push/notification nào.
 
 ## Việc chung (cả hai, trước khi nộp)
 

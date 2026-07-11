@@ -451,3 +451,52 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 - `BlogActivity` vẫn giữ bản footer rút gọn riêng (không social icon) — không gộp vì khác cấu trúc, không phải thiếu sót
 - Đã ghi hướng dẫn chi tiết cho Quân trong `TODO_PHAN_CONG.md` (mục "Footer dùng chung") phòng khi thêm màn hình mới cần tái sử dụng
 - Build assembleDebug PASS
+
+### 3 bài Blog — thêm ảnh thật (11/07/2026)
+- Nội dung chữ 3 bài (`buildBlog1/2/3`) đã khớp sẵn với mockup Figma, chỉ thiếu ảnh — upload 11 ảnh từ `D:\Bat tu o C qua\Downloads\blog` lên Cloudinary (`glassity/site/blog/...`)
+- Hero 3 bài thay bằng ảnh thật: `hero_trend2026`, `hero_retro`, `hero_summer` (thay placeholder chung `guide_diagram.png`/`blog_login_signup.jpg` cũ)
+- Thêm 3 helper dựng nội dung trong `BlogActivity`: `addImage()` (ảnh full-width chèn giữa bài), `addTrendRow()` (dãy 5 thumbnail vuông + caption — Blog 1 mục "Gọng kính hot trend 2026"), `addFaceRow()` (ảnh vuông trái + đoạn văn phải — Blog 1 mục 5 dáng mặt, dùng lại đúng link ảnh dáng mặt của HomeFragment)
+- Chèn ảnh minh họa đúng vị trí: Blog 2 có 2 ảnh (nhóm 90s, street style celeb), Blog 3 có 1 ảnh (chợ kính giá rẻ)
+- `HomeFragment` — 2 ảnh thẻ Blog ở trang chủ (`imgBlog1/2`) đổi sang đúng hero Blog 1/2 thay vì ảnh không liên quan
+- Footer `BlogActivity` gộp vào `layout_footer_full.xml` dùng chung (trước đây có bản riêng, giờ đồng bộ với Home/About)
+- Build assembleDebug PASS
+
+### Blog: chữ đậm hơn + nút Home nhanh (11/07/2026)
+- Thêm màu `color_text_body` (#5C544C, đậm hơn `color_text_secondary` #8A8079) — áp dụng cho toàn bộ đoạn văn trong Blog (`addParagraph`, `addFaceRow`), dễ đọc hơn
+- Bàn với user về việc gắn nguyên thanh nav pill (hide-on-scroll) như Home vào BlogActivity — quyết định KHÔNG làm vì pill nav hiện chỉ tồn tại trong MainActivity, gắn thêm vào Blog sẽ lệch chuẩn so với mọi trang chi tiết khác (ProductDetail, Search, Collection, About...)
+- Thay bằng: thêm icon "Trang chủ" ở góc phải header Blog (cạnh "Quay lại"), bấm vào về thẳng `MainActivity` tab Home — tái dùng cơ chế `MainActivity.EXTRA_OPEN_HOME` đã có sẵn (giống nút "Về trang chủ" sau khi thanh toán ở `PaymentResultActivity`)
+- Build assembleDebug PASS
+
+### Logo thương hiệu: header, app icon, submark (11/07/2026)
+- 3 asset logo từ team: `logo_simplified` (chữ "Glassity" serif, không hình), `logo_primary` (hình kính + chữ), `logo_submark` (chỉ hình kính) — đã crop bỏ viền trắng + tách nền trong suốt bằng script Python/PIL, lưu vào `res/drawable/logo_simplified.png` và `logo_submark.png`
+- **Header trang chủ** (`fragment_home.xml`): `tvLogo` (TextView "Glassity") đổi thành `imgLogo` (ImageView dùng `logo_simplified`), bấm vào cuộn lên đầu trang (đã ở Home)
+- **Header Blog** (`activity_blog.xml`): bỏ chữ "Quay lại", chỉ còn mũi tên to bên trái; icon nhà bên phải đổi thành logo `logo_simplified` đặt giữa header (bấm về thẳng MainActivity tab Home qua `EXTRA_OPEN_HOME`, giống PaymentResultActivity)
+- **App icon**: thay toàn bộ `mipmap-*dpi/ic_launcher(.round)` (mdpi→xxxhdpi) bằng icon vuông nền trắng + logo `logo_primary` (hình kính + chữ) căn giữa; adaptive icon foreground (`mipmap-xxxhdpi/ic_launcher_foreground.png`) + background trắng phẳng (`drawable/ic_launcher_background.xml`) — bỏ hẳn robot Android mặc định của Android Studio template
+- **Submark cho Toast/thông báo — ĐÃ RÕ NGUYÊN NHÂN (không cần code thêm)**: user báo trên máy thật (Pixel 5) các Toast kiểu "tính năng chưa có sẵn" vẫn hiện con robot Android. Rà code xác nhận app hiện KHÔNG có hệ thống push/system notification nào (`NotificationCompat.Builder`, `FirebaseMessagingService` — không file nào có) và toàn bộ Toast dùng `Toast.makeText` thuần, không có custom layout/icon riêng.
+  - **Nguyên nhân thật**: từ Android 11+ (Pixel 5 chắc chắn ≥ Android 11), hệ thống **tự động chèn icon launcher của app** vào cạnh mọi Toast — đây là hành vi OS-controlled, không phải app tự vẽ, và **không có API nào để app chỉ định icon khác cho riêng Toast** (khác với icon app). Vì icon app trước đó vẫn là robot mặc định của template Android Studio (mục "App icon" bên trên) nên mọi Toast đều hiện robot.
+  - **Đã tự hết** sau khi đổi app icon (mục trên) — build lại + cài lại app (uninstall bản cũ trước khi cài, Android cache icon theo package) là Toast sẽ tự hiện logo mới, không cần thêm dòng code nào.
+  - `drawable/logo_submark.png` (hình kính, không chữ) vẫn giữ lại — dùng được cho `NotificationCompat.Builder.setSmallIcon()` nếu sau này Quân làm push notification thật (icon submark hợp cho status bar vì đơn sắc, gọn), lúc đó mới thật sự cần đến asset này.
+- Build assembleDebug PASS
+
+### Fix: drawer "Về Glassity" + Home chỉ hiện 2/3 blog (11/07/2026)
+- `MainActivity` — `menuVeGlassity` trong hamburger drawer trước chỉ đóng drawer, không điều hướng đi đâu → giờ mở `AboutActivity`
+- `fragment_home.xml` — Home chỉ có `blogCard1`/`blogCard2` (2 thẻ), thiếu Blog 3 (Bí kíp chọn kính mát mùa hè) → thêm `blogCard3`/`imgBlog3`. Đồng thời sửa lại tiêu đề card 1 và 2 cho khớp đúng nội dung bài (trước đó tiêu đề card 2 ghi "Xu hướng kính mắt 2025" là text cũ để sót, không khớp bài Retro thật)
+- `HomeFragment.java` — đổi tên hằng `URL_BLOG_GUIDE/TREND` → `URL_BLOG1/2/3`, thêm `URL_BLOG3` (hero_summer), wire Glide + click listener cho card 3 → `BlogActivity.start(ctx, 3)`
+
+### Rà soát overlap status bar / camera cutout (11/07/2026) — KHÔNG có bug
+- Kiểm tra `InsetsUtil.applySystemBarsPadding()` (đệm padding theo `systemBars() + displayCutout()`, tự né notch/punch-hole camera + status bar mọi máy) — xác nhận **mọi Activity đều gọi đúng** trong `onCreate` sau `setContentView`
+- 5 Fragment (Home/Cart/Notification/Profile/Category) KHÔNG tự gọi riêng — **đúng chủ ý**, vì cả 4 đều sống trong `NavHostFragment` của `MainActivity`, và `MainActivity` đã áp padding 1 lần cho root `CoordinatorLayout` bao ngoài — áp lại ở từng fragment con sẽ bị đệm lố (padding cộng dồn 2 lần)
+- Kết luận: không có màn hình nào bị header/thanh trạng thái đè lên trên bất kỳ máy nào (kể cả máy có notch/punch-hole camera) — không cần sửa gì thêm ở phần này
+- Build assembleDebug PASS
+
+### Fix: 3 card blog Home (contrast + lệch chiều cao) + drawer thiếu 2 blog (11/07/2026)
+- **Nguyên nhân chữ mờ:** nền thẻ `bg_rounded_card` = `brand_beige` (#D1C7BD), dòng phụ đề lại dùng `color_hint` (#B3AAA2) — 2 màu gần như trùng nhau nên chữ "chìm" vào nền. Đổi phụ đề sang `color_text_secondary` (#8A8079, đậm hơn hẳn) cho cả 3 card
+- **Nguyên nhân lệch chiều cao:** tiêu đề card chỉ set `maxLines="2"` (không set `minLines`) nên card có tiêu đề 1 dòng sẽ thấp hơn card có tiêu đề 2 dòng → thêm `android:minLines="2"` để mọi card luôn giữ đúng 2 dòng cho tiêu đề, chiều cao 3 card khớp nhau
+- **Drawer thiếu 2 mục Blog:** trước chỉ có `menuBlogChonKinh` (Blog 1), thêm `menuBlogRetro` (Blog 2) + `menuBlogMuaHe` (Blog 3) trong `layout_nav_drawer.xml`, wire trong `MainActivity.java`
+- Build assembleDebug PASS
+
+### Fix: drawer bị đè status bar/camera + logo header (11/07/2026)
+- **Nguyên nhân thật** (khác kết luận lần trước): `layout_nav_drawer.xml` là 1 view **sibling** của `CoordinatorLayout id="main"` trong `activity_main.xml` (nằm cùng cấp trong `DrawerLayout`, không phải con của `main`) — nên `InsetsUtil.applySystemBarsPadding(findViewById(R.id.main))` gọi ở `onCreate` KHÔNG áp dụng cho drawer, khiến header drawer (nút X, "Glassity", search/cart) vẽ đè lên status bar/camera cutout
+- Fix: thêm `InsetsUtil.applySystemBarsPadding(drawerView)` riêng trong `setupDrawer()` — 1 dòng, dùng đúng utility đã chạy ổn ở mọi màn khác
+- Tiện thể đổi luôn TextView "Glassity" trong header drawer thành `ImageView` dùng `logo_simplified` (đồng bộ Home header + Blog header đã đổi trước đó)
+- Build assembleDebug PASS

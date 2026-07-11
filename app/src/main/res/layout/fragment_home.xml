@@ -33,15 +33,13 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-            <TextView
-                android:id="@+id/tvLogo"
+            <ImageView
+                android:id="@+id/imgLogo"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:letterSpacing="0.08"
-                android:text="Glassity"
-                android:textColor="@color/color_text_primary"
-                android:textSize="22sp"
-                android:textStyle="bold"
+                android:layout_height="24dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Glassity"
+                android:src="@drawable/logo_simplified"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -495,19 +493,22 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Cách chọn kính phù hợp dáng khuôn mặt"
+                                android:text="Gọng Kính Hot Trend 2026"
                                 android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold"
+                                android:minLines="2"
                                 android:maxLines="2"
                                 android:ellipsize="end" />
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="Glassity Guide"
-                                android:textColor="@color/color_hint"
-                                android:textSize="11sp" />
+                                android:text="Cách chọn kính phù hợp dáng mặt"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="11sp"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -537,19 +538,66 @@
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Xu hướng kính mắt 2025 – Những frame đang hot"
+                                android:text="Sự trở lại của gọng kính Retro"
                                 android:textColor="@color/color_text_primary"
                                 android:textSize="13sp"
                                 android:textStyle="bold"
+                                android:minLines="2"
                                 android:maxLines="2"
                                 android:ellipsize="end" />
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="4dp"
-                                android:text="Glassity Guide"
-                                android:textColor="@color/color_hint"
-                                android:textSize="11sp" />
+                                android:text="Hoài niệm &amp; phong cách"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="11sp"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <!-- Blog card 3 -->
+                    <LinearLayout
+                        android:id="@+id/blogCard3"
+                        android:layout_width="220dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_rounded_card"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:foreground="?attr/selectableItemBackground"
+                        android:orientation="vertical">
+                        <ImageView
+                            android:id="@+id/imgBlog3"
+                            android:layout_width="match_parent"
+                            android:layout_height="120dp"
+                            android:scaleType="centerCrop"
+                            android:background="@color/color_field_border"
+                            android:contentDescription="@null" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Bí kíp chọn kính mát chuẩn mùa hè"
+                                android:textColor="@color/color_text_primary"
+                                android:textSize="13sp"
+                                android:textStyle="bold"
+                                android:minLines="2"
+                                android:maxLines="2"
+                                android:ellipsize="end" />
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                android:text="Chạm ngõ mùa hè"
+                                android:textColor="@color/color_text_secondary"
+                                android:textSize="11sp"
+                                android:maxLines="1"
+                                android:ellipsize="end" />
                         </LinearLayout>
                     </LinearLayout>
 

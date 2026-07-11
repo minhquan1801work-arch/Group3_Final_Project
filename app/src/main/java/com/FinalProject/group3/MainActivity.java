@@ -111,6 +111,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupDrawer() {
         android.view.View drawerView = drawerLayout.getChildAt(1);
+        // Drawer là sibling của CoordinatorLayout "main" (không phải con), nên không tự
+        // được hưởng padding áp cho "main" ở trên — phải áp riêng để né status bar/camera cutout
+        InsetsUtil.applySystemBarsPadding(drawerView);
 
         drawerView.findViewById(R.id.btnDrawerClose).setOnClickListener(v ->
                 drawerLayout.closeDrawer(Gravity.START));
@@ -180,12 +183,22 @@ public class MainActivity extends AppCompatActivity {
         navigateCollection(drawerView, R.id.menuEssential,  "Essential Acetate");
         navigateCollection(drawerView, R.id.menuSunlight,   "Sunlight Studio");
 
-        drawerView.findViewById(R.id.menuVeGlassity).setOnClickListener(v ->
-                drawerLayout.closeDrawer(Gravity.START));
+        drawerView.findViewById(R.id.menuVeGlassity).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            com.FinalProject.group3.ui.catalog.AboutActivity.start(this);
+        });
 
         drawerView.findViewById(R.id.menuBlogChonKinh).setOnClickListener(v -> {
             drawerLayout.closeDrawer(Gravity.START);
             com.FinalProject.group3.ui.catalog.BlogActivity.start(this, 1);
+        });
+        drawerView.findViewById(R.id.menuBlogRetro).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            com.FinalProject.group3.ui.catalog.BlogActivity.start(this, 2);
+        });
+        drawerView.findViewById(R.id.menuBlogMuaHe).setOnClickListener(v -> {
+            drawerLayout.closeDrawer(Gravity.START);
+            com.FinalProject.group3.ui.catalog.BlogActivity.start(this, 3);
         });
     }
 
