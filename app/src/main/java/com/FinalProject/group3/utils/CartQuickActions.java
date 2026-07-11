@@ -93,6 +93,7 @@ public final class CartQuickActions {
                 public void onSuccess(String cartDetailId) {
                     context.getSharedPreferences(CART_PREFS, Context.MODE_PRIVATE)
                             .edit().putString(KEY_LAST_ADDED, cartDetailId).apply();
+                    Toast.makeText(context, "Đã thêm vào giỏ hàng", Toast.LENGTH_SHORT).show();
                     // Nếu không có fly animation thì bounce + badge tại đây
                     if (cartIconView == null || !(context instanceof Activity)) {
                         if (cartIconView != null) animateCartIcon(cartIconView);

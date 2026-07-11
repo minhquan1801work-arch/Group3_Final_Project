@@ -154,6 +154,29 @@
                         android:textSize="14sp" />
                 </LinearLayout>
             </LinearLayout>
+
+            <!-- Khách: lớp trắng mờ đè lên barcode, mời đăng nhập/đăng ký -->
+            <LinearLayout
+                android:id="@+id/guestOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#E6FFFFFF"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Đăng ký / đăng nhập để sử dụng tích điểm"
+                    android:textColor="@color/color_text_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Grid tiện ích 2 cột -->

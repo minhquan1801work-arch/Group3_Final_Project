@@ -32,11 +32,29 @@
         android:textColor="@color/color_text_primary"
         android:textSize="15sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tvEdit"
         app:layout_constraintStart_toEndOf="@id/btnBack"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/btnBack"
         tools:text="Giỏ hàng(3)" />
+
+    <!-- Sửa / Xong — bật chế độ chọn nhiều để xóa -->
+    <TextView
+        android:id="@+id/tvEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:padding="8dp"
+        android:text="Sửa"
+        android:textColor="@color/brand_wine"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/btnBack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/btnBack"
+        tools:visibility="visible" />
 
     <View
         android:id="@+id/dividerHeader"
@@ -211,6 +229,19 @@
             android:textSize="13sp"
             android:textStyle="bold"
             tools:text="MUA HÀNG (3)" />
+
+        <!-- Chế độ Sửa: thay nút MUA HÀNG bằng nút xóa đỏ -->
+        <Button
+            android:id="@+id/btnDeleteSelected"
+            android:layout_width="wrap_content"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_btn_red_filled"
+            android:paddingHorizontal="20dp"
+            android:text="XÓA (0)"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
     </LinearLayout>
 
     <ProgressBar

@@ -79,6 +79,12 @@ public class WelcomeActivity extends AppCompatActivity {
         binding.btnGoogle.setOnClickListener(v ->
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
 
+        // Facebook: UI giữ chỗ theo Figma — cần Facebook App ID mới kích hoạt được
+        binding.btnFacebook.setOnClickListener(v ->
+                android.widget.Toast.makeText(this,
+                        "Đăng nhập bằng Facebook đang được phát triển",
+                        android.widget.Toast.LENGTH_SHORT).show());
+
         binding.tvContinueGuest.setOnClickListener(v -> {
             // Nhớ lựa chọn Khách — lần sau mở app vào thẳng Main
             com.FinalProject.group3.utils.SessionManager.setGuestMode(this, true);

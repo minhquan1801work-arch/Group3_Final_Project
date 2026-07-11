@@ -95,15 +95,29 @@
             android:textSize="12sp"
             app:layout_constraintTop_toBottomOf="@id/tilPassword" />
 
+        <!-- Đề xuất mật khẩu mạnh: sinh ngẫu nhiên + tự điền cả 2 ô -->
+        <TextView
+            android:id="@+id/tvSuggestPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="4dp"
+            android:text="@string/signup_suggest_password"
+            android:textColor="@color/brand_wine"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/tvPasswordRule"
+            app:layout_constraintEnd_toEndOf="parent" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilConfirmPassword"
             style="@style/Widget.Glassity.TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="8dp"
             android:hint="@string/signup_confirm_password_hint"
             app:endIconMode="password_toggle"
-            app:layout_constraintTop_toBottomOf="@id/tvPasswordRule">
+            app:layout_constraintTop_toBottomOf="@id/tvSuggestPassword">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
@@ -155,6 +169,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Facebook (UI theo Figma — tính năng đang phát triển) + Google -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFacebook"
+            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            app:icon="@drawable/ic_facebook"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="22dp"
+            app:iconTint="@null"
+            app:cornerRadius="26dp"
+            app:strokeColor="@color/color_field_border"
+            app:layout_constraintTop_toBottomOf="@id/tvOrSignupWith"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnGoogle"
+            app:layout_constraintHorizontal_chainStyle="packed" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoogle"
             style="@style/Widget.Material3.Button.IconButton.Outlined"
@@ -168,7 +202,7 @@
             app:cornerRadius="26dp"
             app:strokeColor="@color/color_field_border"
             app:layout_constraintTop_toBottomOf="@id/tvOrSignupWith"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnFacebook"
             app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

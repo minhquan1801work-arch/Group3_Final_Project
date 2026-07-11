@@ -63,8 +63,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 if (d.getCartDetailId().equals(autoSelectId)) { selectedIds.add(autoSelectId); break; }
         }
         if (selectedIds.isEmpty() && !newItems.isEmpty()) {
-            // Vào giỏ trực tiếp → chọn item cuối trong danh sách (mới nhất)
-            selectedIds.add(newItems.get(newItems.size() - 1).getCartDetailId());
+            // Vào giỏ trực tiếp → chọn item đầu danh sách (list đã sort mới → cũ)
+            selectedIds.add(newItems.get(0).getCartDetailId());
         }
         notifyDataSetChanged();
     }

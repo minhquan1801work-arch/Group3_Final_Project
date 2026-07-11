@@ -72,8 +72,17 @@ public class LoginActivity extends AppCompatActivity {
         binding.tvForgotPassword.setOnClickListener(v ->
                 startActivity(new Intent(this, ForgotPasswordActivity.class)));
 
+        // Chưa có tài khoản? → mở màn đăng ký
+        binding.tvGoSignup.setOnClickListener(v ->
+                startActivity(new Intent(this, SignupActivity.class)));
+
         binding.btnGoogle.setOnClickListener(v ->
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
+
+        // Facebook: UI giữ chỗ theo Figma — cần Facebook App ID mới kích hoạt được
+        binding.btnFacebook.setOnClickListener(v ->
+                Toast.makeText(this, "Đăng nhập bằng Facebook đang được phát triển",
+                        Toast.LENGTH_SHORT).show());
 
         binding.btnLogin.setOnClickListener(v -> attemptLogin());
     }

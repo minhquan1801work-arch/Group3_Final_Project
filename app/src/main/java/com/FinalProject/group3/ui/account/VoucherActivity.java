@@ -63,9 +63,15 @@ public class VoucherActivity extends AppCompatActivity {
 
         binding.btnBack.setOnClickListener(v -> finish());
 
-        adapter = new VoucherAdapter("Dùng ngay", v ->
-                Toast.makeText(this, "Nhập mã " + v.getCode()
-                        + " vào ô Mã giảm giá ở màn Thanh toán", Toast.LENGTH_LONG).show());
+        // "Dùng ngay" → mở giỏ hàng để chọn sản phẩm mua, nhắc kèm mã cần nhập
+        adapter = new VoucherAdapter("Dùng ngay", v -> {
+            Toast.makeText(this, "Nhập mã " + v.getCode()
+                    + " ở màn Thanh toán để được giảm", Toast.LENGTH_LONG).show();
+            android.content.Intent i = new android.content.Intent(
+                    this, com.FinalProject.group3.MainActivity.class);
+            i.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_CART, true);
+            startActivity(i);
+        });
         binding.rvVouchers.setLayoutManager(new LinearLayoutManager(this));
         binding.rvVouchers.setAdapter(adapter);
 

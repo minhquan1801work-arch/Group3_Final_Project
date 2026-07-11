@@ -68,9 +68,9 @@ public class CartRepository {
                         d.setAddedAt(doc.getLong("addedAt") != null ? doc.getLong("addedAt") : 0L);
                         items.add(d);
                     }
-                    // Sắp xếp cũ → mới để "item cuối danh sách" luôn là item mới thêm nhất
+                    // Sắp xếp mới → cũ: item vừa thêm luôn nằm ĐẦU danh sách giỏ
                     java.util.Collections.sort(items,
-                            (a, b) -> Long.compare(a.getAddedAt(), b.getAddedAt()));
+                            (a, b) -> Long.compare(b.getAddedAt(), a.getAddedAt()));
                     callback.onSuccess(items);
                 })
                 .addOnFailureListener(e -> callback.onFailure(e.getMessage()));

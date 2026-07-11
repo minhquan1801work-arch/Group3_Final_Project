@@ -76,7 +76,12 @@ public class MainActivity extends AppCompatActivity {
         }
         NavHostFragment navHost = (NavHostFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.navHostFragment);
-        if (navHost != null) navHost.getNavController().navigate(R.id.cartFragment);
+        // popUpTo home inclusive: giỏ là màn duy nhất trên stack — nút back trong giỏ
+        // sẽ finish() MainActivity này và quay về màn gọi (ProductDetail/Favorite)
+        if (navHost != null) navHost.getNavController().navigate(R.id.cartFragment, null,
+                new androidx.navigation.NavOptions.Builder()
+                        .setPopUpTo(R.id.homeFragment, true)
+                        .build());
     }
 
     /** Nếu intent yêu cầu về Trang chủ (nút "Về trang chủ" sau khi đặt hàng) → navigate tab Home + cuộn lên đầu */

@@ -183,6 +183,7 @@ public class OrderDetailActivity extends AppCompatActivity {
             case "PROCESSING": return "Đang xử lý";
             case "SHIPPED": return "Đang giao hàng";
             case "DELIVERED": return "Đã giao thành công";
+            case "COMPLETED": return "Hoàn thành";
             case "CANCELLED": return "Đã hủy";
             default: return s;
         }

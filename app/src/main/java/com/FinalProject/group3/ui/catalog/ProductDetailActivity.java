@@ -99,8 +99,8 @@ public class ProductDetailActivity extends AppCompatActivity {
                         this, "Đăng nhập để xem giỏ hàng của bạn");
                 return;
             }
+            // Không CLEAR_TOP: giữ ProductDetail dưới stack để back từ giỏ quay lại đây
             Intent i = new Intent(this, com.FinalProject.group3.MainActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             i.putExtra(com.FinalProject.group3.MainActivity.EXTRA_OPEN_CART, true);
             startActivity(i);
         });

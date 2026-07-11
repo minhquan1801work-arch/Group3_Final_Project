@@ -109,7 +109,11 @@ public class ProfileFragment extends Fragment {
     // ── Guest mode (Figma LA.Personal2): không barcode, nút nào cần tài khoản
     //    thì hiện dialog yêu cầu đăng nhập — trừ Cài đặt + hỗ trợ/chính sách ──
     private void setupGuestMode() {
-        binding.cardMember.setVisibility(View.GONE);
+        // Vẫn hiển thị thẻ barcode nhưng phủ lớp trắng mờ + lời mời đăng nhập
+        binding.guestOverlay.setVisibility(View.VISIBLE);
+        binding.guestOverlay.setOnClickListener(v ->
+                com.FinalProject.group3.utils.LoginRequiredDialog.show(
+                        requireContext(), "Đăng nhập để sử dụng tích điểm và ưu đãi thành viên"));
 
         // Các mục cần tài khoản → dialog đăng nhập
         binding.menuOrders.setOnClickListener(v -> showLoginRequired());
