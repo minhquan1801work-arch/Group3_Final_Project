@@ -630,3 +630,28 @@ User phát hiện logo ở ProductDetail bấm không có gì — rà lại cả
 
 Tiện thể thêm `background="?attr/selectableItemBackgroundBorderless"` cho các logo còn thiếu hiệu ứng ripple khi bấm (đồng bộ toàn app).
 Build assembleDebug PASS
+
+### Trang Contact viết lại khớp mockup (12/07/2026)
+- Layout cũ dùng CardView + chevron (kiểu list điều hướng) — không khớp mockup (flat list, không card, số điện thoại kiểu link xanh gạch chân)
+- Viết lại toàn bộ `activity_contact.xml`: bỏ CardView/chevron, icon 3 dòng (hotline/email/địa chỉ) dùng đúng ảnh icon outline user gửi (`ic_locate.png`, `ic_email.png`, `ic_hotline.png` — nền trong suốt, resize 128x128, đổi tên `ic_contact_location/email/phone.png`, tint được bình thường vì nền alpha=0)
+- Cập nhật số hotline khớp mockup: `1800 1162` (đặt hàng), `1800 1160` (góp ý/khiếu nại) — trước là 1900 1182/1188 (sai/cũ)
+- Cập nhật địa chỉ khớp mockup: "669 QL1A, Khu phố 6, Phường Linh Xuân, Thủ Đức, TP. Hồ Chí Minh" — trước là địa chỉ cũ "09B DL1A, Khu phố 5..."
+- Thêm dòng footer bản quyền cuối trang (mockup có, bản cũ không có)
+- `ContactActivity.java`: cập nhật số điện thoại dial đúng theo mockup
+- Build assembleDebug PASS
+
+### Fix chữ nhạt ở 4 trang chính sách/FAQ (12/07/2026)
+- `activity_policy.xml` (dùng chung cho FAQ, Bảo hành, Bảo mật, Giao hàng & Kiểm tra qua `PolicyActivity`): `tvPolicyContent` đang dùng `color_text_secondary` (#8A8079, nhạt) — cùng lỗi đã gặp ở Blog trước đó — đổi sang `color_text_body` (#5C544C, đậm hơn hẳn)
+- Ornament dưới tiêu đề trước là ký tự "⸻" thô — đổi thành gạch-◇-gạch đồng bộ với style About/Footer đã dùng ở nơi khác trong app
+- Build assembleDebug PASS
+
+### Trang Contact — thêm frame Google Maps (12/07/2026)
+- Thêm `WebView` nhúng bản đồ ngay dưới địa chỉ, dùng URL nhúng cổ điển của Google Maps (`maps.google.com/maps?q=...&output=embed`) — **không cần API key/billing**, chỉ cần quyền INTERNET (đã có sẵn)
+- WebView bị chặn touch riêng (`setOnTouchListener` trả `true`) — cả khối chỉ đóng vai trò 1 nút bấm duy nhất, không lo user vô tình kéo/zoom bản đồ dở dang
+- Bấm vào bất kỳ đâu trong frame → mở app Google Maps thật (Intent `ACTION_VIEW` tới `google.com/maps/search`, tự tìm đúng địa chỉ Glassity)
+- Build assembleDebug PASS
+
+### ⚠️ FIX KHẨN: WebView Google Maps gây bay ra Chrome + app không ổn định (12/07/2026)
+- **Nguyên nhân**: WebView nhúng bản đồ thêm trước đó KHÔNG gắn `WebViewClient` — khi trang Google Maps embed tự điều hướng (redirect/trang consent), Android mặc định coi là điều hướng ra ngoài WebView và bắn sang Chrome (hành vi mặc định của WebView khi thiếu WebViewClient). Việc app "chớp tắt" ở chỗ khác nhiều khả năng là hệ quả WebView làm tiến trình không ổn định
+- **Đã bỏ hẳn WebView** (rủi ro nhất, không sửa nửa vời) — thay bằng khối tĩnh: icon vị trí + "Xem trên Google Maps" + mũi tên, bấm vào mở thẳng app Google Maps qua Intent `ACTION_VIEW` — đúng yêu cầu gốc "bấm vào bay qua app gg map", chỉ bỏ phần preview nhúng trực tiếp (rủi ro không đáng)
+- Build assembleDebug PASS — cần bạn test lại gấp xem hết flicker/crash chưa
