@@ -74,6 +74,21 @@
 
   main { max-width: 1180px; margin: 0 auto; padding: 24px 20px 60px; }
 
+  /* ── Tabs khu vực quản trị ── */
+  .nav-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 2px solid var(--beige); }
+  .nav-tab {
+    padding: 10px 18px; font-size: 14px; font-weight: 600; cursor: pointer;
+    color: var(--text2); border-bottom: 2px solid transparent; margin-bottom: -2px;
+  }
+  .nav-tab.active { color: var(--wine); border-bottom-color: var(--wine); }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .stock-low  { color: var(--red); font-weight: 700; }
+  .stock-ok   { color: var(--green); }
+  .stars { color: #F5A623; letter-spacing: 1px; }
+  .thumb { width: 42px; height: 42px; object-fit: cover; border-radius: 6px; background: var(--cream); }
+
   /* ── Thống kê nhanh ── */
   .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
   .stat {
@@ -112,6 +127,7 @@
   .st-PROCESSING { background: #E3F2FD; color: #1565C0; }
   .st-SHIPPED    { background: #EDE7F6; color: #5E35B1; }
   .st-DELIVERED  { background: #E8F5E9; color: var(--green); }
+  .st-COMPLETED  { background: #E8F5E9; color: var(--green); }
   .st-CANCELLED  { background: #FDECEA; color: var(--red); }
   .pay-PAID    { color: var(--green); font-weight: 700; font-size: 12px; }
   .pay-PENDING { color: #E65100; font-weight: 700; font-size: 12px; }
@@ -178,27 +194,71 @@
   <main>
     <div class="stats" id="stats"></div>
 
-    <div class="toolbar">
-      <span class="chip active" data-f="ALL">Tất cả</span>
-      <span class="chip" data-f="PENDING">Chờ xác nhận</span>
-      <span class="chip" data-f="PROCESSING">Đang xử lý</span>
-      <span class="chip" data-f="SHIPPED">Đang giao</span>
-      <span class="chip" data-f="DELIVERED">Hoàn thành</span>
-      <span class="chip" data-f="CANCELLED">Đã hủy</span>
-      <input id="searchBox" placeholder="Tìm mã đơn / SĐT / tên khách...">
-      <button class="btn btn-wine btn-sm" id="btnNewOrder">+ Tạo đơn</button>
+    <!-- Tabs khu vực quản trị -->
+    <div class="nav-tabs">
+      <span class="nav-tab active" data-sec="secOrders">Đơn hàng</span>
+      <span class="nav-tab" data-sec="secProducts">Sản phẩm</span>
+      <span class="nav-tab" data-sec="secCustomers">Khách hàng</span>
+      <span class="nav-tab" data-sec="secReviews">Đánh giá</span>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>MÃ ĐƠN</th><th>NGÀY ĐẶT</th><th>KHÁCH HÀNG</th><th>TỔNG TIỀN</th>
-          <th>THANH TOÁN</th><th>TRẠNG THÁI</th>
-        </tr>
-      </thead>
-      <tbody id="orderRows"></tbody>
-    </table>
-    <div class="empty" id="emptyMsg" style="display:none">Không có đơn hàng nào khớp bộ lọc.</div>
+    <!-- ═══ ĐƠN HÀNG ═══ -->
+    <div class="section active" id="secOrders">
+      <div class="toolbar">
+        <span class="chip active" data-f="ALL">Tất cả</span>
+        <span class="chip" data-f="PENDING">Chờ xác nhận</span>
+        <span class="chip" data-f="PROCESSING">Đang xử lý</span>
+        <span class="chip" data-f="SHIPPED">Đang giao</span>
+        <span class="chip" data-f="DELIVERED">Hoàn thành</span>
+        <span class="chip" data-f="CANCELLED">Đã hủy</span>
+        <input id="searchBox" placeholder="Tìm mã đơn / SĐT / tên khách...">
+        <button class="btn btn-wine btn-sm" id="btnNewOrder">+ Tạo đơn</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>MÃ ĐƠN</th><th>NGÀY ĐẶT</th><th>KHÁCH HÀNG</th><th>TỔNG TIỀN</th>
+            <th>THANH TOÁN</th><th>TRẠNG THÁI</th>
+          </tr>
+        </thead>
+        <tbody id="orderRows"></tbody>
+      </table>
+      <div class="empty" id="emptyMsg" style="display:none">Không có đơn hàng nào khớp bộ lọc.</div>
+    </div>
+
+    <!-- ═══ SẢN PHẨM: tồn kho theo variant, cảnh báo sắp hết ═══ -->
+    <div class="section" id="secProducts">
+      <table>
+        <thead>
+          <tr>
+            <th></th><th>SẢN PHẨM</th><th>DANH MỤC</th><th>GIÁ</th>
+            <th>SỐ MÀU</th><th>TỒN KHO</th><th>TÌNH TRẠNG</th>
+          </tr>
+        </thead>
+        <tbody id="productRows"><tr><td colspan="7" class="empty">Đang tải...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- ═══ KHÁCH HÀNG ═══ -->
+    <div class="section" id="secCustomers">
+      <table>
+        <thead>
+          <tr><th>TÊN</th><th>EMAIL</th><th>SĐT</th><th>ĐIỂM TÍCH LŨY</th><th>NGÀY ĐĂNG KÝ</th></tr>
+        </thead>
+        <tbody id="customerRows"><tr><td colspan="5" class="empty">Đang tải...</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- ═══ ĐÁNH GIÁ ═══ -->
+    <div class="section" id="secReviews">
+      <table>
+        <thead>
+          <tr><th>SẢN PHẨM</th><th>SỐ SAO</th><th>NHẬN XÉT</th><th>NGÀY</th></tr>
+        </thead>
+        <tbody id="reviewRows"><tr><td colspan="4" class="empty">Đang tải...</td></tr></tbody>
+      </table>
+    </div>
   </main>
 </div>
 
@@ -281,9 +341,10 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 
 const VND = n => new Intl.NumberFormat('vi-VN').format(Math.round(n || 0)) + 'đ';
-const STATUS_LABEL = { PENDING:'Chờ xác nhận', PROCESSING:'Đang xử lý', SHIPPED:'Đang giao', DELIVERED:'Hoàn thành', CANCELLED:'Đã hủy' };
+const STATUS_LABEL = { PENDING:'Chờ xác nhận', PROCESSING:'Đang xử lý', SHIPPED:'Đang giao', DELIVERED:'Đã giao', COMPLETED:'Khách đã nhận', CANCELLED:'Đã hủy' };
 // Luồng chuyển trạng thái hợp lệ (khớp BPMN): PENDING → PROCESSING → SHIPPED → DELIVERED; hủy được trước khi giao xong
-const NEXT_STATUS = { PENDING:['PROCESSING','CANCELLED'], PROCESSING:['SHIPPED','CANCELLED'], SHIPPED:['DELIVERED','CANCELLED'], DELIVERED:[], CANCELLED:[] };
+// COMPLETED do KHÁCH bấm "Đã nhận được hàng" trong app — admin không tự chuyển
+const NEXT_STATUS = { PENDING:['PROCESSING','CANCELLED'], PROCESSING:['SHIPPED','CANCELLED'], SHIPPED:['DELIVERED','CANCELLED'], DELIVERED:[], COMPLETED:[], CANCELLED:[] };
 
 let allOrders = [];       // {id, ...data}
 let filter = 'ALL';
@@ -376,7 +437,9 @@ function render() {
   renderStats();
   const rows = document.getElementById('orderRows');
   const list = allOrders.filter(o => {
-    if (filter !== 'ALL' && o.orderStatus !== filter) return false;
+    // Chip "Hoàn thành" (DELIVERED) gộp luôn đơn COMPLETED (khách đã xác nhận nhận hàng)
+    if (filter !== 'ALL' && o.orderStatus !== filter
+        && !(filter === 'DELIVERED' && o.orderStatus === 'COMPLETED')) return false;
     if (search) {
       const hay = ((o.orderCode || '') + ' ' + (o.shippingAddress || '') + ' '
                  + (o.guestPhone || '') + ' ' + (o._email || '')).toLowerCase();
@@ -403,16 +466,136 @@ function render() {
 }
 
 function renderStats() {
-  const c = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, CANCELLED:0 };
+  const c = { PENDING:0, PROCESSING:0, SHIPPED:0, DELIVERED:0, COMPLETED:0, CANCELLED:0 };
   allOrders.forEach(o => { if (c[o.orderStatus] !== undefined) c[o.orderStatus]++; });
-  const revenue = allOrders.filter(o => o.orderStatus === 'DELIVERED')
+  // COMPLETED = khách đã bấm "Đã nhận được hàng" trong app — vẫn tính là đơn hoàn thành
+  const revenue = allOrders.filter(o => o.orderStatus === 'DELIVERED' || o.orderStatus === 'COMPLETED')
                            .reduce((s, o) => s + (o.totalAmount || 0), 0);
+  // Đơn đặt trong ngày hôm nay (theo giờ máy admin)
+  const now = new Date();
+  const todayCount = allOrders.filter(o => {
+    const d = o.createdAt?.toDate ? o.createdAt.toDate() : null;
+    return d && d.getDate() === now.getDate() && d.getMonth() === now.getMonth()
+        && d.getFullYear() === now.getFullYear();
+  }).length;
   document.getElementById('stats').innerHTML = `
     <div class="stat"><div class="n">${allOrders.length}</div><div class="l">Tổng đơn</div></div>
+    <div class="stat"><div class="n" style="color:var(--wine)">${todayCount}</div><div class="l">Đơn hôm nay</div></div>
     <div class="stat"><div class="n" style="color:#E65100">${c.PENDING}</div><div class="l">Chờ xác nhận</div></div>
     <div class="stat"><div class="n" style="color:#1565C0">${c.PROCESSING + c.SHIPPED}</div><div class="l">Đang xử lý / giao</div></div>
-    <div class="stat"><div class="n" style="color:var(--green)">${c.DELIVERED}</div><div class="l">Hoàn thành</div></div>
+    <div class="stat"><div class="n" style="color:var(--green)">${c.DELIVERED + c.COMPLETED}</div><div class="l">Hoàn thành</div></div>
     <div class="stat"><div class="n" style="color:var(--price)">${VND(revenue)}</div><div class="l">Doanh thu (đơn hoàn thành)</div></div>`;
+}
+
+/* ══════════ TABS: Đơn hàng / Sản phẩm / Khách hàng / Đánh giá ══════════ */
+const sectionLoaded = {}; // load mỗi tab 1 lần, lần sau dùng lại
+document.querySelectorAll('.nav-tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.nav-tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.sec).classList.add('active');
+  if (t.dataset.sec === 'secProducts'  && !sectionLoaded.products)  loadProducts();
+  if (t.dataset.sec === 'secCustomers' && !sectionLoaded.customers) loadCustomers();
+  if (t.dataset.sec === 'secReviews'   && !sectionLoaded.reviews)   loadReviews();
+});
+
+const CAT_LABEL = { kinh_mat: 'Kính Mát', kinh_can: 'Kính Cận', phu_kien: 'Phụ Kiện', bst: 'Bộ Sưu Tập' };
+
+/* Sản phẩm: tổng tồn kho từ variants (fallback field stock cũ), sắp hết lên đầu */
+async function loadProducts() {
+  sectionLoaded.products = true;
+  const rows = document.getElementById('productRows');
+  try {
+    const snap = await db.collection('products').get();
+    const list = snap.docs.map(d => {
+      const p = d.data();
+      let stock = 0, colors = 0, img = '';
+      if (Array.isArray(p.variants) && p.variants.length) {
+        colors = p.variants.length;
+        p.variants.forEach(v => { stock += (v.stock || 0); });
+        img = p.variants[0].images?.[0] || '';
+      } else {
+        stock = p.stock || 0;
+        img = p.images?.[0] || '';
+      }
+      return { name: p.name || '(không tên)', cat: p.categoryId, price: p.price || 0, colors, stock, img };
+    });
+    list.sort((a, b) => a.stock - b.stock); // sắp hết hàng lên đầu để admin xử lý
+    const lowCount = list.filter(p => p.stock <= 5).length;
+    rows.innerHTML =
+      `<tr><td colspan="7" style="background:var(--cream);font-size:12.5px;color:var(--text2)">
+        ${list.length} sản phẩm · <b class="stock-low">${lowCount}</b> sản phẩm sắp hết hàng (tồn ≤ 5)</td></tr>` +
+      list.map(p => `<tr style="cursor:default">
+        <td>${p.img ? `<img class="thumb" src="${esc(p.img)}" loading="lazy">` : ''}</td>
+        <td>${esc(p.name)}</td>
+        <td>${CAT_LABEL[p.cat] || esc(p.cat || '—')}</td>
+        <td class="money">${VND(p.price)}</td>
+        <td>${p.colors || '—'}</td>
+        <td class="${p.stock <= 5 ? 'stock-low' : 'stock-ok'}">${p.stock}</td>
+        <td>${p.stock === 0 ? '<span class="badge st-CANCELLED">Hết hàng</span>'
+              : p.stock <= 5 ? '<span class="badge st-PENDING">Sắp hết</span>'
+              : '<span class="badge st-DELIVERED">Còn hàng</span>'}</td>
+      </tr>`).join('');
+  } catch (e) { rows.innerHTML = `<tr><td colspan="7" class="empty">Lỗi: ${esc(e.message)}</td></tr>`; }
+}
+
+/* Khách hàng: tên / email / SĐT / điểm / ngày đăng ký */
+async function loadCustomers() {
+  sectionLoaded.customers = true;
+  const rows = document.getElementById('customerRows');
+  try {
+    const snap = await db.collection('customers').get();
+    const list = snap.docs.map(d => d.data());
+    list.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    rows.innerHTML =
+      `<tr><td colspan="5" style="background:var(--cream);font-size:12.5px;color:var(--text2)">
+        ${list.length} khách hàng đã đăng ký</td></tr>` +
+      (list.map(cu => {
+        const d = cu.createdAt?.toDate ? cu.createdAt.toDate().toLocaleDateString('vi-VN') : '—';
+        return `<tr style="cursor:default">
+          <td>${esc(cu.name || '(chưa đặt tên)')}</td>
+          <td>${esc(cu.email || '—')}</td>
+          <td>${esc(cu.phone || '—')}</td>
+          <td class="money">${cu.points || 0} điểm</td>
+          <td>${d}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="5" class="empty">Chưa có khách hàng.</td></tr>');
+  } catch (e) { rows.innerHTML = `<tr><td colspan="5" class="empty">Lỗi: ${esc(e.message)}</td></tr>`; }
+}
+
+/* Đánh giá: mới nhất trước, kèm điểm trung bình toàn shop */
+async function loadReviews() {
+  sectionLoaded.reviews = true;
+  const rows = document.getElementById('reviewRows');
+  try {
+    const snap = await db.collection('reviews').get();
+    const list = snap.docs.map(d => d.data());
+    list.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+    const avg = list.length
+        ? (list.reduce((s, r) => s + (r.rating || 0), 0) / list.length).toFixed(1) : '—';
+    const body = await Promise.all(list.map(async r => {
+      let name = productNameCache[r.productId];
+      if (!name && r.productId) {
+        try {
+          const p = await db.collection('products').doc(r.productId).get();
+          name = p.exists ? p.data().name : '(sản phẩm đã xóa)';
+        } catch (_) { name = r.productId; }
+        productNameCache[r.productId] = name;
+      }
+      const d = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('vi-VN') : '—';
+      const stars = '★'.repeat(r.rating || 0) + '☆'.repeat(Math.max(0, 5 - (r.rating || 0)));
+      return `<tr style="cursor:default">
+        <td>${esc(name || '—')}</td>
+        <td class="stars">${stars}</td>
+        <td style="max-width:380px">${esc(r.comment || '(không có nhận xét)')}</td>
+        <td>${d}</td>
+      </tr>`;
+    }));
+    rows.innerHTML =
+      `<tr><td colspan="4" style="background:var(--cream);font-size:12.5px;color:var(--text2)">
+        ${list.length} đánh giá · Điểm trung bình: <b class="stars">${avg} ★</b></td></tr>` +
+      (body.join('') || '<tr><td colspan="4" class="empty">Chưa có đánh giá nào.</td></tr>');
+  } catch (e) { rows.innerHTML = `<tr><td colspan="4" class="empty">Lỗi: ${esc(e.message)}</td></tr>`; }
 }
 
 /* Bộ lọc + tìm kiếm */
@@ -540,7 +723,7 @@ async function notifyCustomer(order, newStatus) {
   const bodyByStatus = {
     PROCESSING: 'Đơn ' + order.orderCode + productSuffix + ' đã được xác nhận và đang chuẩn bị.',
     SHIPPED:    'Đơn ' + order.orderCode + productSuffix + ' đã bàn giao cho đơn vị vận chuyển.',
-    DELIVERED:  'Đơn ' + order.orderCode + productSuffix + ' đã giao thành công. Hãy đánh giá nhé!',
+    DELIVERED:  'Đơn ' + order.orderCode + productSuffix + ' đã giao thành công. Vui lòng xác nhận đã nhận hàng.',
     CANCELLED:  'Đơn ' + order.orderCode + productSuffix + ' đã bị hủy. Liên hệ hỗ trợ nếu cần.',
   };
   await db.collection('notifications').add({

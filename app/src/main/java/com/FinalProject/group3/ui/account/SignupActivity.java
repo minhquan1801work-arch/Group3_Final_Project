@@ -82,6 +82,23 @@ public class SignupActivity extends AppCompatActivity {
         binding.btnGoogle.setOnClickListener(v ->
                 googleSignInLauncher.launch(googleSignInClient.getSignInIntent()));
 
+        // Facebook: UI giữ chỗ theo Figma — cần Facebook App ID mới kích hoạt được
+        binding.btnFacebook.setOnClickListener(v ->
+                Toast.makeText(this, "Đăng ký bằng Facebook đang được phát triển",
+                        Toast.LENGTH_SHORT).show());
+
+        // Đề xuất mật khẩu mạnh: sinh ngẫu nhiên, điền cả 2 ô và hiện rõ cho khách xem
+        binding.tvSuggestPassword.setOnClickListener(v -> {
+            String suggested = generateStrongPassword();
+            binding.tilPassword.getEditText().setText(suggested);
+            binding.tilConfirmPassword.getEditText().setText(suggested);
+            // Bỏ che dấu để khách đọc/ghi nhớ được — icon con mắt vẫn ẩn lại được
+            binding.tilPassword.getEditText().setTransformationMethod(null);
+            binding.tilConfirmPassword.getEditText().setTransformationMethod(null);
+            Toast.makeText(this, "Đã tạo và điền mật khẩu mạnh — hãy lưu lại mật khẩu này",
+                    Toast.LENGTH_LONG).show();
+        });
+
         binding.btnSignup.setOnClickListener(v -> attemptSignup());
 
         setupTermsLink();
@@ -141,6 +158,29 @@ public class SignupActivity extends AppCompatActivity {
         binding.cbTerms.setText(span);
         binding.cbTerms.setMovementMethod(LinkMovementMethod.getInstance());
         binding.cbTerms.setHighlightColor(android.graphics.Color.TRANSPARENT);
+    }
+
+    /**
+     * Sinh mật khẩu mạnh 12 ký tự: 4 chữ thường + 3 IN HOA + 3 số + 2 ký tự đặc biệt,
+     * xáo trộn ngẫu nhiên. Bỏ các ký tự dễ nhầm (l, I, O, 0, 1) cho khách dễ đọc.
+     */
+    private String generateStrongPassword() {
+        String lower   = "abcdefghjkmnpqrstuvwxyz";
+        String upper   = "ABCDEFGHJKMNPQRSTUVWXYZ";
+        String digits  = "23456789";
+        String special = "@#$%&*";
+        java.security.SecureRandom random = new java.security.SecureRandom();
+
+        List<Character> chars = new ArrayList<>();
+        for (int i = 0; i < 4; i++) chars.add(lower.charAt(random.nextInt(lower.length())));
+        for (int i = 0; i < 3; i++) chars.add(upper.charAt(random.nextInt(upper.length())));
+        for (int i = 0; i < 3; i++) chars.add(digits.charAt(random.nextInt(digits.length())));
+        for (int i = 0; i < 2; i++) chars.add(special.charAt(random.nextInt(special.length())));
+        java.util.Collections.shuffle(chars, random);
+
+        StringBuilder sb = new StringBuilder();
+        for (char c : chars) sb.append(c);
+        return sb.toString();
     }
 
     private void attemptSignup() {

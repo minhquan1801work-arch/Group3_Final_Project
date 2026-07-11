@@ -99,4 +99,29 @@
         <item name="android:textColor">@color/color_text_secondary</item>
         <item name="android:textSize">12sp</item>
     </style>
+
+    <!-- Tile lợi ích trang chủ (6 ô, 2 cột — Figma) -->
+    <style name="BenefitTile">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@drawable/bg_benefit_tile</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:padding">10dp</item>
+    </style>
+    <style name="BenefitIcon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="BenefitText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:textColor">@color/color_text_primary</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:lineSpacingExtra">1dp</item>
+    </style>
 </resources>

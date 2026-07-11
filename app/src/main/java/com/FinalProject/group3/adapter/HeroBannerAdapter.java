@@ -1,18 +1,21 @@
 package com.FinalProject.group3.adapter;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.FinalProject.group3.R;
+import com.FinalProject.group3.databinding.ItemHeroBannerBinding;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+/**
+ * Hero carousel trang chủ — mỗi slide: ảnh + label "XEM NGAY" gạch chân (Figma).
+ * Bấm slide → callback vị trí, HomeFragment map sang product ID tương ứng.
+ */
 public class HeroBannerAdapter extends RecyclerView.Adapter<HeroBannerAdapter.VH> {
 
     public interface OnBannerClickListener {
@@ -33,28 +36,28 @@ public class HeroBannerAdapter extends RecyclerView.Adapter<HeroBannerAdapter.VH
     @NonNull
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ImageView iv = new ImageView(parent.getContext());
-        iv.setLayoutParams(new RecyclerView.LayoutParams(
+        ItemHeroBannerBinding b = ItemHeroBannerBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false);
+        b.getRoot().setLayoutParams(new RecyclerView.LayoutParams(
                 RecyclerView.LayoutParams.MATCH_PARENT,
                 RecyclerView.LayoutParams.MATCH_PARENT));
-        iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        return new VH(iv);
+        return new VH(b);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         String url = imageUrls.get(position);
         if (url != null && !url.isEmpty()) {
-            Glide.with(holder.iv.getContext())
+            Glide.with(holder.b.ivBanner.getContext())
                     .load(url)
                     .placeholder(R.color.brand_dark)
                     .centerCrop()
-                    .into(holder.iv);
+                    .into(holder.b.ivBanner);
         } else {
-            holder.iv.setBackgroundColor(
-                    holder.iv.getContext().getColor(R.color.brand_dark));
+            holder.b.ivBanner.setBackgroundColor(
+                    holder.b.ivBanner.getContext().getColor(R.color.brand_dark));
         }
-        holder.iv.setOnClickListener(v -> {
+        holder.itemView.setOnClickListener(v -> {
             if (listener != null) listener.onClick(holder.getBindingAdapterPosition());
         });
     }
@@ -65,10 +68,10 @@ public class HeroBannerAdapter extends RecyclerView.Adapter<HeroBannerAdapter.VH
     }
 
     static class VH extends RecyclerView.ViewHolder {
-        final ImageView iv;
-        VH(ImageView iv) {
-            super(iv);
-            this.iv = iv;
+        final ItemHeroBannerBinding b;
+        VH(ItemHeroBannerBinding b) {
+            super(b.getRoot());
+            this.b = b;
         }
     }
 }

@@ -84,7 +84,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Chỉ dùng Google Sign-In (đã cấu hình Firebase). Facebook để dành cho bản mở rộng sau. -->
+        <!-- Facebook (UI theo Figma — tính năng đang phát triển) + Google -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFacebook"
+            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            app:icon="@drawable/ic_facebook"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="22dp"
+            app:iconTint="@null"
+            app:cornerRadius="26dp"
+            app:strokeColor="@color/color_field_border"
+            app:layout_constraintTop_toBottomOf="@id/tvOrLoginWith"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnGoogle"
+            app:layout_constraintHorizontal_chainStyle="packed" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoogle"
             style="@style/Widget.Material3.Button.IconButton.Outlined"
@@ -98,7 +117,7 @@
             app:cornerRadius="26dp"
             app:strokeColor="@color/color_field_border"
             app:layout_constraintTop_toBottomOf="@id/tvOrLoginWith"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnFacebook"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <TextView

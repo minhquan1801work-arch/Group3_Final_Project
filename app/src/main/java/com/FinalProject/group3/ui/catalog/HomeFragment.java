@@ -30,18 +30,41 @@ import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-    // Điền Cloudinary URL vào đây khi có ảnh
+    private static final String CLOUD = "https://res.cloudinary.com/aa1g9udv/image/upload/";
+
+    // Hero: 3 portrait thời trang đeo kính (khớp Figma)
     private static final List<String> HERO_URLS = Arrays.asList(
-            "",   // hero slide 1
-            "",   // hero slide 2
-            ""    // hero slide 3
+            CLOUD + "v1783502208/5714e927d794a24eb4e3f5ac9d35cec642484aca_bhnscg.png",   // nữ blazer đen, cat-eye
+            CLOUD + "v1783502208/54bafc97ad1059dfd47aceb4ce98548693bf6b5c_xzhlb3.png", // james — wrap shades
+            CLOUD + "v1783502209/04b56adec24d1b9c3c5e7043b002d25a723d0d8b_cuvcfg.png" // juhoon — sunglasses đôi
     );
+
+    // ID sản phẩm cho từng hero slide (bấm "XEM NGAY" → ProductDetail).
+    // ĐIỀN SAU: copy document ID từ Firestore products vào đúng vị trí slide.
+    private static final List<String> HERO_PRODUCT_IDS = Arrays.asList(
+            "",   // slide 1 — SP của ảnh nữ blazer đen
+            "",   // slide 2 — SP của ảnh james wrap shades
+            ""    // slide 3 — SP của ảnh juhoon
+    );
+
+    private static final String URL_PROMO       = CLOUD + "v1783355118/glassity/site/promo_sasalele.jpg";
+    private static final String URL_MONOCHROME = CLOUD + "v1783502208/d21ee09b2dcb18b17af1ec5262d245334b74241b_lwh1kx.png";
+    private static final String URL_ESSENTIAL   = CLOUD + "v1783502208/7aec1cc6374895c92464c3118255d38449be11ee_yzemoi.png";
+    private static final String URL_SUNLIGHT    = CLOUD + "v1783502207/36566f6bfcef59072645817ac9273fc3824ad0c3_msnssy.png";
+    private static final String URL_KHAM_PHA    = CLOUD + "v1783355119/glassity/site/kham_pha_flowers.jpg";
+    private static final String URL_BLOG_GUIDE  = CLOUD + "v1783354481/glassity/site/guide_diagram.png";
+    private static final String URL_BLOG_TREND  = CLOUD + "v1783355123/glassity/site/blog_login_signup.jpg";
+
+    private static final String URL_SHAPE_TRON       = CLOUD + "v1783354487/glassity/site/shape_tron.png";
+    private static final String URL_SHAPE_TRAI_XOAN  = CLOUD + "v1783354492/glassity/site/shape_trai_xoan.png";
+    private static final String URL_SHAPE_TRAI_TIM   = CLOUD + "v1783354498/glassity/site/shape_trai_tim.png";
+    private static final String URL_SHAPE_KIM_CUONG  = CLOUD + "v1783354502/glassity/site/shape_kim_cuong.png";
+    private static final String URL_SHAPE_VUONG      = CLOUD + "v1783354507/glassity/site/shape_vuong.png";
 
     private FragmentHomeBinding binding;
     private final ProductRepository productRepository = new ProductRepository();
 
     private FeaturedProductAdapter featuredAdapter;
-    private ProductAdapter productAdapter;
     private HeroBannerAdapter heroBannerAdapter;
 
     private final Handler autoScrollHandler = new Handler(Looper.getMainLooper());
@@ -61,6 +84,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         setupAdapters();
         setupHeroCarousel();
+        setupStaticImages();
         setupClickListeners();
         loadProducts();
     }
@@ -101,48 +125,43 @@ public class HomeFragment extends Fragment {
                 new LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false));
         binding.rvFeaturedProducts.setAdapter(featuredAdapter);
 
-        productAdapter = new ProductAdapter(product ->
-                ProductDetailActivity.start(requireContext(), product.getProductId()));
-        com.FinalProject.group3.utils.CartQuickActions.wire(
-                productAdapter, requireActivity(), binding.btnCart, binding.tvCartBadge);
-        binding.rvProducts.setAdapter(productAdapter);
+        // Badge số lượng giỏ hàng trên header (trước đây wire qua productAdapter đã bỏ)
+        com.FinalProject.group3.utils.CartQuickActions.refreshBadge(binding.tvCartBadge);
     }
 
     // ── Hero carousel ─────────────────────────────────────────────────────────
 
     private void setupHeroCarousel() {
         heroBannerAdapter = new HeroBannerAdapter(HERO_URLS);
-        binding.vpHero.setAdapter(heroBannerAdapter);
-
-        setupDots(HERO_URLS.size());
-
-        binding.vpHero.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                updateDots(position);
+        heroBannerAdapter.setOnBannerClickListener(position -> {
+            String productId = HERO_PRODUCT_IDS.get(position);
+            if (productId != null && !productId.isEmpty()) {
+                ProductDetailActivity.start(requireContext(), productId);
+            } else {
+                Toast.makeText(requireContext(), "Sản phẩm sắp ra mắt!", Toast.LENGTH_SHORT).show();
             }
         });
-    }
+        binding.vpHero.setAdapter(heroBannerAdapter);
 
-    private void setupDots(int count) {
-        binding.llHeroDots.removeAllViews();
-        for (int i = 0; i < count; i++) {
-            ImageView dot = new ImageView(requireContext());
-            int size = dpToPx(8);
-            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(size, size);
-            lp.setMargins(dpToPx(3), 0, dpToPx(3), 0);
-            dot.setLayoutParams(lp);
-            dot.setBackgroundResource(i == 0
-                    ? R.drawable.dot_active : R.drawable.dot_inactive);
-            binding.llHeroDots.addView(dot);
-        }
-    }
+        // Peek carousel (Figma): slide giữa to full-height, 2 bên nhỏ hơn rõ rệt
+        // và có khe trắng tách biệt
+        binding.vpHero.setOffscreenPageLimit(3);
+        int peekPx = dpToPx(48);
+        androidx.recyclerview.widget.RecyclerView inner =
+                (androidx.recyclerview.widget.RecyclerView) binding.vpHero.getChildAt(0);
+        inner.setPadding(peekPx, 0, peekPx, 0);
+        inner.setClipToPadding(false);
 
-    private void updateDots(int selected) {
-        for (int i = 0; i < binding.llHeroDots.getChildCount(); i++) {
-            binding.llHeroDots.getChildAt(i).setBackgroundResource(
-                    i == selected ? R.drawable.dot_active : R.drawable.dot_inactive);
-        }
+        androidx.viewpager2.widget.CompositePageTransformer transformer =
+                new androidx.viewpager2.widget.CompositePageTransformer();
+        transformer.addTransformer(new androidx.viewpager2.widget.MarginPageTransformer(dpToPx(10)));
+        transformer.addTransformer((page, position) -> {
+            float t = Math.min(1f, Math.abs(position));
+            float scale = 1f - 0.2f * t; // slide bên = 80% kích thước
+            page.setScaleY(scale);
+            page.setScaleX(scale);
+        });
+        binding.vpHero.setPageTransformer(transformer);
     }
 
     private void startAutoScroll() {
@@ -165,6 +184,26 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    // ── Ảnh tĩnh (tile BST, banner, blog, dáng mặt) ─────────────────────────────
+    private void setupStaticImages() {
+        // Promo banner: clip ảnh theo bo góc của bg_rounded_card
+        binding.layoutPromoBanner.setClipToOutline(true);
+        com.bumptech.glide.Glide.with(this).load(URL_PROMO).centerCrop().into(binding.imgPromo);
+
+        com.bumptech.glide.Glide.with(this).load(URL_MONOCHROME).centerCrop().into(binding.imgMonochrome);
+        com.bumptech.glide.Glide.with(this).load(URL_ESSENTIAL).centerCrop().into(binding.imgEssential);
+        com.bumptech.glide.Glide.with(this).load(URL_SUNLIGHT).centerCrop().into(binding.imgSunlight);
+        com.bumptech.glide.Glide.with(this).load(URL_KHAM_PHA).centerCrop().into(binding.imgKhamPha);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG_GUIDE).centerCrop().into(binding.imgBlog1);
+        com.bumptech.glide.Glide.with(this).load(URL_BLOG_TREND).centerCrop().into(binding.imgBlog2);
+
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRON).centerCrop().into(binding.imgFaceTron);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRAI_XOAN).centerCrop().into(binding.imgFaceTraiXoan);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_TRAI_TIM).centerCrop().into(binding.imgFaceTraiTim);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_KIM_CUONG).centerCrop().into(binding.imgFaceKimCuong);
+        com.bumptech.glide.Glide.with(this).load(URL_SHAPE_VUONG).centerCrop().into(binding.imgFaceVuong);
+    }
+
     // ── Click listeners ───────────────────────────────────────────────────────
 
     private void setupClickListeners() {
@@ -182,9 +221,6 @@ public class HomeFragment extends Fragment {
                         .navigate(R.id.cartFragment));
 
         binding.btnViewAllFeatured.setOnClickListener(v ->
-                ProductListActivity.startAll(requireContext()));
-
-        binding.btnViewAllProducts.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
 
         // Collection tiles
@@ -210,7 +246,9 @@ public class HomeFragment extends Fragment {
         binding.faceVuong.setOnClickListener(v ->
                 ProductListActivity.start(requireContext(), null, ProductListActivity.SHAPE_VUONG, "Kính mặt vuông"));
 
-        // Banner "Khám phá Glassity" → mở tất cả sản phẩm
+        // Banner "Khám phá Glassity" → mở tất cả sản phẩm; link gạch chân theo Figma
+        binding.tvKhamPhaLink.setPaintFlags(
+                binding.tvKhamPhaLink.getPaintFlags() | android.graphics.Paint.UNDERLINE_TEXT_FLAG);
         binding.bannerKhamPha.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
 
@@ -227,15 +265,11 @@ public class HomeFragment extends Fragment {
             public void onSuccess(List<Product> products) {
                 if (binding == null) return;
                 featuredAdapter.submitList(products);
-                productAdapter.submitList(products);
-                binding.tvEmptyProducts.setVisibility(
-                        products.isEmpty() ? View.VISIBLE : View.GONE);
             }
 
             @Override
             public void onFailure(String error) {
                 if (binding == null) return;
-                binding.tvEmptyProducts.setVisibility(View.VISIBLE);
                 Toast.makeText(requireContext(), "Lỗi tải sản phẩm: " + error, Toast.LENGTH_SHORT).show();
             }
         });

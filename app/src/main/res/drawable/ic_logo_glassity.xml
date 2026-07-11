@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Logo Glassity: 2 tròng kính tròn + cầu nối (bản vector từ logo brand) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="106dp"
+    android:height="64dp"
+    android:viewportWidth="106"
+    android:viewportHeight="64">
+
+    <!-- Tròng trái -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/brand_dark"
+        android:strokeWidth="5"
+        android:pathData="M28,32 m-18,0 a18,18 0 1,1 36,0 a18,18 0 1,1 -36,0" />
+
+    <!-- Tròng phải -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/brand_dark"
+        android:strokeWidth="5"
+        android:pathData="M78,32 m-18,0 a18,18 0 1,1 36,0 a18,18 0 1,1 -36,0" />
+
+    <!-- Cầu nối kiểu chữ G: thanh ngang ăn vào tròng trái -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="@color/brand_dark"
+        android:strokeWidth="5"
+        android:pathData="M32,32 L60,32" />
+</vector>

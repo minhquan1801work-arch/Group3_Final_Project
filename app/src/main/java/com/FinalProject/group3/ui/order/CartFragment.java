@@ -62,6 +62,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
     private String selectedDiscountCode = null;
     private String selectedShipCode = null;
 
+    // Chế độ Sửa (chọn nhiều để xóa) — nút "Sửa"/"Xong" ở góc phải header
+    private boolean editMode = false;
+
     // Launcher để mở màn chọn voucher ngay từ giỏ hàng
     private ActivityResultLauncher<Intent> voucherLauncher;
 
@@ -94,14 +97,22 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         binding.rvCart.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvCart.setAdapter(adapter);
 
-        binding.btnBack.setOnClickListener(v ->
-                androidx.navigation.fragment.NavHostFragment.findNavController(this)
-                        .popBackStack());
+        // Back về đúng nơi trước đó: pop nav stack; nếu giỏ là màn gốc
+        // (mở từ ProductDetail/Favorite qua EXTRA_OPEN_CART) → đóng MainActivity
+        binding.btnBack.setOnClickListener(v -> {
+            boolean popped = androidx.navigation.fragment.NavHostFragment
+                    .findNavController(this).popBackStack();
+            if (!popped) requireActivity().finish();
+        });
 
         binding.cbSelectAll.setOnClickListener(v ->
                 adapter.setAllSelected(binding.cbSelectAll.isChecked()));
 
         binding.btnBuy.setOnClickListener(v -> goToCheckout());
+
+        // Chế độ Sửa: chọn 1/nhiều sản phẩm rồi xóa một lượt
+        binding.tvEdit.setOnClickListener(v -> setEditMode(!editMode));
+        binding.btnDeleteSelected.setOnClickListener(v -> confirmDeleteSelected());
 
         binding.rowVoucher.setOnClickListener(v ->
                 voucherLauncher.launch(CheckoutVoucherActivity.intent(
@@ -259,6 +270,8 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         binding.llBottomBar.setVisibility(cart);
         binding.llEmpty.setVisibility(empty);
         binding.btnContinueShopping.setVisibility(empty);
+        binding.tvEdit.setVisibility(cart);
+        if (!hasItems && editMode) setEditMode(false); // giỏ trống → thoát chế độ Sửa
     }
 
     private void updateTotal() {
@@ -269,6 +282,52 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         binding.tvTotal.setText(VND_FORMAT.format(total) + "VND");
         binding.btnBuy.setText(getString(R.string.cart_buy_btn) + " (" + selected.size() + ")");
         binding.btnBuy.setEnabled(!selected.isEmpty());
+        binding.btnDeleteSelected.setText("XÓA (" + selected.size() + ")");
+        binding.btnDeleteSelected.setEnabled(!selected.isEmpty());
+    }
+
+    // ── Chế độ Sửa: chọn nhiều sản phẩm để xóa một lượt ──────────────────────
+    private void setEditMode(boolean enabled) {
+        editMode = enabled;
+        binding.tvEdit.setText(enabled ? "Xong" : "Sửa");
+        binding.btnBuy.setVisibility(enabled ? View.GONE : View.VISIBLE);
+        binding.btnDeleteSelected.setVisibility(enabled ? View.VISIBLE : View.GONE);
+        updateTotal();
+    }
+
+    private void confirmDeleteSelected() {
+        List<CartDetail> selected = adapter.getSelectedItems();
+        if (selected.isEmpty()) {
+            Toast.makeText(requireContext(), "Chọn ít nhất 1 sản phẩm để xóa", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        boolean isAll = selected.size() == adapter.getItemCount();
+        String msg = isAll
+                ? "Bạn có chắc chắn muốn xóa TẤT CẢ sản phẩm trong giỏ?"
+                : "Bạn có chắc chắn muốn xóa " + selected.size() + " sản phẩm đã chọn khỏi giỏ?";
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Xóa sản phẩm")
+                .setMessage(msg)
+                .setPositiveButton("Xóa", (d, w) -> deleteSelected(selected))
+                .setNegativeButton("Hủy", null)
+                .show();
+    }
+
+    private void deleteSelected(List<CartDetail> selected) {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        final int[] done = {0};
+        for (CartDetail item : selected) {
+            cartRepo.removeFromCart(item.getCartDetailId(), new CartRepository.SimpleCallback() {
+                @Override public void onSuccess() { onOneDeleted(); }
+                @Override public void onFailure(String error) { onOneDeleted(); }
+                private void onOneDeleted() {
+                    if (++done[0] == selected.size() && binding != null) {
+                        setEditMode(false);
+                        loadCart();
+                    }
+                }
+            });
+        }
     }
 
     private void updateVoucherRow() {

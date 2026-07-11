@@ -43,7 +43,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@null"
-                android:hint="Tìm kiếm sản phẩm..."
+                android:hint="Bạn đang tìm sản phẩm gì?"
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:maxLines="1"
@@ -52,6 +52,18 @@
                 android:textColor="@color/color_text_primary"
                 android:textColorHint="@color/color_hint"
                 android:textSize="14sp" />
+
+            <!-- Camera: tìm bằng hình ảnh (UI trước, tính năng bổ sung sau) -->
+            <ImageView
+                android:id="@+id/btnCamera"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_gravity="center_vertical|end"
+                android:layout_marginEnd="12dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@null"
+                android:src="@drawable/ic_camera"
+                android:tint="@color/color_hint" />
 
             <ImageView
                 android:id="@+id/btnClearSearch"
@@ -68,47 +80,80 @@
 
     </LinearLayout>
 
-    <!-- History section -->
-    <LinearLayout
-        android:id="@+id/layoutHistory"
+    <!-- Browse: lịch sử + gợi ý (hiện khi chưa gõ gì) -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/layoutBrowse"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingBottom="8dp">
+            android:orientation="vertical"
+            android:padding="16dp">
 
-            <TextView
-                android:layout_width="0dp"
+            <!-- Lịch sử tìm kiếm — chỉ hiện với user đã đăng nhập và có lịch sử -->
+            <LinearLayout
+                android:id="@+id/layoutHistory"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Lịch sử tìm kiếm"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingBottom="8dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Lịch sử tìm kiếm"
+                        android:textColor="@color/color_text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnClearHistory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="4dp"
+                        android:text="Xóa tất cả"
+                        android:textColor="@color/color_primary"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chipGroupHistory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <!-- Gợi ý tìm kiếm -->
+            <TextView
+                android:id="@+id/tvSuggestTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:paddingBottom="8dp"
+                android:text="Gợi ý tìm kiếm"
                 android:textColor="@color/color_text_primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/btnClearHistory"
-                android:layout_width="wrap_content"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvSuggest"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="4dp"
-                android:text="Xóa tất cả"
-                android:textColor="@color/color_primary"
-                android:textSize="13sp" />
+                android:nestedScrollingEnabled="false" />
+
         </LinearLayout>
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chipGroupHistory"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <!-- Results section -->
     <LinearLayout

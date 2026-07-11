@@ -272,7 +272,9 @@ public class AddAddressActivity extends AppCompatActivity {
 
     private void setDropdownEnabled(android.widget.AutoCompleteTextView view, boolean enabled) {
         view.setEnabled(enabled);
-        view.setAlpha(enabled ? 1f : 0.5f);
+        // Dim cả TIL cha để viền + mũi tên cũng xám khi chưa chọn cấp trên
+        android.view.View til = (android.view.View) view.getParent().getParent();
+        til.setAlpha(enabled ? 1f : 0.4f);
     }
 
     /** Tìm AdminUnit theo name (case-insensitive, partial match). */

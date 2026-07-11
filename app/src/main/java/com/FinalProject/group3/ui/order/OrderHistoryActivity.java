@@ -52,8 +52,8 @@ public class OrderHistoryActivity extends AppCompatActivity {
     private final List<Order> allOrders = new ArrayList<>();
     private int currentTab = 0;
 
-    // "Hoàn thành" = đơn đã giao xong nhưng CHƯA đánh giá — tách riêng để nhắc
-    // người dùng vào đánh giá (đơn đánh giá rồi vẫn nằm trong "Đã giao")
+    // Luồng trạng thái: DELIVERED (shop đã giao — chờ khách bấm "Đã nhận được hàng")
+    // → COMPLETED (khách xác nhận nhận hàng — có thể Mua lại / Đánh giá)
     private static final String[] TABS = {"Tất cả", "Chờ giao hàng", "Đã giao", "Hoàn thành", "Đã hủy"};
 
     @Override
@@ -130,9 +130,30 @@ public class OrderHistoryActivity extends AppCompatActivity {
         if (tab == 0) return true;
         String s = o.getOrderStatus();
         if (tab == 1) return Arrays.asList("PENDING", "PROCESSING", "SHIPPED").contains(s);
-        if (tab == 2) return "DELIVERED".equals(s);
-        if (tab == 3) return "DELIVERED".equals(s) && !o.isReviewed(); // Hoàn thành — chờ đánh giá
+        if (tab == 2) return "DELIVERED".equals(s);  // đã giao — chờ khách xác nhận nhận hàng
+        if (tab == 3) return "COMPLETED".equals(s);  // khách đã xác nhận — Mua lại / Đánh giá
         return "CANCELLED".equals(s);
+    }
+
+    /** Khách bấm "Đã nhận được hàng" → DELIVERED thành COMPLETED, nhảy sang tab Hoàn thành. */
+    private void confirmReceived(Order order) {
+        FirebaseHelper.getDb()
+                .collection(FirebaseHelper.COL_ORDERS)
+                .document(order.getOrderId())
+                .update("orderStatus", "COMPLETED")
+                .addOnSuccessListener(v -> {
+                    order.setOrderStatus("COMPLETED");
+                    Toast.makeText(this,
+                            "Cảm ơn bạn! Hãy đánh giá sản phẩm nhé", Toast.LENGTH_SHORT).show();
+                    // Gửi thông báo nhắc đánh giá — bấm vào sẽ mở thẳng ReviewActivity
+                    com.FinalProject.group3.utils.NotificationHelper.pushOrder(
+                            FirebaseHelper.getCurrentUserId(),
+                            "Hãy đánh giá sản phẩm bạn vừa nhận ngay để giúp Glassity phục vụ tốt hơn!",
+                            "ORDER", order.getOrderId());
+                    selectTab(3); // tab Hoàn thành — filterOrders() chạy lại bên trong
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     // Mua lại: mở trang chi tiết sản phẩm đầu tiên của đơn.
@@ -230,6 +251,18 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 b.btnReorder.setVisibility(View.GONE);
 
                 if ("DELIVERED".equals(status)) {
+                    // Đã giao — chờ khách xác nhận: nút đen "Đã nhận được hàng"
+                    b.btnDetail.setText("Xem chi tiết");
+                    b.btnDetail.setBackgroundResource(R.drawable.bg_btn_wine_outline);
+                    b.btnDetail.setTextColor(getColor(R.color.color_accent));
+                    b.btnReview.setVisibility(View.VISIBLE);
+                    b.btnReview.setText("Đã nhận được hàng");
+                    b.btnReview.setEnabled(true);
+                    b.btnReview.setAlpha(1f);
+                    b.btnReview.setBackgroundResource(R.drawable.bg_btn_black_filled);
+                    b.btnReview.setTextColor(Color.WHITE);
+                } else if ("COMPLETED".equals(status)) {
+                    // Hoàn thành: Mua lại + Đánh giá (hoặc Đã đánh giá)
                     b.btnDetail.setVisibility(View.GONE);
                     b.btnReorder.setVisibility(View.VISIBLE);
                     b.btnReview.setVisibility(View.VISIBLE);
@@ -249,17 +282,27 @@ public class OrderHistoryActivity extends AppCompatActivity {
                 } else if ("CANCELLED".equals(status)) {
                     b.btnReorder.setVisibility(View.VISIBLE);
                     b.btnDetail.setText("Chi tiết");
+                    b.btnDetail.setBackgroundResource(R.drawable.bg_btn_black_filled);
+                    b.btnDetail.setTextColor(Color.WHITE);
                 } else {
                     b.btnDetail.setText("Xem chi tiết");
+                    b.btnDetail.setBackgroundResource(R.drawable.bg_btn_black_filled);
+                    b.btnDetail.setTextColor(Color.WHITE);
                 }
 
                 b.btnDetail.setOnClickListener(v ->
                         startActivity(OrderDetailActivity.intent(
                                 OrderHistoryActivity.this, o.getOrderId())));
                 b.btnReorder.setOnClickListener(v -> reorder(o.getOrderId()));
-                b.btnReview.setOnClickListener(v ->
+                // Nút btnReview kiêm 2 vai: DELIVERED = xác nhận nhận hàng, COMPLETED = đánh giá
+                b.btnReview.setOnClickListener(v -> {
+                    if ("DELIVERED".equals(o.getOrderStatus())) {
+                        confirmReceived(o);
+                    } else {
                         startActivity(ReviewActivity.intent(
-                                OrderHistoryActivity.this, o.getOrderId())));
+                                OrderHistoryActivity.this, o.getOrderId()));
+                    }
+                });
 
                 // Load sản phẩm trong đơn (lazy, per item)
                 loadFirstProduct(o.getOrderId(), b);
@@ -285,7 +328,6 @@ public class OrderHistoryActivity extends AppCompatActivity {
                             if (details.isEmpty()) return;
 
                             OrderDetail first = details.get(0);
-                            b.tvProductColor.setText(first.getColor() != null ? first.getColor() : "");
                             b.tvQty.setText("x" + first.getQuantity());
 
                             if (count > 1) {
@@ -293,16 +335,41 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                 b.tvMoreItems.setText("Xem thêm " + (count - 1) + " sản phẩm");
                             }
 
-                            // Load tên + ảnh sản phẩm đầu tiên
+                            // Load tên + ảnh + TÊN MÀU theo đúng variant đã mua
                             new ProductRepository().getProductById(first.getProductId(),
                                     new ProductRepository.ProductCallback() {
                                         @Override
                                         public void onSuccess(Product product) {
                                             b.tvProductName.setText(product.getName());
-                                            List<String> imgs = product.getImages();
-                                            if (imgs != null && !imgs.isEmpty()) {
+
+                                            // Tìm variant khớp mã màu của đơn: lấy colorName + ảnh đúng màu
+                                            String colorLabel = first.getColor();
+                                            String imgUrl = null;
+                                            if (product.getVariants() != null) {
+                                                for (com.FinalProject.group3.model.ProductVariant pv
+                                                        : product.getVariants()) {
+                                                    if (pv.getColor() != null && pv.getColor()
+                                                            .equalsIgnoreCase(first.getColor())) {
+                                                        if (pv.getColorName() != null
+                                                                && !pv.getColorName().isEmpty())
+                                                            colorLabel = pv.getColorName();
+                                                        if (pv.getImages() != null
+                                                                && !pv.getImages().isEmpty())
+                                                            imgUrl = pv.getImages().get(0);
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            b.tvProductColor.setText(colorLabel != null
+                                                    ? "Màu: " + colorLabel : "");
+
+                                            if (imgUrl == null) {
+                                                List<String> imgs = product.getImages();
+                                                if (imgs != null && !imgs.isEmpty()) imgUrl = imgs.get(0);
+                                            }
+                                            if (imgUrl != null) {
                                                 Glide.with(b.ivProduct.getContext())
-                                                        .load(imgs.get(0))
+                                                        .load(imgUrl)
                                                         .centerCrop()
                                                         .into(b.ivProduct);
                                             }
@@ -311,6 +378,7 @@ public class OrderHistoryActivity extends AppCompatActivity {
                                         @Override
                                         public void onFailure(String error) {
                                             b.tvProductName.setText("Sản phẩm");
+                                            b.tvProductColor.setText("");
                                         }
                                     });
                         });
@@ -323,14 +391,16 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     case "PENDING":    return "Chờ xác nhận";
                     case "PROCESSING": return "Đang xử lý";
                     case "SHIPPED":    return "Đang giao";
-                    case "DELIVERED":  return order.isReviewed() ? "Đã giao" : "Đã giao - Chờ đánh giá";
+                    case "DELIVERED":  return "Đã giao - Chờ xác nhận";
+                    case "COMPLETED":  return order.isReviewed() ? "Hoàn thành" : "Hoàn thành - Chờ đánh giá";
                     case "CANCELLED":  return "Đã hủy";
                     default:           return s;
                 }
             }
 
             private int statusColor(String s) {
-                if ("DELIVERED".equals(s))  return Color.parseColor("#2E7D32"); // xanh
+                if ("DELIVERED".equals(s) || "COMPLETED".equals(s))
+                    return Color.parseColor("#2E7D32"); // xanh
                 if ("CANCELLED".equals(s))  return Color.parseColor("#B3261E"); // đỏ
                 return Color.parseColor("#E65100"); // cam — PENDING/PROCESSING/SHIPPED
             }

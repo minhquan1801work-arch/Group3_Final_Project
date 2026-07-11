@@ -254,13 +254,20 @@ public class CheckoutActivity extends AppCompatActivity {
         // Tỉnh/TP: fetch từ API, khi chọn → load quận/huyện
         loadGuestProvinces();
 
-        View.OnClickListener requireLogin = v ->
+        // Tách 2 block riêng: (1) chọn mã thành viên — cần đăng nhập, (2) nhập mã hiện có
+        binding.tvVoucherRowTitle.setText("Lựa chọn mã giảm giá dành cho thành viên");
+        binding.tvVoucherValue.setVisibility(android.view.View.GONE);
+        binding.gapVoucherGuest.setVisibility(android.view.View.VISIBLE);
+        binding.tvGuestVoucherLabel.setVisibility(android.view.View.VISIBLE);
+        binding.rowVoucher.setOnClickListener(v ->
                 com.FinalProject.group3.utils.LoginRequiredDialog.show(
-                        this, "Đăng nhập để sử dụng voucher của Glassity");
-        binding.rowVoucher.setOnClickListener(requireLogin);
-        binding.btnApplyVoucherInline.setOnClickListener(requireLogin);
-        binding.etVoucher.setFocusable(false);
-        binding.etVoucher.setOnClickListener(requireLogin);
+                        this, "Lựa chọn mã giảm giá dành cho thành viên — vui lòng đăng nhập"));
+
+        // Khách vẫn được nhập mã thủ công và được hưởng giảm giá nếu hợp lệ
+        binding.etVoucher.setFocusableInTouchMode(true);
+        binding.btnApplyVoucherInline.setOnClickListener(v ->
+                applyVoucherCode(binding.etVoucher.getText().toString().trim()
+                        .toUpperCase(java.util.Locale.US)));
     }
 
     private void loadGuestProvinces() {
@@ -339,7 +346,9 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private void setGuestDropdownEnabled(android.widget.AutoCompleteTextView view, boolean enabled) {
         view.setEnabled(enabled);
-        view.setAlpha(enabled ? 1f : 0.5f);
+        // Dim cả TIL cha để viền + mũi tên cũng xám khi chưa chọn cấp trên
+        android.view.View til = (android.view.View) view.getParent().getParent();
+        til.setAlpha(enabled ? 1f : 0.4f);
     }
 
     // ── Mua trực tiếp: dựng CartDetail từ Intent, không đọc giỏ ───────────────

@@ -114,6 +114,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
+        <!-- Facebook (UI theo Figma — tính năng đang phát triển) + Google -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnFacebook"
+            style="@style/Widget.Material3.Button.IconButton.Outlined"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            app:icon="@drawable/ic_facebook"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            app:iconSize="22dp"
+            app:iconTint="@null"
+            app:cornerRadius="26dp"
+            app:strokeColor="@color/color_field_border"
+            app:layout_constraintTop_toBottomOf="@id/tvOrLoginWith"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnGoogle"
+            app:layout_constraintHorizontal_chainStyle="packed" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoogle"
             style="@style/Widget.Material3.Button.IconButton.Outlined"
@@ -127,8 +147,38 @@
             app:cornerRadius="26dp"
             app:strokeColor="@color/color_field_border"
             app:layout_constraintTop_toBottomOf="@id/tvOrLoginWith"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/btnFacebook"
             app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Chưa có tài khoản? Đăng ký ngay -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/btnGoogle"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/login_no_account"
+                android:textColor="@color/color_text_secondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/tvGoSignup"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="4dp"
+                android:text="@string/login_signup_now"
+                android:textColor="@color/brand_wine"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

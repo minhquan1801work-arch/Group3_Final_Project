@@ -63,8 +63,8 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
                 if (d.getCartDetailId().equals(autoSelectId)) { selectedIds.add(autoSelectId); break; }
         }
         if (selectedIds.isEmpty() && !newItems.isEmpty()) {
-            // Vào giỏ trực tiếp → chọn item cuối trong danh sách (mới nhất)
-            selectedIds.add(newItems.get(newItems.size() - 1).getCartDetailId());
+            // Vào giỏ trực tiếp → chọn item đầu danh sách (list đã sort mới → cũ)
+            selectedIds.add(newItems.get(0).getCartDetailId());
         }
         notifyDataSetChanged();
     }
@@ -111,8 +111,26 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
         if (product != null) {
             b.tvName.setText(product.getName());
             b.tvPrice.setText(VND_FORMAT.format(product.getPrice() * item.getQuantity()) + "VND");
-            if (product.getImages() != null && !product.getImages().isEmpty()) {
-                Glide.with(b.ivProduct).load(product.getImages().get(0))
+            // Ảnh: ưu tiên ảnh của variant khớp màu đã chọn, fallback variant đầu / images cũ
+            String imgUrl = null;
+            if (product.getVariants() != null && !product.getVariants().isEmpty()) {
+                com.FinalProject.group3.model.ProductVariant match = null;
+                for (com.FinalProject.group3.model.ProductVariant pv : product.getVariants()) {
+                    if (pv.getColor() != null && pv.getColor().equalsIgnoreCase(item.getColor())) {
+                        match = pv;
+                        break;
+                    }
+                }
+                if (match == null) match = product.getVariants().get(0);
+                if (match.getImages() != null && !match.getImages().isEmpty()) {
+                    imgUrl = match.getImages().get(0);
+                }
+            }
+            if (imgUrl == null && product.getImages() != null && !product.getImages().isEmpty()) {
+                imgUrl = product.getImages().get(0);
+            }
+            if (imgUrl != null) {
+                Glide.with(b.ivProduct).load(imgUrl)
                         .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                         .into(b.ivProduct);
             }

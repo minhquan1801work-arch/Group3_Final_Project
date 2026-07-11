@@ -6,23 +6,18 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.FinalProject.group3.databinding.ItemProductFeaturedBinding;
+import com.FinalProject.group3.databinding.ItemSearchSuggestBinding;
 import com.FinalProject.group3.model.Product;
 import com.FinalProject.group3.model.ProductVariant;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
- * Adapter cho hàng sản phẩm nằm ngang (horizontal) ở section
- * "SẢN PHẨM BÁN CHẠY" trong HomeFragment.
- * Dùng item_product_featured.xml (card 140dp cố định).
+ * Card "Gợi ý tìm kiếm" trong SearchActivity — ảnh + tên đậm 1 dòng (theo Figma).
  */
-public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProductAdapter.ViewHolder> {
+public class SearchSuggestAdapter extends RecyclerView.Adapter<SearchSuggestAdapter.ViewHolder> {
 
     public interface OnProductClickListener {
         void onProductClick(Product product);
@@ -30,9 +25,8 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
 
     private final List<Product> products = new ArrayList<>();
     private final OnProductClickListener listener;
-    private static final NumberFormat VND = NumberFormat.getInstance(new Locale("vi", "VN"));
 
-    public FeaturedProductAdapter(OnProductClickListener listener) {
+    public SearchSuggestAdapter(OnProductClickListener listener) {
         this.listener = listener;
     }
 
@@ -45,7 +39,7 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemProductFeaturedBinding b = ItemProductFeaturedBinding.inflate(
+        ItemSearchSuggestBinding b = ItemSearchSuggestBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(b);
     }
@@ -54,7 +48,6 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Product p = products.get(position);
         holder.b.tvName.setText(p.getName());
-        holder.b.tvPrice.setText(VND.format(p.getPrice()) + "đ");
 
         String url = null;
         List<ProductVariant> variants = p.getVariants();
@@ -63,11 +56,11 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
             if (v0.getImages() != null && !v0.getImages().isEmpty()) url = v0.getImages().get(0);
         }
         if (url == null && p.getImages() != null && !p.getImages().isEmpty()) url = p.getImages().get(0);
+
         Glide.with(holder.itemView.getContext())
                 .load(url)
                 .placeholder(com.FinalProject.group3.R.drawable.bg_product_placeholder)
                 .error(com.FinalProject.group3.R.drawable.bg_product_placeholder)
-                .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
                 .centerCrop()
                 .into(holder.b.ivProduct);
 
@@ -80,8 +73,8 @@ public class FeaturedProductAdapter extends RecyclerView.Adapter<FeaturedProduct
     public int getItemCount() { return products.size(); }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        final ItemProductFeaturedBinding b;
-        ViewHolder(ItemProductFeaturedBinding b) {
+        final ItemSearchSuggestBinding b;
+        ViewHolder(ItemSearchSuggestBinding b) {
             super(b.getRoot());
             this.b = b;
         }

@@ -154,7 +154,16 @@ public class NotificationFragment extends Fragment {
         if (type == null) return;
         switch (type) {
             case "ORDER":
-                if (n.getOrderId() != null && !n.getOrderId().isEmpty()) {
+                String msg = n.getMessage() != null ? n.getMessage().toLowerCase() : "";
+                if (n.getOrderId() != null && !n.getOrderId().isEmpty()
+                        && msg.contains("đánh giá")) {
+                    // "...Hãy đánh giá nhé!" → vào thẳng trang đánh giá của đơn đó
+                    startActivity(com.FinalProject.group3.ui.order.ReviewActivity
+                            .intent(requireContext(), n.getOrderId()));
+                } else if (msg.contains("đã giao")) {
+                    // Thông báo giao hàng thành công → tab "Đã giao" của lịch sử đơn
+                    startActivity(OrderHistoryActivity.intentWithTab(requireContext(), 2));
+                } else if (n.getOrderId() != null && !n.getOrderId().isEmpty()) {
                     startActivity(com.FinalProject.group3.ui.order.OrderDetailActivity
                             .intent(requireContext(), n.getOrderId()));
                 } else {
@@ -229,7 +238,7 @@ public class NotificationFragment extends Fragment {
     }
 
     private void showEmpty(boolean empty) {
-        binding.tvEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
+        binding.layoutEmpty.setVisibility(empty ? View.VISIBLE : View.GONE);
         binding.rvNotifications.setVisibility(empty ? View.GONE : View.VISIBLE);
         binding.btnMarkAllRead.setVisibility(empty ? View.GONE : View.VISIBLE);
     }
