@@ -108,12 +108,20 @@ public class ProductDetailActivity extends AppCompatActivity {
         setupQtyStepper();
         setupTabs();
 
+        Glide.with(this)
+                .load("https://res.cloudinary.com/aa1g9udv/image/upload/v1783354481/glassity/site/guide_diagram.png")
+                .into(binding.imgSizeDiagram);
+
         binding.btnAddToCart.setOnClickListener(v -> addToCart(false));
         binding.btnBuyNow.setOnClickListener(v -> addToCart(true));
         binding.btnAllReviews.setOnClickListener(v ->
                 AllReviewsActivity.start(this, getIntent().getStringExtra(EXTRA_PRODUCT_ID)));
 
         binding.ivFavorite.setOnClickListener(v -> onFavoriteClick());
+
+        // Thử kính ảo (AR try-on) — nút giữ chỗ, logic camera + face detection làm sau
+        binding.btnTryOn.setOnClickListener(v ->
+                Toast.makeText(this, "Thử kính ảo — sắp ra mắt!", Toast.LENGTH_SHORT).show());
 
         String productId = getIntent().getStringExtra(EXTRA_PRODUCT_ID);
         if (productId == null) { finish(); return; }

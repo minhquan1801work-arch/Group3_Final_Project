@@ -40,11 +40,10 @@ public class HomeFragment extends Fragment {
     );
 
     // ID sản phẩm cho từng hero slide (bấm "XEM NGAY" → ProductDetail).
-    // ĐIỀN SAU: copy document ID từ Firestore products vào đúng vị trí slide.
     private static final List<String> HERO_PRODUCT_IDS = Arrays.asList(
-            "",   // slide 1 — SP của ảnh nữ blazer đen
-            "",   // slide 2 — SP của ảnh james wrap shades
-            ""    // slide 3 — SP của ảnh juhoon
+            "7dxSOPmpL0hiPeqw4FaE",  // slide 1 — Cyber Fashion Sunglasses
+            "D6FYz7iLHMH8OiHFL84g",  // slide 2 — Unique Design Fashion Sunglasses
+            "C1wvHijLlWYEF9W99C5j"   // slide 3 — Modern Square Sunglasses Style
     );
 
     private static final String URL_PROMO       = CLOUD + "v1783355118/glassity/site/promo_sasalele.jpg";
@@ -144,10 +143,9 @@ public class HomeFragment extends Fragment {
         });
         binding.vpHero.setAdapter(heroBannerAdapter);
 
-        // Peek carousel (Figma): slide giữa to full-height, 2 bên nhỏ hơn rõ rệt
-        // và có khe trắng tách biệt
+        // Peek carousel (Figma): slide giữa ~55% màn hình, 2 bên ló ra rõ + thu nhỏ khi lệch tâm
         binding.vpHero.setOffscreenPageLimit(3);
-        int peekPx = dpToPx(48);
+        int peekPx = dpToPx(72);
         androidx.recyclerview.widget.RecyclerView inner =
                 (androidx.recyclerview.widget.RecyclerView) binding.vpHero.getChildAt(0);
         inner.setPadding(peekPx, 0, peekPx, 0);
@@ -157,8 +155,9 @@ public class HomeFragment extends Fragment {
                 new androidx.viewpager2.widget.CompositePageTransformer();
         transformer.addTransformer(new androidx.viewpager2.widget.MarginPageTransformer(dpToPx(10)));
         transformer.addTransformer((page, position) -> {
+            // Card đang hiển thị (position=0) to hẳn lên; càng lệch khỏi tâm càng thu nhỏ
             float t = Math.min(1f, Math.abs(position));
-            float scale = 1f - 0.2f * t; // slide bên = 80% kích thước
+            float scale = 1f - 0.15f * t; // card bên = 85% kích thước
             page.setScaleY(scale);
             page.setScaleX(scale);
         });
@@ -227,6 +226,10 @@ public class HomeFragment extends Fragment {
                         .navigate(R.id.cartFragment));
 
         binding.btnViewAllFeatured.setOnClickListener(v ->
+                ProductListActivity.startAll(requireContext()));
+
+        // Banner "Mua sản phẩm thứ hai giảm 20%" → mở tất cả sản phẩm
+        binding.layoutPromoBanner.setOnClickListener(v ->
                 ProductListActivity.startAll(requireContext()));
 
         // Collection tiles

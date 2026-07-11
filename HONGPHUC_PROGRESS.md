@@ -500,3 +500,57 @@ Nếu Quân muốn dùng các ảnh này, đã upload sẵn nguồn tại `D:\Gl
 - Fix: thêm `InsetsUtil.applySystemBarsPadding(drawerView)` riêng trong `setupDrawer()` — 1 dòng, dùng đúng utility đã chạy ổn ở mọi màn khác
 - Tiện thể đổi luôn TextView "Glassity" trong header drawer thành `ImageView` dùng `logo_simplified` (đồng bộ Home header + Blog header đã đổi trước đó)
 - Build assembleDebug PASS
+
+### Nút "Thử kính ảo" — giữ chỗ vị trí (11/07/2026)
+- Đặt đúng vị trí theo mockup Figma: nút tròn nền đen mờ, góc dưới-phải ảnh sản phẩm chính, icon camera trắng
+- `activity_product_detail.xml`: bọc `vpImages` (ViewPager2) trong `FrameLayout`, thêm `ImageButton btnTryOn` (`bg_circle_translucent_dark` mới + `ic_camera` có sẵn)
+- `ProductDetailActivity.java`: wire click → Toast "sắp ra mắt" (giữ chỗ, giống pattern camera search ở SearchActivity)
+- **Chưa làm phần AR thật** (ML Kit Face Detection + CameraX + Canvas overlay gọng kính) — đợi user chuẩn bị 1 ảnh gọng kính PNG nền trong suốt, thẳng mặt, dùng chung demo cho mọi sản phẩm (đã thống nhất trong chat, xem plan trước đó)
+- Build assembleDebug PASS
+
+### Hero carousel khớp mockup (11/07/2026)
+- **Vấn đề:** card giữa chiếm gần hết màn hình, 2 bên gần như không thấy — mockup cần card giữa ~55-60%, 2 bên ló ra rõ, cùng chiều cao (không scale nhỏ lại)
+- Tăng `peekPx` từ 48dp → 72dp (padding 2 bên RecyclerView bên trong ViewPager2 — quyết định độ ló của card kề)
+- Bỏ hẳn transformer scale-down 0.8 cho card 2 bên (trước đây làm card bên nhỏ hơn cả chiều cao lẫn chiều rộng — mockup không có hiệu ứng này, chỉ crop theo mép màn hình, mọi card cùng kích thước)
+- Thêm bo góc cho từng card hero (`item_hero_banner.xml`: `background="@drawable/bg_rounded_card"` + `clipToOutline="true"`, bán kính 12dp giống card blog)
+- Build assembleDebug PASS — tỉ lệ tính toán theo mockup, chưa test trực tiếp trên máy thật (emulator project đang lỗi thiếu system image, xem TODO chung) — báo lại nếu tỉ lệ chưa khớp 100% để tinh chỉnh thêm `peekPx`
+
+### Hero carousel — nút "XEM NGAY" dạng button + hiệu ứng scale theo lượt (11/07/2026)
+- `item_hero_banner.xml`: "XEM NGAY" trước là text + gạch chân, giờ đổi thành nút bấm thật (nền đen bo góc `bg_btn_black_filled`, cùng style nút "Mua ngay" ở promo banner) — bỏ gạch chân
+- `HomeFragment.setupHeroCarousel()`: thêm lại hiệu ứng scale qua PageTransformer — card đang hiển thị (giữa) full-size, card 2 bên tự thu nhỏ còn 85% khi lệch khỏi tâm, phóng to dần khi tới lượt hiển thị (kết hợp với peek 72dp đã chỉnh trước đó)
+- Build assembleDebug PASS
+
+### Fix: nút "XEM NGAY" đúng mockup (11/07/2026)
+- Lần trước lấy nhầm style nút "Mua ngay" (đen đặc, chữ trắng, góc dưới-trái) — không khớp mockup thật
+- Sửa lại đúng: nền xám mờ giảm opacity (`bg_pill_gray_translucent.xml` mới, #B3D9D9D9), bo góc 6dp, chữ đen (#1A1A1A), canh giữa theo chiều ngang ở đáy card (`bottom|center_horizontal`) thay vì góc dưới-trái
+- Build assembleDebug PASS
+
+### Promo banner khớp mockup (11/07/2026)
+- Chữ "MUA SẢN PHẨM THỨ HAI GIẢM NGAY 20%": trắng có đổ bóng → đen đậm (#1A1A1A), tăng cỡ 18sp → 24sp, bỏ shadow (nền không quá rối nên không cần)
+- Nút "Mua ngay": bo góc 4dp (rectangle) → bo tròn hết cỡ dạng viên thuốc (`bg_btn_black_pill.xml` mới, radius 20dp), hạ xuống sát đáy card (marginBottom 28dp → 14dp)
+- Build assembleDebug PASS
+
+### Điền HERO_PRODUCT_IDS — 3 hero card trang chủ (11/07/2026)
+- Slide 1: Cyber Fashion Sunglasses (`7dxSOPmpL0hiPeqw4FaE`)
+- Slide 2: Unique Design Fashion Sunglasses (`D6FYz7iLHMH8OiHFL84g`)
+- Slide 3: Modern Square Sunglasses Style (`C1wvHijLlWYEF9W99C5j`)
+- Bấm "XEM NGAY" ở mỗi card giờ mở đúng `ProductDetailActivity` của SP tương ứng thay vì Toast "sắp ra mắt"
+- Build assembleDebug PASS
+
+### Replace toàn bộ text "Glassity" còn sót thành logo (11/07/2026)
+- Rà toàn bộ `res/layout`, tìm được 5 chỗ còn dùng `android:text="Glassity"` (ngoài Home/Blog/Drawer đã đổi trước đó):
+  - `activity_favorite.xml` (header, chữ đen) → đổi logo
+  - `activity_product_detail.xml` (`tvHeaderTitle`, chữ đen) → đổi logo, đổi id thành `imgHeaderLogo` (không còn tham chiếu Java/XML nào tới `tvHeaderTitle` sau khi sửa luôn constraint tham chiếu ở `dividerHeader`)
+  - `fragment_profile.xml` — 2 chỗ: header (`tvLogo`→`imgLogo`) + chữ "Glassity" trang trí phía trên barcode thẻ thành viên, cả 2 đều chữ đen → đổi logo
+  - `activity_collection.xml` — chữ TRẮNG (`#FFFFFF`) → **giữ nguyên text**, đúng yêu cầu (logo đen sẽ không thấy trên nền tối/ảnh của Collection)
+- Build assembleDebug PASS
+
+### Banner promo "Mua sản phẩm thứ hai" → mở tất cả sản phẩm (11/07/2026)
+- `layoutPromoBanner` trước không có click listener nào — thêm `ProductListActivity.startAll()`, kèm `clickable/focusable + selectableItemBackground` để có hiệu ứng ripple khi bấm
+- Nút "Mua ngay" con bên trong không có listener riêng nên không chặn touch — bấm bất kỳ đâu trên banner (kể cả nút) đều mở đúng trang tất cả sản phẩm
+- Build assembleDebug PASS
+
+### ProductDetail: dời khối Màu sắc/Số lượng lên + thêm ảnh sơ đồ kích thước (11/07/2026)
+- `activity_product_detail.xml`: khối "Màu sắc" + "Số lượng" dời từ dưới phần review lên ngay sau `tvVariant` (ngay sau card sản phẩm: giá/tên/kiểu dáng), trước tabs Đánh giá/Chi tiết/Dành cho bạn
+- Thêm `ImageView imgSizeDiagram` ở đầu section "Kích thước sản phẩm" (trước bảng số liệu), load ảnh sơ đồ tên bộ phận kính (Tròng/Gọng/Càng kính) từ Cloudinary có sẵn (`guide_diagram.png`) qua Glide trong `ProductDetailActivity.onCreate()`
+- Build assembleDebug PASS

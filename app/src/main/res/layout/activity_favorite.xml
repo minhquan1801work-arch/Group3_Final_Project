@@ -27,15 +27,12 @@
             android:src="@drawable/ic_chevron_right"
             app:tint="@color/color_text_primary" />
 
-        <TextView
+        <ImageView
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="20dp"
             android:layout_weight="1"
-            android:fontFamily="serif"
-            android:gravity="center"
-            android:text="Glassity"
-            android:textColor="@color/color_text_primary"
-            android:textSize="20sp" />
+            android:contentDescription="Glassity"
+            android:src="@drawable/logo_simplified" />
 
         <FrameLayout
             android:layout_width="40dp"
