@@ -128,9 +128,8 @@ public class ProductDetailActivity extends AppCompatActivity {
 
         binding.ivFavorite.setOnClickListener(v -> onFavoriteClick());
 
-        // Thử kính ảo (AR try-on) — nút giữ chỗ, logic camera + face detection làm sau
-        binding.btnTryOn.setOnClickListener(v ->
-                Toast.makeText(this, "Thử kính ảo — sắp ra mắt!", Toast.LENGTH_SHORT).show());
+        // Thử kính ảo (AR try-on)
+        binding.btnTryOn.setOnClickListener(v -> TryOnActivity.start(this));
 
         String productId = getIntent().getStringExtra(EXTRA_PRODUCT_ID);
         if (productId == null) { finish(); return; }

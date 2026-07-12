@@ -79,6 +79,16 @@ dependencies {
     // Palette — lấy màu chủ đạo từ ảnh để tìm sản phẩm bằng camera
     implementation("androidx.palette:palette-ktx:1.0.0")
 
+    // CameraX — preview camera trước cho tính năng Thử kính ảo (AR try-on)
+    // 1.4.1+ mới align 16KB page size (yêu cầu Google Play từ 11/2025) — bản 1.3.x cũ bị cảnh báo
+    implementation("androidx.camera:camera-core:1.4.1")
+    implementation("androidx.camera:camera-camera2:1.4.1")
+    implementation("androidx.camera:camera-lifecycle:1.4.1")
+    implementation("androidx.camera:camera-view:1.4.1")
+
+    // ML Kit Face Detection — lấy landmark 2 mắt + góc nghiêng đầu để overlay gọng kính
+    implementation("com.google.mlkit:face-detection:16.1.6")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)

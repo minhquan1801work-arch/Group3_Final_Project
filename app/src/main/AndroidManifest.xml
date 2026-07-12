@@ -89,6 +89,12 @@
             android:name=".ui.catalog.ProductDetailActivity"
             android:exported="false" />
 
+        <!-- Thử kính ảo (AR try-on) — camera trước full-screen -->
+        <activity
+            android:name=".ui.catalog.TryOnActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- Person A — luồng Giỏ hàng → Thanh toán -->
         <activity
             android:name=".ui.order.CheckoutActivity"
