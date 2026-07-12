@@ -188,6 +188,7 @@
     <string name="checkout_item_count_paren">(%1$d item(s))</string>
     <string name="checkout_shipdiscount_free">Free shipping</string>
     <string name="checkout_voucher_not_met">%1$s (conditions not met)</string>
+    <string name="checkout_shipdiscount_partial">-%1$sđ off shipping</string>
     <string name="checkout_voucher_choose">Choose a code</string>
     <string name="checkout_max_stock_reached">Reached maximum available stock</string>
     <string name="checkout_color_default">Default</string>

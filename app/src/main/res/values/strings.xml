@@ -187,7 +187,8 @@
     <string name="checkout_voucher_applied">Đã áp dụng mã %1$s</string>
     <string name="checkout_item_count_paren">(%1$d sản phẩm)</string>
     <string name="checkout_shipdiscount_free">Miễn phí vận chuyển</string>
-    <string name="checkout_voucher_not_met">%1$s (chưa đủ ĐK)</string>
+    <string name="checkout_voucher_not_met">%1$s (chưa đủ điều kiện)</string>
+    <string name="checkout_shipdiscount_partial">-%1$sđ phí vận chuyển</string>
     <string name="checkout_voucher_choose">Chọn mã</string>
     <string name="checkout_max_stock_reached">Đã đạt số lượng tối đa trong kho</string>
     <string name="checkout_color_default">Mặc định</string>
