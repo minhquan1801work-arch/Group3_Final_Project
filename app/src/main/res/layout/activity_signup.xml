@@ -51,7 +51,8 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                android:textColor="@color/color_text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -61,12 +62,15 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:hint="@string/signup_email_hint"
+            app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/tilName">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textColor="@color/color_text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -77,12 +81,14 @@
             android:layout_marginTop="14dp"
             android:hint="@string/signup_password_hint"
             app:endIconMode="password_toggle"
+            app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/tilEmail">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:textColor="@color/color_text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
@@ -117,12 +123,14 @@
             android:layout_marginTop="8dp"
             android:hint="@string/signup_confirm_password_hint"
             app:endIconMode="password_toggle"
+            app:errorIconDrawable="@null"
             app:layout_constraintTop_toBottomOf="@id/tvSuggestPassword">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPassword" />
+                android:inputType="textPassword"
+                android:textColor="@color/color_text_primary" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.checkbox.MaterialCheckBox

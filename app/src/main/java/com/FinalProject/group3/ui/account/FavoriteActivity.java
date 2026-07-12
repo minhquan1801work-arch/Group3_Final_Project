@@ -151,7 +151,7 @@ public class FavoriteActivity extends AppCompatActivity {
             ItemFavoriteBinding b = holder.binding;
 
             b.tvName.setText(p.getName());
-            b.tvRating.setText("4.5 ★"); // demo — chưa có rating trong Firestore
+            loadRating(p.getProductId(), b);
 
             // Ảnh: variant đầu tiên, fallback images cũ
             String imgUrl = null;
@@ -220,6 +220,29 @@ public class FavoriteActivity extends AppCompatActivity {
             });
             b.btnBuyNow.setOnClickListener(v ->
                     CartQuickActions.buyNow(FavoriteActivity.this, p));
+        }
+
+        // Điểm trung bình thật từ collection "reviews" (giống ProductDetailActivity)
+        private void loadRating(String productId, ItemFavoriteBinding b) {
+            b.tvRating.setText("— ★");
+            com.FinalProject.group3.utils.FirebaseHelper.getDb()
+                    .collection(com.FinalProject.group3.utils.FirebaseHelper.COL_REVIEWS)
+                    .whereEqualTo("productId", productId)
+                    .get()
+                    .addOnSuccessListener(snap -> {
+                        java.util.List<com.google.firebase.firestore.DocumentSnapshot> docs = snap.getDocuments();
+                        if (docs.isEmpty()) {
+                            b.tvRating.setText("Chưa có đánh giá");
+                            return;
+                        }
+                        double sum = 0;
+                        for (com.google.firebase.firestore.DocumentSnapshot d : docs) {
+                            sum += com.FinalProject.group3.utils.ReviewViewBinder.ratingOf(d);
+                        }
+                        b.tvRating.setText(String.format(new java.util.Locale("vi", "VN"),
+                                "%.1f ★", sum / docs.size()));
+                    })
+                    .addOnFailureListener(e -> b.tvRating.setText("— ★"));
         }
 
         @Override

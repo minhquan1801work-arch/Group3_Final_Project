@@ -169,6 +169,21 @@
                 tools:visibility="visible" />
 
             <TextView
+                android:id="@+id/btnDetail"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_btn_black_filled"
+                android:foreground="?attr/selectableItemBackground"
+                android:gravity="center"
+                android:minWidth="0dp"
+                android:paddingHorizontal="14dp"
+                android:text="Xem chi tiết"
+                android:textColor="@color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
                 android:id="@+id/btnReview"
                 android:layout_width="wrap_content"
                 android:layout_height="36dp"
@@ -184,21 +199,6 @@
                 android:textStyle="bold"
                 android:visibility="gone"
                 tools:visibility="visible" />
-
-            <TextView
-                android:id="@+id/btnDetail"
-                android:layout_width="wrap_content"
-                android:layout_height="36dp"
-                android:layout_marginStart="8dp"
-                android:background="@drawable/bg_btn_black_filled"
-                android:foreground="?attr/selectableItemBackground"
-                android:gravity="center"
-                android:minWidth="0dp"
-                android:paddingHorizontal="14dp"
-                android:text="Xem chi tiết"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

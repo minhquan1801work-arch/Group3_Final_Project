@@ -177,18 +177,21 @@ public class CheckoutActivity extends AppCompatActivity {
             binding.rbBank.setChecked(false);
             binding.rbWallet.setChecked(false);
             binding.layoutWalletLogos.setVisibility(View.GONE);
+            binding.layoutBankLogos.setVisibility(View.GONE);
         });
         binding.rbBank.setOnClickListener(v -> {
             binding.rbCod.setChecked(false);
             binding.rbWallet.setChecked(false);
             binding.layoutWalletLogos.setVisibility(View.GONE);
+            binding.layoutBankLogos.setVisibility(View.GONE);
         });
         binding.rbWallet.setOnClickListener(v -> {
             binding.rbCod.setChecked(false);
             binding.rbBank.setChecked(false);
             binding.layoutWalletLogos.setVisibility(View.VISIBLE);
-            Toast.makeText(this, "Tính năng ví điện tử đang phát triển", Toast.LENGTH_SHORT).show();
+            binding.layoutBankLogos.setVisibility(View.VISIBLE);
         });
+        setupPaymentLogoPicker();
 
         // Điểm thành viên toggle — snap back nếu không có điểm
         binding.swUsePoints.setOnCheckedChangeListener((btn, checked) -> {
@@ -622,17 +625,25 @@ public class CheckoutActivity extends AppCompatActivity {
         binding.tvGrandTotal.setText(VND_FORMAT.format(total) + "đ");
         binding.tvBottomTotal.setText(VND_FORMAT.format(total) + "đ");
 
-        // Row mã giảm giá (1 dòng hiện cả discount + ship)
+        // Row mã giảm giá (2 dòng: discount riêng, ship riêng)
         StringBuilder voucherText = new StringBuilder();
         boolean hasDiscount = false, hasShip = false;
         if (appliedDiscountVoucher != null) {
             if (vDisc > 0) { voucherText.append("-").append(VND_FORMAT.format(vDisc)).append("đ"); hasDiscount = true; }
-            else { voucherText.append(appliedDiscountVoucher).append(" (chưa đủ ĐK)"); }
+            else { voucherText.append(appliedDiscountVoucher).append(" (chưa đủ điều kiện)"); }
         }
         if (appliedShipVoucher != null) {
-            if (voucherText.length() > 0) voucherText.append(" · ");
-            if (shipDisc > 0) { voucherText.append("Miễn phí vận chuyển"); hasShip = true; }
-            else voucherText.append(appliedShipVoucher).append(" (chưa đủ ĐK)");
+            if (voucherText.length() > 0) voucherText.append("\n");
+            if (shipDisc >= ship && ship > 0) {
+                // Chỉ gọi "Miễn phí vận chuyển" khi giảm đúng 100% phí ship
+                voucherText.append("Miễn phí vận chuyển");
+                hasShip = true;
+            } else if (shipDisc > 0) {
+                voucherText.append("-").append(VND_FORMAT.format(shipDisc)).append("đ phí vận chuyển");
+                hasShip = true;
+            } else {
+                voucherText.append(appliedShipVoucher).append(" (chưa đủ điều kiện)");
+            }
         }
         if (voucherText.length() == 0) {
             binding.tvVoucherValue.setText("Chọn mã");
@@ -644,13 +655,31 @@ public class CheckoutActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Chọn 1 logo ngân hàng/ví (chỉ để hiển thị, chưa có luồng thanh toán thật).
+     * Bấm logo nào thì highlight logo đó + tự tick radio "Thanh toán qua ngân hàng
+     * hoặc ví điện tử" — đặt hàng vẫn xử lý như COD (xem placeOrder()).
+     */
+    private void setupPaymentLogoPicker() {
+        android.widget.ImageView[] logos = {
+                binding.logoMomo, binding.logoZaloPay, binding.logoVnpay,
+                binding.logoVietcombank, binding.logoVietinbank, binding.logoBidv, binding.logoMbbank
+        };
+        for (android.widget.ImageView logo : logos) {
+            logo.setOnClickListener(v -> {
+                for (android.widget.ImageView l : logos) {
+                    l.setBackgroundResource(l == logo
+                            ? R.drawable.bg_chip_variant_selected : R.drawable.bg_chip_variant);
+                }
+                binding.rbWallet.setChecked(true);
+                binding.rbCod.setChecked(false);
+                binding.rbBank.setChecked(false);
+            });
+        }
+    }
+
     // ── ĐẶT HÀNG ─────────────────────────────────────────────────────────────
     private void placeOrder() {
-        if (binding.rbWallet.isChecked()) {
-            Toast.makeText(this, "Tính năng ví điện tử đang phát triển, vui lòng chọn COD hoặc Chuyển khoản", Toast.LENGTH_LONG).show();
-            return;
-        }
-
         String guestEmail = null;
         if (isGuest) {
             // Khách: validate form nhập tay (tên, SĐT, email, Tỉnh/Thành, Phường/Xã, địa chỉ chi tiết)
@@ -734,7 +763,7 @@ public class CheckoutActivity extends AppCompatActivity {
                     if (!items.isEmpty() && items.get(0).getProduct() != null) {
                         productSummary = items.get(0).getProduct().getName();
                         if (items.size() > 1) {
-                            productSummary += " (+" + (items.size() - 1) + " san pham)";
+                            productSummary += " (+" + (items.size() - 1) + "sản phẩm)";
                         }
                     }
                     com.FinalProject.group3.utils.NotificationHelper

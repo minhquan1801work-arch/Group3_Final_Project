@@ -34,7 +34,6 @@ import com.FinalProject.group3.utils.FirebaseHelper;
 import com.FinalProject.group3.utils.InsetsUtil;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -107,7 +106,8 @@ public class ReviewActivity extends AppCompatActivity {
         videoGalleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.GetContent(), uri -> {
                     if (uri != null) {
-                        selectedVideo = uri;
+                        Uri local = copyToCache(uri, "video_" + System.currentTimeMillis() + ".mp4");
+                        selectedVideo = local != null ? local : uri;
                         rebuildMediaRow();
                     }
                 });
@@ -247,8 +247,29 @@ public class ReviewActivity extends AppCompatActivity {
 
     private void addPhoto(Uri uri) {
         if (selectedImages.size() >= MAX_PHOTOS) return;
-        selectedImages.add(uri);
+        Uri local = copyToCache(uri, "photo_" + System.currentTimeMillis() + ".jpg");
+        selectedImages.add(local != null ? local : uri);
         rebuildMediaRow();
+    }
+
+    // Copy về local cache để URI không bị hết quyền truy cập khi Firebase upload
+    private Uri copyToCache(Uri source, String filename) {
+        try {
+            File dir = new File(getCacheDir(), "review_media");
+            //noinspection ResultOfMethodCallIgnored
+            dir.mkdirs();
+            File dest = new File(dir, filename);
+            try (java.io.InputStream in = getContentResolver().openInputStream(source);
+                 java.io.OutputStream out = new java.io.FileOutputStream(dest)) {
+                if (in == null) return null;
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = in.read(buf)) != -1) out.write(buf, 0, len);
+            }
+            return Uri.fromFile(dest);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     // ── Bottom sheet chọn media ────────────────────────────────────────────────
@@ -438,23 +459,26 @@ public class ReviewActivity extends AppCompatActivity {
         }
     }
 
+    // Upload lên Cloudinary (unsigned preset) — Firebase Storage cần gói Blaze nên không dùng
     private void uploadVideoThenPhotos(String uid, String comment) {
-        String path = "reviews/" + uid + "/" + System.currentTimeMillis() + "_video.mp4";
-        StorageReference ref = FirebaseHelper.getStorageRef().child(path);
-        ref.putFile(selectedVideo)
-                .addOnSuccessListener(snap ->
-                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
-                            String videoUrl = uri.toString();
-                            if (!selectedImages.isEmpty()) {
-                                uploadAllThenSave(uid, comment, videoUrl);
-                            } else {
-                                saveReview(uid, comment, new ArrayList<>(), videoUrl);
-                            }
-                        }))
-                .addOnFailureListener(e -> {
-                    binding.btnSubmit.setEnabled(true);
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Upload video thất bại, thử lại", Toast.LENGTH_SHORT).show();
+        com.FinalProject.group3.utils.CloudinaryUploader.uploadVideo(this, selectedVideo,
+                new com.FinalProject.group3.utils.CloudinaryUploader.Callback() {
+                    @Override
+                    public void onSuccess(String videoUrl) {
+                        if (!selectedImages.isEmpty()) {
+                            uploadAllThenSave(uid, comment, videoUrl);
+                        } else {
+                            saveReview(uid, comment, new ArrayList<>(), videoUrl);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        binding.btnSubmit.setEnabled(true);
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(ReviewActivity.this,
+                                "Upload video thất bại: " + error, Toast.LENGTH_LONG).show();
+                    }
                 });
     }
 
@@ -468,18 +492,21 @@ public class ReviewActivity extends AppCompatActivity {
             saveReview(uid, comment, urls, videoUrl);
             return;
         }
-        String path = "reviews/" + uid + "/" + System.currentTimeMillis() + "_" + idx + ".jpg";
-        StorageReference ref = FirebaseHelper.getStorageRef().child(path);
-        ref.putFile(selectedImages.get(idx))
-                .addOnSuccessListener(snap ->
-                        ref.getDownloadUrl().addOnSuccessListener(uri -> {
-                            urls.add(uri.toString());
-                            uploadNext(uid, comment, videoUrl, idx + 1, urls);
-                        }))
-                .addOnFailureListener(e -> {
-                    binding.btnSubmit.setEnabled(true);
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Upload ảnh thất bại, thử lại", Toast.LENGTH_SHORT).show();
+        com.FinalProject.group3.utils.CloudinaryUploader.uploadImage(this, selectedImages.get(idx),
+                new com.FinalProject.group3.utils.CloudinaryUploader.Callback() {
+                    @Override
+                    public void onSuccess(String secureUrl) {
+                        urls.add(secureUrl);
+                        uploadNext(uid, comment, videoUrl, idx + 1, urls);
+                    }
+
+                    @Override
+                    public void onFailure(String error) {
+                        binding.btnSubmit.setEnabled(true);
+                        binding.progressBar.setVisibility(View.GONE);
+                        Toast.makeText(ReviewActivity.this,
+                                "Upload ảnh thất bại: " + error, Toast.LENGTH_LONG).show();
+                    }
                 });
     }
 

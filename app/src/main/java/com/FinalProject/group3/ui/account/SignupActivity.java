@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
@@ -102,6 +101,19 @@ public class SignupActivity extends AppCompatActivity {
         binding.btnSignup.setOnClickListener(v -> attemptSignup());
 
         setupTermsLink();
+
+        // Báo lỗi email ngay khi rời khỏi ô (không đợi tới lúc bấm Tạo tài khoản)
+        binding.tilEmail.getEditText().setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) return;
+            String email = binding.tilEmail.getEditText().getText().toString().trim();
+            if (email.isEmpty()) {
+                binding.tilEmail.setError(null);
+            } else if (!email.contains("@")) {
+                binding.tilEmail.setError(getString(R.string.err_email_invalid));
+            } else {
+                binding.tilEmail.setError(null);
+            }
+        });
 
         // Phản hồi ngay khi gõ — liệt kê đúng phần còn thiếu (chữ thường/IN HOA/số/độ dài),
         // hết thiếu thì hiện dòng xanh báo hợp lệ
@@ -202,7 +214,9 @@ public class SignupActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(email)) {
             binding.tilEmail.setError(getString(R.string.err_required));
             valid = false;
-        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        } else if (!email.contains("@")) {
+            // Chỉ check có "@" — tránh chặn nhầm email doanh nghiệp/tên miền lạ
+            // mà Patterns.EMAIL_ADDRESS (regex chuẩn RFC) có thể từ chối
             binding.tilEmail.setError(getString(R.string.err_email_invalid));
             valid = false;
         }

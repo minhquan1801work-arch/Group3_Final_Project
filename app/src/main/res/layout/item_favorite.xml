@@ -32,7 +32,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Kính Mát Gọng Kim Loại Retro..." />
 
-    <!-- Sao demo + chấm màu -->
+    <!-- Điểm trung bình thật (query reviews theo productId) + chấm màu -->
     <TextView
         android:id="@+id/tvRating"
         android:layout_width="wrap_content"
@@ -97,11 +97,11 @@
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_marginStart="8dp"
-            android:background="@drawable/bg_btn_wine_outline"
+            android:background="@drawable/bg_btn_black_filled"
             android:gravity="center"
             android:paddingHorizontal="12dp"
             android:text="Mua ngay"
-            android:textColor="@color/brand_wine"
+            android:textColor="@color/white"
             android:textSize="11sp" />
     </LinearLayout>
 
