@@ -5,6 +5,64 @@
 
 ---
 
+## 📋 TÓM TẮT TOÀN BỘ CÔNG VIỆC (dùng báo cáo giảng viên)
+
+> Chi tiết kỹ thuật từng mục nằm trong các phần bên dưới (tìm theo ngày/tên mục). Phần này chỉ liệt kê **đã làm gì và tại sao**, không đi sâu code.
+
+### A. Trang chủ (Home)
+- Xây dựng lại toàn bộ trang chủ khớp Figma: header (logo, tìm kiếm, giỏ hàng), hero carousel 3 sản phẩm nổi bật (peek carousel — card giữa to, 2 bên ló ra, tự phóng to/thu nhỏ theo lượt, nút "XEM NGAY" dạng pill xám mờ), banner khuyến mãi "Mua 2 giảm 20%", danh sách sản phẩm bán chạy, chọn kính theo 5 dáng mặt, 3 bộ sưu tập (carousel ngang), 6 tile lợi ích, 3 bài blog, banner "Khám phá Glassity", footer đầy đủ (mạng xã hội, liên hệ, About/Contact/Policy)
+- Gắn ID sản phẩm thật vào 3 slide hero (trước rỗng, bấm không có gì)
+- Gắn banner khuyến mãi → mở trang tất cả sản phẩm (trước không bấm được)
+- Fix contrast chữ mờ trên card blog (nền be trùng màu chữ) + chiều cao 3 card lệch nhau
+
+### B. Trang chi tiết sản phẩm (ProductDetail)
+- Hiển thị đánh giá (review) thật từ Firestore thay vì data giả cứng — sao động theo rating thật, ngày tháng, ảnh review (xem mục D)
+- Dời khối "Màu sắc + Số lượng" lên ngay sau thông tin sản phẩm (trước nằm dưới phần đánh giá, bất tiện)
+- Thêm ảnh sơ đồ kích thước (Tròng/Gọng/Càng kính) vào đầu phần "Kích thước sản phẩm"
+- Đặt sẵn nút "Thử kính ảo" đúng vị trí theo mockup (góc dưới-phải ảnh chính) — **UI xong, logic AR thật chưa làm** (xem `SPEC_CAMERA_TRYON.md`)
+
+### C. Trang Blog (3 bài viết đầy đủ)
+- Viết đầy đủ nội dung 3 bài blog (Gọng kính Hot Trend 2026, Sự trở lại gọng kính Retro, Bí kíp chọn kính mát mùa hè) kèm ảnh thật, dáng mặt, thumbnail xu hướng
+- Gắn đủ 3 bài vào trang chủ + drawer menu (trước thiếu 2/3 bài)
+- Icon nhà trong header Blog → về thẳng trang chủ
+
+### D. Đánh giá sản phẩm (Reviews)
+- Bỏ data giả cứng (`DEMO_REVIEWS`), query thật từ Firestore, tính rating trung bình + số lượng thật
+- Trang "Tất cả đánh giá" riêng (trước bấm "Xem tất cả" không có gì)
+- Ảnh đính kèm review: hiển thị đúng, **bấm vào xem full-size được** (pinch-zoom, vuốt qua lại nếu nhiều ảnh — dùng thư viện PhotoView)
+- Seed dữ liệu: 122 review text (từ 11 khách hàng thật) + 6 review có ảnh minh họa để test UI
+
+### E. Trang About (Giới thiệu), Contact (Liên hệ), Chính sách/FAQ
+- Trang "Về Glassity" riêng theo đúng mockup (sứ mệnh, tầm nhìn, chứng nhận, thành tựu)
+- Viết lại trang Liên hệ khớp mockup: hotline/email/địa chỉ đúng icon, đúng số điện thoại và địa chỉ thật (data cũ bị sai/lỗi thời), thêm nút mở Google Maps
+- Fix chữ mờ khó đọc ở 4 trang chính sách (FAQ, Bảo hành, Bảo mật, Giao hàng & Kiểm tra) — cùng nguyên nhân màu chữ nhạt như blog
+
+### F. Thương hiệu (Logo, App icon)
+- Thay toàn bộ chữ "Glassity" trong header (Home, Blog, Drawer, ProductDetail, Profile, Favorite) bằng logo thật, đều gắn nút bấm về trang chủ (rà soát phát hiện 4/6 chỗ quên gắn click, đã fix hết)
+- Đổi app icon từ robot Android mặc định sang logo thương hiệu thật (nền cream)
+
+### G. Hiệu năng (Performance)
+- Phát hiện nguyên nhân ảnh tải chậm: ảnh gốc quá nặng (800KB-2MB), không nén/resize
+- Thêm tối ưu Cloudinary tự động (đổi định dạng + nén + resize đúng kích thước hiển thị) cho ~25 chỗ tải ảnh toàn app
+- Thêm kỹ thuật "blur-up" (hiện ảnh mờ nhẹ trong lúc chờ) + preload ảnh hero ngay khi mở app — giảm cảm giác chờ
+
+### H. Sự cố đã xử lý khẩn
+- WebView nhúng Google Maps gây văng ra Chrome + app không ổn định — phát hiện nguyên nhân (thiếu WebViewClient) và gỡ bỏ ngay, thay bằng giải pháp tĩnh an toàn hơn
+- Lỗi header/nút bị đè bởi thanh trạng thái (status bar) ở drawer và trang xem ảnh — phát hiện và fix theo đúng pattern chuẩn của app
+
+### I. Dữ liệu sản phẩm (Data)
+- Import đợt 2: 32 sản phẩm mới + cập nhật ảnh thật cho 12 sản phẩm cũ còn dùng ảnh demo → tổng **64 sản phẩm thật** trên Firestore
+- Gán màu sắc + mô tả tiếng Việt cho toàn bộ sản phẩm mới
+
+### J. Hợp tác nhóm
+- Merge nhánh của Quân vào main, xử lý 6 file xung đột (giữ đúng phần mới hơn, đồng bộ app icon theo hướng nhóm chọn)
+- Ghi hướng dẫn kỹ thuật cho Quân (footer dùng chung, cách tái sử dụng) trong `TODO_PHAN_CONG.md`
+
+### 🔜 Việc tiếp theo (chưa làm, đã có kế hoạch chi tiết)
+- **Tìm sản phẩm bằng camera/gallery** + **Thử kính ảo (AR)** — xem file **`SPEC_CAMERA_TRYON.md`** (kế hoạch kỹ thuật đầy đủ: thư viện cần dùng, luồng xử lý, điểm nghẽn đã bàn với user)
+
+---
+
 ## Tóm tắt nhanh
 
 | Task | Trạng thái | File chính |
