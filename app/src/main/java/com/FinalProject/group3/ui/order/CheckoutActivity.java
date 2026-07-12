@@ -187,7 +187,7 @@ public class CheckoutActivity extends AppCompatActivity {
             binding.rbCod.setChecked(false);
             binding.rbBank.setChecked(false);
             binding.layoutWalletLogos.setVisibility(View.VISIBLE);
-            Toast.makeText(this, "Tính năng ví điện tử đang phát triển", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.checkout_wallet_coming_soon, Toast.LENGTH_SHORT).show();
         });
 
         // Điểm thành viên toggle — snap back nếu không có điểm
@@ -255,13 +255,13 @@ public class CheckoutActivity extends AppCompatActivity {
         loadGuestProvinces();
 
         // Tách 2 block riêng: (1) chọn mã thành viên — cần đăng nhập, (2) nhập mã hiện có
-        binding.tvVoucherRowTitle.setText("Lựa chọn mã giảm giá dành cho thành viên");
+        binding.tvVoucherRowTitle.setText(R.string.checkout_guest_voucher_title);
         binding.tvVoucherValue.setVisibility(android.view.View.GONE);
         binding.gapVoucherGuest.setVisibility(android.view.View.VISIBLE);
         binding.tvGuestVoucherLabel.setVisibility(android.view.View.VISIBLE);
         binding.rowVoucher.setOnClickListener(v ->
                 com.FinalProject.group3.utils.LoginRequiredDialog.show(
-                        this, "Lựa chọn mã giảm giá dành cho thành viên — vui lòng đăng nhập"));
+                        this, getString(R.string.checkout_guest_voucher_login_required)));
 
         // Khách vẫn được nhập mã thủ công và được hưởng giảm giá nếu hợp lệ
         binding.etVoucher.setFocusableInTouchMode(true);
@@ -363,7 +363,7 @@ public class CheckoutActivity extends AppCompatActivity {
     /** Footnote: "Điều khoản Glassity" → mở trang Điều khoản sử dụng. */
     private void setupTermsNote() {
         String full = getString(R.string.checkout_terms_note);
-        String link = "Điều khoản Glassity";
+        String link = getString(R.string.checkout_terms_link);
         int start = full.indexOf(link);
         if (start < 0) return;
         SpannableString span = new SpannableString(full);
@@ -406,8 +406,8 @@ public class CheckoutActivity extends AppCompatActivity {
 
     private void bindPointsToggle() {
         binding.tvPointsLabel.setText(pointsBalance > 0
-                ? "Sử dụng " + pointsBalance + " điểm thành viên"
-                : "Sử dụng Điểm thành viên");
+                ? getString(R.string.checkout_points_label_active, pointsBalance)
+                : getString(R.string.checkout_points_label));
         binding.tvPointsBalance.setText(getString(R.string.checkout_points_balance, pointsBalance));
         binding.swUsePoints.setEnabled(pointsBalance > 0);
     }
@@ -445,7 +445,7 @@ public class CheckoutActivity extends AppCompatActivity {
             binding.tvAddress.setTextColor(getColor(R.color.color_text_secondary));
         } else {
             binding.tvReceiver.setVisibility(View.GONE);
-            binding.tvAddress.setText("Nhấn để thêm địa chỉ nhận hàng");
+            binding.tvAddress.setText(R.string.checkout_address_placeholder);
             binding.tvAddress.setTextColor(getColor(R.color.color_hint));
         }
     }
@@ -556,31 +556,31 @@ public class CheckoutActivity extends AppCompatActivity {
             case VOUCHER_FREESHIP:
                 appliedShipVoucher = code; break;
             case VOUCHER_SHIP50:
-                if (sub < 200000) { toast("SHIP50 áp dụng đơn từ 200.000đ"); return; }
+                if (sub < 200000) { toast(getString(R.string.checkout_voucher_min_ship50)); return; }
                 appliedShipVoucher = code; break;
             case VOUCHER_NEWUSER:
-                if (sub < 100000) { toast("NEWUSER áp dụng đơn từ 100.000đ"); return; }
+                if (sub < 100000) { toast(getString(R.string.checkout_voucher_min_newuser)); return; }
                 appliedDiscountVoucher = code; break;
             case VOUCHER_GIAM10:
-                if (sub < 300000) { toast("GIAM10 áp dụng đơn từ 300.000đ"); return; }
+                if (sub < 300000) { toast(getString(R.string.checkout_voucher_min_giam10)); return; }
                 appliedDiscountVoucher = code; break;
             case VOUCHER_MEMBER15:
-                if (sub < 400000) { toast("MEMBER15 áp dụng đơn từ 400.000đ"); return; }
+                if (sub < 400000) { toast(getString(R.string.checkout_voucher_min_member15)); return; }
                 appliedDiscountVoucher = code; break;
             case VOUCHER_GIAM50K:
-                if (sub < 500000) { toast("GIAM50K áp dụng đơn từ 500.000đ"); return; }
+                if (sub < 500000) { toast(getString(R.string.checkout_voucher_min_giam50k)); return; }
                 appliedDiscountVoucher = code; break;
             case VOUCHER_SALE20:
-                if (sub < 500000) { toast("SALE20 áp dụng đơn từ 500.000đ"); return; }
+                if (sub < 500000) { toast(getString(R.string.checkout_voucher_min_sale20)); return; }
                 appliedDiscountVoucher = code; break;
             case VOUCHER_GIAM100K:
-                if (sub < 800000) { toast("GIAM100K áp dụng đơn từ 800.000đ"); return; }
+                if (sub < 800000) { toast(getString(R.string.checkout_voucher_min_giam100k)); return; }
                 appliedDiscountVoucher = code; break;
             default:
-                Toast.makeText(this, "Mã không hợp lệ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.err_voucher_invalid, Toast.LENGTH_SHORT).show();
                 return;
         }
-        Toast.makeText(this, "Đã áp dụng mã " + code, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.checkout_voucher_applied, code), Toast.LENGTH_SHORT).show();
         updateSummary();
     }
 
@@ -595,7 +595,7 @@ public class CheckoutActivity extends AppCompatActivity {
         int earned = rewardPointsEarned();
 
         binding.tvSubtotalLabel.setText(getString(R.string.checkout_summary_subtotal)
-                + " (" + itemCount() + " sản phẩm)");
+                + " " + getString(R.string.checkout_item_count_paren, itemCount()));
         binding.tvSubtotal.setText(VND_FORMAT.format(sub) + "đ");
         binding.tvShippingFee.setText(VND_FORMAT.format(ship) + "đ");
 
@@ -627,15 +627,15 @@ public class CheckoutActivity extends AppCompatActivity {
         boolean hasDiscount = false, hasShip = false;
         if (appliedDiscountVoucher != null) {
             if (vDisc > 0) { voucherText.append("-").append(VND_FORMAT.format(vDisc)).append("đ"); hasDiscount = true; }
-            else { voucherText.append(appliedDiscountVoucher).append(" (chưa đủ ĐK)"); }
+            else { voucherText.append(getString(R.string.checkout_voucher_not_met, appliedDiscountVoucher)); }
         }
         if (appliedShipVoucher != null) {
             if (voucherText.length() > 0) voucherText.append(" · ");
-            if (shipDisc > 0) { voucherText.append("Miễn phí vận chuyển"); hasShip = true; }
-            else voucherText.append(appliedShipVoucher).append(" (chưa đủ ĐK)");
+            if (shipDisc > 0) { voucherText.append(getString(R.string.checkout_shipdiscount_free)); hasShip = true; }
+            else voucherText.append(getString(R.string.checkout_voucher_not_met, appliedShipVoucher));
         }
         if (voucherText.length() == 0) {
-            binding.tvVoucherValue.setText("Chọn mã");
+            binding.tvVoucherValue.setText(R.string.checkout_voucher_choose);
             binding.tvVoucherValue.setTextColor(getColor(R.color.color_hint));
         } else {
             binding.tvVoucherValue.setText(voucherText.toString());
@@ -647,7 +647,7 @@ public class CheckoutActivity extends AppCompatActivity {
     // ── ĐẶT HÀNG ─────────────────────────────────────────────────────────────
     private void placeOrder() {
         if (binding.rbWallet.isChecked()) {
-            Toast.makeText(this, "Tính năng ví điện tử đang phát triển, vui lòng chọn COD hoặc Chuyển khoản", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.checkout_wallet_unavailable, Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -734,7 +734,7 @@ public class CheckoutActivity extends AppCompatActivity {
                     if (!items.isEmpty() && items.get(0).getProduct() != null) {
                         productSummary = items.get(0).getProduct().getName();
                         if (items.size() > 1) {
-                            productSummary += " (+" + (items.size() - 1) + " san pham)";
+                            productSummary += getString(R.string.checkout_notif_more_products, items.size() - 1);
                         }
                     }
                     com.FinalProject.group3.utils.NotificationHelper
@@ -838,7 +838,7 @@ public class CheckoutActivity extends AppCompatActivity {
             holder.binding.btnPlus.setOnClickListener(v -> {
                 int maxStock = resolveStock(p, d.getColor());
                 if (d.getQuantity() >= maxStock) {
-                    Toast.makeText(CheckoutActivity.this, "Đã đạt số lượng tối đa trong kho", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CheckoutActivity.this, R.string.checkout_max_stock_reached, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 d.setQuantity(d.getQuantity() + 1);
@@ -917,7 +917,7 @@ public class CheckoutActivity extends AppCompatActivity {
                         return v.getColorName();
                 }
             }
-            return (colorHex != null && !colorHex.isEmpty()) ? colorHex : "Mặc định";
+            return (colorHex != null && !colorHex.isEmpty()) ? colorHex : getString(R.string.checkout_color_default);
         }
 
         private void showQtyEditor(CartDetail d, Product p, VH holder) {
@@ -927,7 +927,7 @@ public class CheckoutActivity extends AppCompatActivity {
             et.setSelectAllOnFocus(true);
             et.setPadding(48, 24, 48, 24);
             new androidx.appcompat.app.AlertDialog.Builder(CheckoutActivity.this)
-                    .setTitle("Số lượng")
+                    .setTitle(R.string.cart_variant_qty_label)
                     .setView(et)
                     .setPositiveButton("OK", (dlg, which) -> {
                         try {
@@ -936,7 +936,7 @@ public class CheckoutActivity extends AppCompatActivity {
                             if (qty < 1) qty = 1;
                             if (qty > maxStock) {
                                 Toast.makeText(CheckoutActivity.this,
-                                        "Tối đa " + maxStock + " sản phẩm trong kho",
+                                        getString(R.string.checkout_max_stock_msg, maxStock),
                                         Toast.LENGTH_SHORT).show();
                                 qty = maxStock;
                             }
@@ -945,7 +945,7 @@ public class CheckoutActivity extends AppCompatActivity {
                             updateSummary();
                         } catch (NumberFormatException ignored) {}
                     })
-                    .setNegativeButton("Hủy", null)
+                    .setNegativeButton(R.string.cart_action_cancel, null)
                     .show();
         }
 

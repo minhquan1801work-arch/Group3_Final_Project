@@ -1,0 +1,248 @@
+<resources>
+    <string name="app_name">Glassity</string>
+
+    <!-- LA.Login/Signup — chooser screen -->
+    <string name="welcome_login_btn">Log In</string>
+    <string name="welcome_signup_btn">Sign Up</string>
+    <string name="welcome_or_login_with">Or log in with</string>
+    <string name="welcome_or_signup_with">Or sign up with</string>
+    <string name="welcome_continue_guest">Continue as Guest</string>
+
+    <!-- LA.Login -->
+    <string name="login_title">Log In</string>
+    <string name="login_email_hint">Email</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_forgot_password">Forgot password?</string>
+    <string name="login_btn">Log in</string>
+    <string name="login_no_account">Don\'t have an account? </string>
+    <string name="login_signup_now">Sign up now</string>
+
+    <!-- LA.Signup -->
+    <string name="signup_title">Create account</string>
+    <string name="signup_name_hint">Name</string>
+    <string name="signup_email_hint">Email</string>
+    <string name="signup_password_hint">Password</string>
+    <string name="signup_password_rule">Password must be at least 8 characters, with lowercase, UPPERCASE and a number</string>
+    <string name="signup_confirm_password_hint">Confirm password</string>
+    <string name="signup_suggest_password">Suggest a strong password</string>
+    <string name="signup_terms">I agree to the Terms of Use</string>
+    <string name="signup_terms_link">Terms of Use</string>
+    <string name="signup_btn">Create account</string>
+
+    <!-- LA.Signup — strong password suggestion -->
+    <string name="msg_strong_password_generated">A strong password has been generated and filled in — please save it</string>
+    <string name="pwd_missing_prefix">Password needs: </string>
+    <string name="pwd_missing_length">at least 8 characters</string>
+    <string name="pwd_missing_lowercase">a lowercase letter</string>
+    <string name="pwd_missing_uppercase">an UPPERCASE letter</string>
+    <string name="pwd_missing_digit">a number</string>
+    <string name="pwd_valid">✓ Your password is valid</string>
+
+    <!-- LA.Login/Signup/Welcome — Facebook placeholder -->
+    <string name="msg_facebook_login_soon">Facebook login is coming soon</string>
+    <string name="msg_facebook_signup_soon">Facebook sign-up is coming soon</string>
+
+    <!-- LA.Forgot password -->
+    <string name="msg_resend_email_sent">Email resent</string>
+
+    <!-- Google Sign-In -->
+    <string name="err_google_signin_failed">Google sign-in failed: %1$d</string>
+    <string name="err_google_login_status">Google sign-in failed (code %1$d)</string>
+    <string name="err_google_network">Network error — check your device/emulator\'s Internet connection</string>
+    <string name="err_google_sha1_config">Wrong SHA-1/google-services.json configuration — ask Minh Quan to add this device\'s SHA-1 to Firebase</string>
+    <string name="err_google_play_services">Google Play Services error/outdated — go to emulator Settings, add a Google account and update Play Services</string>
+
+    <!-- AuthRepository — Firebase Auth errors -->
+    <string name="err_account_disabled_or_missing">Account does not exist or has been disabled</string>
+    <string name="err_wrong_password">Incorrect password</string>
+    <string name="err_email_already_registered">This email is already registered — please log in</string>
+    <string name="err_password_weak">Password is too weak (minimum 6 characters)</string>
+    <string name="err_no_network">No network connection — check your device\'s Internet</string>
+    <string name="err_generic">An error occurred: %1$s</string>
+    <string name="err_account_disabled">Account has been disabled</string>
+    <string name="err_account_not_exist">Account does not exist</string>
+
+    <!-- Forgot password — email recovery only -->
+    <string name="forgot_title">Forgot password</string>
+    <string name="forgot_desc">Enter your registered email, Glassity will send you password reset instructions.</string>
+    <string name="forgot_btn_continue">Send instructions</string>
+    <string name="forgot_back_to_login">Back to Log In</string>
+    <string name="forgot_sent_title">Check your email</string>
+    <string name="forgot_sent_desc">Glassity has sent password reset instructions to %1$s. Please check your inbox (and Spam folder if not found) and follow the instructions in the email to create a new password.</string>
+    <string name="forgot_sent_not_received">Don\'t see the email in your inbox?</string>
+    <string name="forgot_resend">Resend email</string>
+    <string name="forgot_btn_back_login">Back to Log In</string>
+
+    <!-- Common validation errors -->
+    <string name="err_required">This field is required</string>
+    <string name="err_email_invalid">Invalid email</string>
+    <string name="err_password_short">Password must be at least 6 characters</string>
+    <string name="err_password_format">Password must be at least 8 characters, with lowercase, UPPERCASE and a number</string>
+    <string name="err_password_mismatch">Passwords do not match</string>
+    <string name="err_phone_invalid">Phone number must be exactly 10 digits</string>
+    <string name="err_guest_form_incomplete">Please fill in full name, phone, email, Province/City, Ward and detailed address</string>
+    <string name="err_terms_required">You must agree to the Terms of Use</string>
+
+    <!-- DL_Cart — Cart -->
+    <string name="cart_title">Cart</string>
+    <string name="cart_empty_msg">No products have been added to your Cart yet</string>
+    <string name="cart_continue_shopping">CONTINUE SHOPPING</string>
+    <string name="cart_login_msg">Log in to view your Cart</string>
+    <string name="cart_login_btn">LOG IN</string>
+    <string name="cart_select_all">Select all</string>
+    <string name="cart_total_label">Total</string>
+    <string name="cart_buy_btn">CHECKOUT</string>
+    <string name="cart_delete_title">Remove product</string>
+    <string name="cart_delete_msg">Remove this product from your Cart?</string>
+    <string name="cart_voucher_hint">Select or enter a discount code at Checkout</string>
+    <string name="cart_login_required_msg">Log in to view and manage your cart</string>
+    <string name="cart_edit_btn">Edit</string>
+    <string name="cart_edit_done">Done</string>
+    <string name="cart_delete_count">DELETE (%1$d)</string>
+    <string name="err_cart_select_one_to_delete">Select at least 1 product to delete</string>
+    <string name="err_cart_select_one">Select at least 1 product</string>
+    <string name="cart_delete_all_confirm">Are you sure you want to remove ALL products from your cart?</string>
+    <string name="cart_delete_n_confirm">Are you sure you want to remove %1$d selected product(s) from your cart?</string>
+    <string name="cart_action_delete">Delete</string>
+    <string name="cart_action_cancel">Cancel</string>
+    <string name="cart_stock_label">Stock: %1$d</string>
+    <string name="cart_stock_limit_reached">Only %1$d item(s) left in stock</string>
+    <string name="cart_variant_title">Options</string>
+    <string name="cart_variant_qty_label">Quantity</string>
+    <string name="cart_variant_confirm">CONFIRM</string>
+
+    <!-- Color names by hex code (shared Cart/Checkout when a variant has no colorName) -->
+    <string name="color_black">black</string>
+    <string name="color_white">white</string>
+    <string name="color_silver">silver</string>
+    <string name="color_gold">gold</string>
+    <string name="color_amber">amber</string>
+    <string name="color_dark_brown">dark brown</string>
+    <string name="color_beige">beige</string>
+    <string name="color_blue">blue</string>
+    <string name="color_gray">gray</string>
+
+    <!-- Login required dialog (dialog_login_required.xml) -->
+    <string name="login_required_title">Login required</string>
+    <string name="login_required_default_msg">You need to log in to use this feature</string>
+    <string name="login_required_btn_login">Log In / Sign Up</string>
+    <string name="login_required_btn_later">Later</string>
+
+    <!-- DL_Checkout — Checkout -->
+    <string name="checkout_title">Checkout</string>
+    <string name="checkout_address_title">Shipping address</string>
+    <string name="checkout_address_edit">Edit</string>
+    <string name="checkout_address_empty">No address yet — tap Edit to add one</string>
+    <string name="checkout_products_title">Products &amp; Shipping</string>
+    <string name="checkout_shipping_title">Shipping method</string>
+    <string name="checkout_ship_saving">Standard shipping</string>
+    <string name="checkout_ship_fast">Express shipping</string>
+    <string name="checkout_voucher_title">Discount code</string>
+    <string name="checkout_voucher_input_hint">Enter discount code…</string>
+    <string name="checkout_voucher_apply">Apply</string>
+    <string name="checkout_payment_title">Payment method</string>
+    <string name="checkout_pay_cod">Cash on Delivery [COD]</string>
+    <string name="checkout_pay_bank">Bank transfer</string>
+    <string name="checkout_summary_title">Payment details</string>
+    <string name="checkout_summary_subtotal">Subtotal</string>
+    <string name="checkout_summary_shipping">Total shipping fee</string>
+    <string name="checkout_summary_ship_discount">Shipping fee discount</string>
+    <string name="checkout_summary_discount">Total voucher discount</string>
+    <string name="checkout_summary_total">Total payment</string>
+    <string name="checkout_terms_note">Tapping \"Place Order\" means you agree to Glassity\'s Terms</string>
+    <string name="checkout_total_label">Total:</string>
+    <string name="checkout_place_order">PLACE ORDER</string>
+    <string name="checkout_err_no_address">Please enter a shipping address</string>
+    <string name="checkout_points_label">Use Member Points</string>
+    <string name="checkout_points_balance">Points: %1$d</string>
+    <string name="checkout_pay_wallet">Pay via E-Wallet</string>
+    <string name="checkout_summary_reward_points">Reward points</string>
+    <string name="checkout_summary_points_discount">Member points discount</string>
+    <string name="checkout_voucher_screen_title">Discount code</string>
+    <string name="checkout_voucher_no_voucher">No code applied</string>
+
+    <!-- DL_Checkout — additional (i18n) -->
+    <string name="checkout_wallet_coming_soon">E-wallet payment is coming soon</string>
+    <string name="checkout_wallet_unavailable">E-wallet payment is coming soon, please choose COD or Bank Transfer</string>
+    <string name="checkout_guest_voucher_title">Choose a member discount code</string>
+    <string name="checkout_guest_voucher_login_required">Choose a member discount code — please log in</string>
+    <string name="checkout_terms_link">Glassity\'s Terms</string>
+    <string name="checkout_points_label_active">Use %1$d member points</string>
+    <string name="checkout_address_placeholder">Tap to add a shipping address</string>
+    <string name="checkout_address_required">Please add a shipping address</string>
+    <string name="checkout_receiver_info_title">Recipient information</string>
+    <string name="checkout_products_label">Products</string>
+    <string name="checkout_ship_standard_days">3-4 days delivery</string>
+    <string name="checkout_ship_fast_days">1-2 days delivery</string>
+    <string name="checkout_voucher_input_existing_hint">Enter an existing discount code</string>
+    <string name="checkout_no_points_msg">You don\'t have any member points yet</string>
+    <string name="checkout_voucher_min_ship50">SHIP50 applies to orders from 200,000đ</string>
+    <string name="checkout_voucher_min_newuser">NEWUSER applies to orders from 100,000đ</string>
+    <string name="checkout_voucher_min_giam10">GIAM10 applies to orders from 300,000đ</string>
+    <string name="checkout_voucher_min_member15">MEMBER15 applies to orders from 400,000đ</string>
+    <string name="checkout_voucher_min_giam50k">GIAM50K applies to orders from 500,000đ</string>
+    <string name="checkout_voucher_min_sale20">SALE20 applies to orders from 500,000đ</string>
+    <string name="checkout_voucher_min_giam100k">GIAM100K applies to orders from 800,000đ</string>
+    <string name="err_voucher_invalid">Invalid code</string>
+    <string name="checkout_voucher_applied">Code %1$s applied</string>
+    <string name="checkout_item_count_paren">(%1$d item(s))</string>
+    <string name="checkout_shipdiscount_free">Free shipping</string>
+    <string name="checkout_voucher_not_met">%1$s (conditions not met)</string>
+    <string name="checkout_voucher_choose">Choose a code</string>
+    <string name="checkout_max_stock_reached">Reached maximum available stock</string>
+    <string name="checkout_color_default">Default</string>
+    <string name="checkout_max_stock_msg">Maximum %1$d item(s) in stock</string>
+    <string name="checkout_notif_more_products"> (+%1$d more product(s))</string>
+
+    <!-- LA_Payment — discount code selection (CheckoutVoucherActivity) -->
+    <string name="voucher_title_freeship">Free nationwide shipping</string>
+    <string name="voucher_title_ship50">50% off shipping fee</string>
+    <string name="voucher_title_newuser">30,000đ off your first order</string>
+    <string name="voucher_title_giam10">10% off, up to 100,000đ</string>
+    <string name="voucher_title_member15">15% off, up to 150,000đ</string>
+    <string name="voucher_title_giam50k">50,000đ off</string>
+    <string name="voucher_title_sale20">20% off, up to 200,000đ</string>
+    <string name="voucher_title_giam100k">100,000đ off</string>
+    <string name="err_voucher_code_empty">Enter a discount code first</string>
+    <string name="voucher_header_shipping">Shipping codes</string>
+    <string name="voucher_tab_all">All</string>
+    <string name="voucher_tab_discount">Discount</string>
+    <string name="voucher_tab_ship">Shipping</string>
+    <string name="voucher_tab_count_format">%1$s (%2$d)</string>
+    <string name="voucher_min_order">Minimum order %1$sđ</string>
+    <string name="voucher_no_min_order">No minimum order required</string>
+    <string name="voucher_days_left">%1$d day(s) left</string>
+    <string name="voucher_terms_apply">Terms apply</string>
+    <string name="err_voucher_not_eligible">Your order doesn\'t meet the requirements for this code</string>
+    <string name="voucher_confirm_btn">Confirm</string>
+    <string name="voucher_empty_msg">🎁 You don\'t have any discount codes yet\nVisit the Voucher store to claim codes from Glassity</string>
+
+    <!-- LA_Payment — Result -->
+    <string name="payment_pending_title">AWAITING PAYMENT</string>
+    <string name="payment_pending_desc">Your order hasn\'t been paid yet. Please transfer according to the information below — your order will be processed after confirmation.</string>
+    <string name="payment_success_title">ORDER PLACED SUCCESSFULLY</string>
+    <string name="payment_success_desc">Thank you for your order! You\'ll pay upon delivery (COD).</string>
+    <string name="payment_view_order">VIEW ORDER</string>
+    <string name="payment_go_home">BACK TO HOME</string>
+    <string name="payment_suggest_title">You may also like</string>
+    <string name="payment_order_code_label">Order code: %1$s</string>
+    <string name="payment_confirmed_desc">Payment received. Your order is being processed!</string>
+    <string name="payment_confirmed_toast">Payment successful!</string>
+    <string name="err_login_required_buy">Please log in to make a purchase</string>
+    <string name="payment_error_prefix">Error: %1$s</string>
+    <string name="payment_clip_label_content">transfer content</string>
+    <string name="payment_copied_content">Transfer content copied</string>
+    <string name="payment_clip_label_account">Account number</string>
+    <string name="payment_copied_account">Account number copied</string>
+    <string name="payment_qr_scan_title">Scan to pay</string>
+    <string name="payment_qr_scan_desc">Use any banking app to scan</string>
+    <string name="payment_checking_transaction">Automatically checking transaction...</string>
+    <string name="payment_account_number_label">Account number</string>
+    <string name="payment_amount_label">Amount</string>
+    <string name="payment_transfer_content_label">Transfer content</string>
+
+    <!-- Settings — language picker -->
+    <string name="settings_language_dialog_title">Choose language</string>
+    <string name="settings_language_vi">Tiếng Việt</string>
+    <string name="settings_language_en">English</string>
+</resources>

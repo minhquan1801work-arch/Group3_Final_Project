@@ -57,26 +57,26 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
     private static final NumberFormat VND = NumberFormat.getInstance(new Locale("vi", "VN"));
 
     // ─── Danh sách mã mặc định của brand ─────────────────────────────────────
-    private static List<Voucher> brandVouchers() {
+    private static List<Voucher> brandVouchers(Context context) {
         long day = 24L * 60 * 60 * 1000;
         List<Voucher> list = new ArrayList<>();
         // SHIPPING
-        list.add(new Voucher("FREESHIP", "Miễn phí vận chuyển toàn quốc",
+        list.add(new Voucher("FREESHIP", context.getString(R.string.voucher_title_freeship),
                 "SHIPPING", 0, new Date(System.currentTimeMillis() + 7 * day)));
-        list.add(new Voucher("SHIP50", "Giảm 50% phí vận chuyển",
+        list.add(new Voucher("SHIP50", context.getString(R.string.voucher_title_ship50),
                 "SHIPPING", 200000, new Date(System.currentTimeMillis() + 5 * day)));
         // DISCOUNT
-        list.add(new Voucher("NEWUSER", "Giảm 30.000đ cho đơn đầu tiên",
+        list.add(new Voucher("NEWUSER", context.getString(R.string.voucher_title_newuser),
                 "DISCOUNT", 100000, new Date(System.currentTimeMillis() + 30 * day)));
-        list.add(new Voucher("GIAM10", "Giảm 10% tối đa 100.000đ",
+        list.add(new Voucher("GIAM10", context.getString(R.string.voucher_title_giam10),
                 "DISCOUNT", 300000, new Date(System.currentTimeMillis() + 3 * day)));
-        list.add(new Voucher("MEMBER15", "Giảm 15% tối đa 150.000đ",
+        list.add(new Voucher("MEMBER15", context.getString(R.string.voucher_title_member15),
                 "DISCOUNT", 400000, new Date(System.currentTimeMillis() + 14 * day)));
-        list.add(new Voucher("GIAM50K", "Giảm 50.000đ",
+        list.add(new Voucher("GIAM50K", context.getString(R.string.voucher_title_giam50k),
                 "DISCOUNT", 500000, new Date(System.currentTimeMillis() + 7 * day)));
-        list.add(new Voucher("SALE20", "Giảm 20% tối đa 200.000đ",
+        list.add(new Voucher("SALE20", context.getString(R.string.voucher_title_sale20),
                 "DISCOUNT", 500000, new Date(System.currentTimeMillis() + 2 * day)));
-        list.add(new Voucher("GIAM100K", "Giảm 100.000đ",
+        list.add(new Voucher("GIAM100K", context.getString(R.string.voucher_title_giam100k),
                 "DISCOUNT", 800000, new Date(System.currentTimeMillis() + 10 * day)));
         return list;
     }
@@ -131,7 +131,7 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
         binding.btnApply.setOnClickListener(v -> {
             String code = binding.etVoucherCode.getText().toString().trim().toUpperCase(Locale.US);
             if (code.isEmpty()) {
-                Toast.makeText(this, "Nhập mã giảm giá trước", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.err_voucher_code_empty, Toast.LENGTH_SHORT).show();
                 return;
             }
             boolean isShip = false;
@@ -166,7 +166,7 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
     private void mergeAndShow(List<Voucher> claimed) {
         allVouchers.clear();
         allVouchers.addAll(claimed);
-        for (Voucher brand : brandVouchers()) {
+        for (Voucher brand : brandVouchers(this)) {
             boolean owned = false;
             for (Voucher c : claimed)
                 if (c.getCode().equals(brand.getCode())) { owned = true; break; }
@@ -226,11 +226,11 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
             List<Voucher> discounts = getByType("DISCOUNT");
             List<Voucher> ships     = getByType("SHIPPING");
             if (!discounts.isEmpty()) {
-                items.add(new ListItem("Mã giảm giá"));
+                items.add(new ListItem(getString(R.string.checkout_voucher_screen_title)));
                 for (Voucher v : discounts) items.add(new ListItem(v, isEligible(v)));
             }
             if (!ships.isEmpty()) {
-                items.add(new ListItem("Mã vận chuyển"));
+                items.add(new ListItem(getString(R.string.voucher_header_shipping)));
                 for (Voucher v : ships) items.add(new ListItem(v, isEligible(v)));
             }
         } else if (currentTab == 1) { // Giảm giá
@@ -247,9 +247,9 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
         int disc = 0, ship = 0;
         for (Voucher v : allVouchers)
             if ("SHIPPING".equals(v.getType())) ship++; else disc++;
-        setTabText(0, "Tất cả (" + allVouchers.size() + ")");
-        setTabText(1, "Giảm giá (" + disc + ")");
-        setTabText(2, "Vận chuyển (" + ship + ")");
+        setTabText(0, getString(R.string.voucher_tab_count_format, getString(R.string.voucher_tab_all), allVouchers.size()));
+        setTabText(1, getString(R.string.voucher_tab_count_format, getString(R.string.voucher_tab_discount), disc));
+        setTabText(2, getString(R.string.voucher_tab_count_format, getString(R.string.voucher_tab_ship), ship));
     }
 
     private void showTab() {
@@ -347,8 +347,8 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
 
             vh.binding.tvTitle.setText(v.getTitle());
             vh.binding.tvMinOrder.setText(v.getMinOrder() > 0
-                    ? "Đơn tối thiểu " + VND.format(v.getMinOrder()) + "đ"
-                    : "Không cần đơn tối thiểu");
+                    ? getString(R.string.voucher_min_order, VND.format(v.getMinOrder()))
+                    : getString(R.string.voucher_no_min_order));
 
             // Icon + màu nền: xanh lá (ship) / wine-brick (discount)
             vh.binding.ivIcon.setImageResource(isShip
@@ -364,9 +364,9 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
                     : v.getCode().equals(checkedDiscountCode);
             vh.binding.rbVoucher.setChecked(checked);
 
-            String days = "Còn " + v.daysLeft() + " ngày";
+            String days = getString(R.string.voucher_days_left, v.daysLeft());
             android.text.SpannableString span =
-                    new android.text.SpannableString(days + " | Điều kiện áp dụng");
+                    new android.text.SpannableString(days + " | " + getString(R.string.voucher_terms_apply));
             span.setSpan(new android.text.style.ForegroundColorSpan(0xFF8A8079),
                     0, days.length(), 0);
             span.setSpan(new android.text.style.ForegroundColorSpan(0xFF1976D2),
@@ -384,7 +384,7 @@ public class CheckoutVoucherActivity extends AppCompatActivity {
             } else {
                 vh.itemView.setOnClickListener(v2 ->
                         Toast.makeText(CheckoutVoucherActivity.this,
-                                "Đơn hàng chưa đủ điều kiện dùng mã này", Toast.LENGTH_SHORT).show());
+                                R.string.err_voucher_not_eligible, Toast.LENGTH_SHORT).show());
             }
         }
 

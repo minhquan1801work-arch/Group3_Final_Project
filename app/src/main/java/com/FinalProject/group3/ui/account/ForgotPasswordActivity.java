@@ -68,7 +68,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void sendResetEmail(String email, boolean isResend) {
         setLoading(true);
-        authRepository.forgotPassword(email, new AuthRepository.AuthCallback() {
+        authRepository.forgotPassword(this, email, new AuthRepository.AuthCallback() {
             @Override
             public void onSuccess() {
                 setLoading(false);
@@ -76,7 +76,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 showGroup(binding.groupEmailSent);
                 startEmailResendCooldown();
                 if (isResend)
-                    Toast.makeText(ForgotPasswordActivity.this, "Đã gửi lại email", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForgotPasswordActivity.this, R.string.msg_resend_email_sent, Toast.LENGTH_SHORT).show();
             }
 
             @Override

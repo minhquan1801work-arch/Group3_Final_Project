@@ -1,5 +1,8 @@
 package com.FinalProject.group3.repository;
 
+import android.content.Context;
+
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.model.Customer;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -38,24 +41,24 @@ public class AuthRepository {
 
     private final FirebaseFirestore db = FirebaseHelper.getDb();
 
-    /** Đổi Exception của Firebase thành thông báo tiếng Việt dễ hiểu. */
-    private static String toVietnameseError(Exception e) {
+    /** Đổi Exception của Firebase thành thông báo dễ hiểu (đa ngôn ngữ theo locale hiện tại). */
+    private static String toVietnameseError(Context context, Exception e) {
         if (e instanceof FirebaseAuthInvalidUserException) {
-            return "Tài khoản không tồn tại hoặc đã bị vô hiệu hóa";
+            return context.getString(R.string.err_account_disabled_or_missing);
         }
         if (e instanceof FirebaseAuthInvalidCredentialsException) {
-            return "Mật khẩu không đúng";
+            return context.getString(R.string.err_wrong_password);
         }
         if (e instanceof FirebaseAuthUserCollisionException) {
-            return "Email này đã được đăng ký, hãy đăng nhập";
+            return context.getString(R.string.err_email_already_registered);
         }
         if (e instanceof FirebaseAuthWeakPasswordException) {
-            return "Mật khẩu quá yếu (tối thiểu 6 ký tự)";
+            return context.getString(R.string.err_password_weak);
         }
         if (e instanceof FirebaseNetworkException) {
-            return "Không có kết nối mạng, kiểm tra Internet của thiết bị";
+            return context.getString(R.string.err_no_network);
         }
-        return "Có lỗi xảy ra: " + e.getMessage();
+        return context.getString(R.string.err_generic, e.getMessage());
     }
 
     /**
@@ -64,45 +67,45 @@ public class AuthRepository {
      *  - Sai mật khẩu → onPasswordError
      *  - Còn lại → onFailure
      */
-    private static void dispatchLoginError(Exception e, AuthCallback callback) {
+    private static void dispatchLoginError(Context context, Exception e, AuthCallback callback) {
         if (e instanceof FirebaseAuthInvalidUserException) {
             String code = ((FirebaseAuthInvalidUserException) e).getErrorCode();
             if ("ERROR_USER_DISABLED".equals(code)) {
-                callback.onEmailError("Tài khoản đã bị vô hiệu hóa");
+                callback.onEmailError(context.getString(R.string.err_account_disabled));
             } else {
-                callback.onEmailError("Tài khoản không tồn tại");
+                callback.onEmailError(context.getString(R.string.err_account_not_exist));
             }
         } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
-            callback.onPasswordError("Mật khẩu không đúng");
+            callback.onPasswordError(context.getString(R.string.err_wrong_password));
         } else {
-            callback.onFailure(toVietnameseError(e));
+            callback.onFailure(toVietnameseError(context, e));
         }
     }
 
     /** Giải thích mã lỗi Google Sign-In (ApiException.getStatusCode()). */
-    public static String googleErrorMessage(int statusCode) {
+    public static String googleErrorMessage(Context context, int statusCode) {
         switch (statusCode) {
             case 7:  // NETWORK_ERROR
-                return "Lỗi mạng — kiểm tra Internet của thiết bị/emulator";
+                return context.getString(R.string.err_google_network);
             case 10: // DEVELOPER_ERROR
-                return "Sai cấu hình SHA-1/google-services.json — báo Minh Quân add SHA-1 máy này vào Firebase";
+                return context.getString(R.string.err_google_sha1_config);
             case 12500: // SIGN_IN_FAILED — thường do Play Services lỗi thời hoặc chưa có Google account
-                return "Google Play Services lỗi/cũ — vào Settings emulator thêm Google account và update Play Services";
+                return context.getString(R.string.err_google_play_services);
             default:
-                return "Đăng nhập Google thất bại (mã " + statusCode + ")";
+                return context.getString(R.string.err_google_login_status, statusCode);
         }
     }
 
     // ── Đăng nhập Email / Password ─────────────────────────────────────────────
-    public void login(String email, String password, AuthCallback callback) {
+    public void login(Context context, String email, String password, AuthCallback callback) {
         FirebaseHelper.getAuth()
                 .signInWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> callback.onSuccess())
-                .addOnFailureListener(e -> dispatchLoginError(e, callback));
+                .addOnFailureListener(e -> dispatchLoginError(context, e, callback));
     }
 
     // ── Đăng ký ────────────────────────────────────────────────────────────────
-    public void register(String name, String email, String password, AuthCallback callback) {
+    public void register(Context context, String name, String email, String password, AuthCallback callback) {
         FirebaseHelper.getAuth()
                 .createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(result -> {
@@ -113,13 +116,13 @@ public class AuthRepository {
                             .document(uid)
                             .set(customer)
                             .addOnSuccessListener(v -> callback.onSuccess())
-                            .addOnFailureListener(e -> callback.onFailure(toVietnameseError(e)));
+                            .addOnFailureListener(e -> callback.onFailure(toVietnameseError(context, e)));
                 })
-                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(e)));
+                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(context, e)));
     }
 
     // ── Google Sign-In ─────────────────────────────────────────────────────────
-    public void loginWithGoogle(GoogleSignInAccount account, AuthCallback callback) {
+    public void loginWithGoogle(Context context, GoogleSignInAccount account, AuthCallback callback) {
         AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
         FirebaseHelper.getAuth()
                 .signInWithCredential(credential)
@@ -136,16 +139,16 @@ public class AuthRepository {
                             .document(uid)
                             .set(customer, SetOptions.merge())
                             .addOnSuccessListener(v -> callback.onSuccess())
-                            .addOnFailureListener(e -> callback.onFailure(toVietnameseError(e)));
+                            .addOnFailureListener(e -> callback.onFailure(toVietnameseError(context, e)));
                 })
-                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(e)));
+                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(context, e)));
     }
 
     // ── Quên mật khẩu ─────────────────────────────────────────────────────────
-    public void forgotPassword(String email, AuthCallback callback) {
+    public void forgotPassword(Context context, String email, AuthCallback callback) {
         FirebaseHelper.getAuth()
                 .sendPasswordResetEmail(email)
                 .addOnSuccessListener(v -> callback.onSuccess())
-                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(e)));
+                .addOnFailureListener(e -> callback.onFailure(toVietnameseError(context, e)));
     }
 }

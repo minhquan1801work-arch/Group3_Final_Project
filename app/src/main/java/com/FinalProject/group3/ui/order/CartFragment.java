@@ -218,7 +218,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             if (!isAdded() || getActivity() == null) return;
             com.FinalProject.group3.utils.LoginRequiredDialog.show(
                     requireActivity(),
-                    "Đăng nhập để xem và quản lý giỏ hàng của bạn",
+                    getString(R.string.cart_login_required_msg),
                     () -> {
                         // Bấm "Để sau" → quay về Home
                         if (isAdded()) {
@@ -282,14 +282,14 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         binding.tvTotal.setText(VND_FORMAT.format(total) + "VND");
         binding.btnBuy.setText(getString(R.string.cart_buy_btn) + " (" + selected.size() + ")");
         binding.btnBuy.setEnabled(!selected.isEmpty());
-        binding.btnDeleteSelected.setText("XÓA (" + selected.size() + ")");
+        binding.btnDeleteSelected.setText(getString(R.string.cart_delete_count, selected.size()));
         binding.btnDeleteSelected.setEnabled(!selected.isEmpty());
     }
 
     // ── Chế độ Sửa: chọn nhiều sản phẩm để xóa một lượt ──────────────────────
     private void setEditMode(boolean enabled) {
         editMode = enabled;
-        binding.tvEdit.setText(enabled ? "Xong" : "Sửa");
+        binding.tvEdit.setText(enabled ? R.string.cart_edit_done : R.string.cart_edit_btn);
         binding.btnBuy.setVisibility(enabled ? View.GONE : View.VISIBLE);
         binding.btnDeleteSelected.setVisibility(enabled ? View.VISIBLE : View.GONE);
         updateTotal();
@@ -298,18 +298,18 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
     private void confirmDeleteSelected() {
         List<CartDetail> selected = adapter.getSelectedItems();
         if (selected.isEmpty()) {
-            Toast.makeText(requireContext(), "Chọn ít nhất 1 sản phẩm để xóa", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.err_cart_select_one_to_delete, Toast.LENGTH_SHORT).show();
             return;
         }
         boolean isAll = selected.size() == adapter.getItemCount();
         String msg = isAll
-                ? "Bạn có chắc chắn muốn xóa TẤT CẢ sản phẩm trong giỏ?"
-                : "Bạn có chắc chắn muốn xóa " + selected.size() + " sản phẩm đã chọn khỏi giỏ?";
+                ? getString(R.string.cart_delete_all_confirm)
+                : getString(R.string.cart_delete_n_confirm, selected.size());
         new AlertDialog.Builder(requireContext())
-                .setTitle("Xóa sản phẩm")
+                .setTitle(R.string.cart_delete_title)
                 .setMessage(msg)
-                .setPositiveButton("Xóa", (d, w) -> deleteSelected(selected))
-                .setNegativeButton("Hủy", null)
+                .setPositiveButton(R.string.cart_action_delete, (d, w) -> deleteSelected(selected))
+                .setNegativeButton(R.string.cart_action_cancel, null)
                 .show();
     }
 
@@ -366,14 +366,14 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
         new AlertDialog.Builder(requireContext())
                 .setTitle(R.string.cart_delete_title)
                 .setMessage(R.string.cart_delete_msg)
-                .setPositiveButton("Xóa", (d, w) ->
+                .setPositiveButton(R.string.cart_action_delete, (d, w) ->
                         cartRepo.removeFromCart(item.getCartDetailId(), new CartRepository.SimpleCallback() {
                             @Override public void onSuccess() { loadCart(); }
                             @Override public void onFailure(String error) {
                                 Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show();
                             }
                         }))
-                .setNegativeButton("Hủy", null)
+                .setNegativeButton(R.string.cart_action_cancel, null)
                 .show();
     }
 
@@ -433,7 +433,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             if (imgUrl != null)
                 com.bumptech.glide.Glide.with(ivProduct).load(com.FinalProject.group3.utils.CloudinaryUtil.optimize(imgUrl, 250))
                         .placeholder(R.drawable.bg_product_placeholder).into(ivProduct);
-            tvStock.setText("Kho: " + stock);
+            tvStock.setText(getString(R.string.cart_stock_label, stock));
             // Kẹp số lượng theo kho của variant mới
             int max = stock > 0 ? stock : 99;
             if (qty[0] > max) { qty[0] = max; tvQty.setText(String.valueOf(qty[0])); }
@@ -450,9 +450,9 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             if (hasVariants) {
                 com.FinalProject.group3.model.ProductVariant v = variants.get(i);
                 label = (v.getColorName() != null && !v.getColorName().isEmpty())
-                        ? v.getColorName() : colorNameOf(v.getColor());
+                        ? v.getColorName() : colorNameOf(requireContext(), v.getColor());
             } else {
-                label = colorNameOf(oldColors.get(i));
+                label = colorNameOf(requireContext(), oldColors.get(i));
             }
             chip.setText(label);
             chip.setTextSize(13);
@@ -481,7 +481,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
             int stock = hasVariants ? variants.get(selected[0]).getStock() : product.getStock();
             int max = stock > 0 ? stock : 99;
             if (qty[0] < max) tvQty.setText(String.valueOf(++qty[0]));
-            else Toast.makeText(requireContext(), "Chỉ còn " + max + " sản phẩm trong kho",
+            else Toast.makeText(requireContext(), getString(R.string.cart_stock_limit_reached, max),
                     Toast.LENGTH_SHORT).show();
         });
 
@@ -516,18 +516,18 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
                 ? android.graphics.Typeface.BOLD : android.graphics.Typeface.NORMAL);
     }
 
-    private static String colorNameOf(String hex) {
-        if (hex == null) return "đen";
+    static String colorNameOf(Context context, String hex) {
+        if (hex == null) return context.getString(R.string.color_black);
         switch (hex.toUpperCase(Locale.US)) {
-            case "#1A1614": case "#111111": case "#000000": return "đen";
-            case "#FFFFFF": return "trắng";
-            case "#C0C0C0": return "bạc";
-            case "#C8A96E": return "vàng đồng";
-            case "#C88B3A": return "hổ phách";
-            case "#8B6914": case "#72383D": return "nâu đô";
-            case "#AC9C8D": return "be";
-            case "#4A90D9": return "xanh";
-            case "#4A4A4A": return "xám";
+            case "#1A1614": case "#111111": case "#000000": return context.getString(R.string.color_black);
+            case "#FFFFFF": return context.getString(R.string.color_white);
+            case "#C0C0C0": return context.getString(R.string.color_silver);
+            case "#C8A96E": return context.getString(R.string.color_gold);
+            case "#C88B3A": return context.getString(R.string.color_amber);
+            case "#8B6914": case "#72383D": return context.getString(R.string.color_dark_brown);
+            case "#AC9C8D": return context.getString(R.string.color_beige);
+            case "#4A90D9": return context.getString(R.string.color_blue);
+            case "#4A4A4A": return context.getString(R.string.color_gray);
             default: return hex;
         }
     }
@@ -536,7 +536,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
     private void goToCheckout() {
         List<CartDetail> selected = adapter.getSelectedItems();
         if (selected.isEmpty()) {
-            Toast.makeText(requireContext(), "Chọn ít nhất 1 sản phẩm", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), R.string.err_cart_select_one, Toast.LENGTH_SHORT).show();
             return;
         }
         ArrayList<String> ids = new ArrayList<>();
@@ -591,7 +591,7 @@ public class CartFragment extends Fragment implements CartAdapter.CartItemListen
                 float cx = item.getRight() + dX / 2f;
                 float cy = (item.getTop() + item.getBottom()) / 2f
                         - (textPaint.descent() + textPaint.ascent()) / 2f;
-                c.drawText("Xóa", cx, cy, textPaint);
+                c.drawText(getString(R.string.cart_action_delete), cx, cy, textPaint);
             }
             super.onChildDraw(c, rv, vh, dX, dY, actionState, isActive);
         }

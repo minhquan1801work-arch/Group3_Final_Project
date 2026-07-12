@@ -45,7 +45,7 @@ public class SignupActivity extends AppCompatActivity {
                     GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data)
                             .getResult(ApiException.class);
                     setLoading(true);
-                    authRepository.loginWithGoogle(account, new AuthRepository.AuthCallback() {
+                    authRepository.loginWithGoogle(this, account, new AuthRepository.AuthCallback() {
                         @Override
                         public void onSuccess() {
                             setLoading(false);
@@ -60,7 +60,7 @@ public class SignupActivity extends AppCompatActivity {
                     });
                 } catch (ApiException e) {
                     if (e.getStatusCode() == 12501) return; // người dùng bấm hủy — không báo lỗi
-                    Toast.makeText(this, AuthRepository.googleErrorMessage(e.getStatusCode()), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, AuthRepository.googleErrorMessage(this, e.getStatusCode()), Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -84,7 +84,7 @@ public class SignupActivity extends AppCompatActivity {
 
         // Facebook: UI giữ chỗ theo Figma — cần Facebook App ID mới kích hoạt được
         binding.btnFacebook.setOnClickListener(v ->
-                Toast.makeText(this, "Đăng ký bằng Facebook đang được phát triển",
+                Toast.makeText(this, R.string.msg_facebook_signup_soon,
                         Toast.LENGTH_SHORT).show());
 
         // Đề xuất mật khẩu mạnh: sinh ngẫu nhiên, điền cả 2 ô và hiện rõ cho khách xem
@@ -95,7 +95,7 @@ public class SignupActivity extends AppCompatActivity {
             // Bỏ che dấu để khách đọc/ghi nhớ được — icon con mắt vẫn ẩn lại được
             binding.tilPassword.getEditText().setTransformationMethod(null);
             binding.tilConfirmPassword.getEditText().setTransformationMethod(null);
-            Toast.makeText(this, "Đã tạo và điền mật khẩu mạnh — hãy lưu lại mật khẩu này",
+            Toast.makeText(this, R.string.msg_strong_password_generated,
                     Toast.LENGTH_LONG).show();
         });
 
@@ -124,16 +124,16 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         List<String> missing = new ArrayList<>();
-        if (password.length() < 8) missing.add("đủ 8 ký tự");
-        if (!password.matches(".*[a-z].*")) missing.add("chữ thường");
-        if (!password.matches(".*[A-Z].*")) missing.add("chữ IN HOA");
-        if (!password.matches(".*\\d.*")) missing.add("số");
+        if (password.length() < 8) missing.add(getString(R.string.pwd_missing_length));
+        if (!password.matches(".*[a-z].*")) missing.add(getString(R.string.pwd_missing_lowercase));
+        if (!password.matches(".*[A-Z].*")) missing.add(getString(R.string.pwd_missing_uppercase));
+        if (!password.matches(".*\\d.*")) missing.add(getString(R.string.pwd_missing_digit));
 
         if (missing.isEmpty()) {
-            binding.tvPasswordRule.setText("✓ Mật khẩu của bạn đã hợp lệ");
+            binding.tvPasswordRule.setText(R.string.pwd_valid);
             binding.tvPasswordRule.setTextColor(getColor(R.color.color_success));
         } else {
-            binding.tvPasswordRule.setText("Mật khẩu cần có: " + TextUtils.join(", ", missing));
+            binding.tvPasswordRule.setText(getString(R.string.pwd_missing_prefix) + TextUtils.join(", ", missing));
             binding.tvPasswordRule.setTextColor(getColor(R.color.color_error));
         }
     }
@@ -141,7 +141,7 @@ public class SignupActivity extends AppCompatActivity {
     /** "Điều khoản sử dụng" trong nhãn checkbox → xanh, gạch chân, bấm mở trang Điều khoản. */
     private void setupTermsLink() {
         String full = getString(R.string.signup_terms);
-        String link = "Điều khoản sử dụng";
+        String link = getString(R.string.signup_terms_link);
         int start = full.indexOf(link);
         if (start < 0) return;
 
@@ -224,7 +224,7 @@ public class SignupActivity extends AppCompatActivity {
         if (!valid) return;
 
         setLoading(true);
-        authRepository.register(name, email, password, new AuthRepository.AuthCallback() {
+        authRepository.register(this, name, email, password, new AuthRepository.AuthCallback() {
             @Override
             public void onSuccess() {
                 setLoading(false);

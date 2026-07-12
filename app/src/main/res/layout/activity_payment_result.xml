@@ -76,7 +76,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Quét mã để thanh toán"
+                    android:text="@string/payment_qr_scan_title"
                     android:textColor="@color/brand_wine"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -85,7 +85,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Dùng bất kỳ ứng dụng ngân hàng nào để quét"
+                    android:text="@string/payment_qr_scan_desc"
                     android:textColor="@color/color_text_secondary"
                     android:textSize="12sp" />
 
@@ -121,7 +121,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="8dp"
                         android:layout_weight="1"
-                        android:text="Đang tự động kiểm tra giao dịch..."
+                        android:text="@string/payment_checking_transaction"
                         android:textColor="@color/brand_wine"
                         android:textSize="12sp" />
                 </LinearLayout>
@@ -146,7 +146,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Số tài khoản"
+                        android:text="@string/payment_account_number_label"
                         android:textColor="@color/color_text_secondary"
                         android:textSize="13sp" />
 
@@ -185,7 +185,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Số tiền"
+                        android:text="@string/payment_amount_label"
                         android:textColor="@color/color_text_secondary"
                         android:textSize="13sp" />
 
@@ -210,7 +210,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Nội dung CK"
+                        android:text="@string/payment_transfer_content_label"
                         android:textColor="@color/color_text_secondary"
                         android:textSize="13sp" />
 

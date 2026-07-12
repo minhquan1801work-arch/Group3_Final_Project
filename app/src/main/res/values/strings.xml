@@ -26,7 +26,41 @@
     <string name="signup_confirm_password_hint">Xác nhận mật khẩu</string>
     <string name="signup_suggest_password">Đề xuất mật khẩu mạnh</string>
     <string name="signup_terms">Tôi đồng ý với Điều khoản sử dụng</string>
+    <string name="signup_terms_link">Điều khoản sử dụng</string>
     <string name="signup_btn">Tạo tài khoản</string>
+
+    <!-- LA.Signup — gợi ý mật khẩu mạnh -->
+    <string name="msg_strong_password_generated">Đã tạo và điền mật khẩu mạnh — hãy lưu lại mật khẩu này</string>
+    <string name="pwd_missing_prefix">Mật khẩu cần có: </string>
+    <string name="pwd_missing_length">đủ 8 ký tự</string>
+    <string name="pwd_missing_lowercase">chữ thường</string>
+    <string name="pwd_missing_uppercase">chữ IN HOA</string>
+    <string name="pwd_missing_digit">số</string>
+    <string name="pwd_valid">✓ Mật khẩu của bạn đã hợp lệ</string>
+
+    <!-- LA.Login/Signup/Welcome — Facebook giữ chỗ -->
+    <string name="msg_facebook_login_soon">Đăng nhập bằng Facebook đang được phát triển</string>
+    <string name="msg_facebook_signup_soon">Đăng ký bằng Facebook đang được phát triển</string>
+
+    <!-- LA.Forgot password -->
+    <string name="msg_resend_email_sent">Đã gửi lại email</string>
+
+    <!-- Google Sign-In -->
+    <string name="err_google_signin_failed">Đăng nhập Google thất bại: %1$d</string>
+    <string name="err_google_login_status">Đăng nhập Google thất bại (mã %1$d)</string>
+    <string name="err_google_network">Lỗi mạng — kiểm tra Internet của thiết bị/emulator</string>
+    <string name="err_google_sha1_config">Sai cấu hình SHA-1/google-services.json — báo Minh Quân add SHA-1 máy này vào Firebase</string>
+    <string name="err_google_play_services">Google Play Services lỗi/cũ — vào Settings emulator thêm Google account và update Play Services</string>
+
+    <!-- AuthRepository — lỗi Firebase Auth -->
+    <string name="err_account_disabled_or_missing">Tài khoản không tồn tại hoặc đã bị vô hiệu hóa</string>
+    <string name="err_wrong_password">Mật khẩu không đúng</string>
+    <string name="err_email_already_registered">Email này đã được đăng ký, hãy đăng nhập</string>
+    <string name="err_password_weak">Mật khẩu quá yếu (tối thiểu 6 ký tự)</string>
+    <string name="err_no_network">Không có kết nối mạng, kiểm tra Internet của thiết bị</string>
+    <string name="err_generic">Có lỗi xảy ra: %1$s</string>
+    <string name="err_account_disabled">Tài khoản đã bị vô hiệu hóa</string>
+    <string name="err_account_not_exist">Tài khoản không tồn tại</string>
 
     <!-- Quên mật khẩu — chỉ khôi phục qua email (tài khoản Glassity chỉ đăng ký bằng email) -->
     <string name="forgot_title">Quên mật khẩu</string>
@@ -61,6 +95,38 @@
     <string name="cart_delete_title">Xóa sản phẩm</string>
     <string name="cart_delete_msg">Bạn muốn xóa sản phẩm này khỏi Giỏ hàng?</string>
     <string name="cart_voucher_hint">Chọn hoặc nhập mã giảm giá ở bước Thanh toán</string>
+    <string name="cart_login_required_msg">Đăng nhập để xem và quản lý giỏ hàng của bạn</string>
+    <string name="cart_edit_btn">Sửa</string>
+    <string name="cart_edit_done">Xong</string>
+    <string name="cart_delete_count">XÓA (%1$d)</string>
+    <string name="err_cart_select_one_to_delete">Chọn ít nhất 1 sản phẩm để xóa</string>
+    <string name="err_cart_select_one">Chọn ít nhất 1 sản phẩm</string>
+    <string name="cart_delete_all_confirm">Bạn có chắc chắn muốn xóa TẤT CẢ sản phẩm trong giỏ?</string>
+    <string name="cart_delete_n_confirm">Bạn có chắc chắn muốn xóa %1$d sản phẩm đã chọn khỏi giỏ?</string>
+    <string name="cart_action_delete">Xóa</string>
+    <string name="cart_action_cancel">Hủy</string>
+    <string name="cart_stock_label">Kho: %1$d</string>
+    <string name="cart_stock_limit_reached">Chỉ còn %1$d sản phẩm trong kho</string>
+    <string name="cart_variant_title">Phân loại</string>
+    <string name="cart_variant_qty_label">Số lượng</string>
+    <string name="cart_variant_confirm">XÁC NHẬN</string>
+
+    <!-- Tên màu hiển thị theo mã hex (dùng chung Cart/Checkout khi variant không có colorName) -->
+    <string name="color_black">đen</string>
+    <string name="color_white">trắng</string>
+    <string name="color_silver">bạc</string>
+    <string name="color_gold">vàng đồng</string>
+    <string name="color_amber">hổ phách</string>
+    <string name="color_dark_brown">nâu đô</string>
+    <string name="color_beige">be</string>
+    <string name="color_blue">xanh</string>
+    <string name="color_gray">xám</string>
+
+    <!-- Dialog yêu cầu đăng nhập (dialog_login_required.xml) -->
+    <string name="login_required_title">Yêu cầu đăng nhập</string>
+    <string name="login_required_default_msg">Bạn cần đăng nhập để sử dụng tính năng này</string>
+    <string name="login_required_btn_login">Đăng nhập / Đăng ký</string>
+    <string name="login_required_btn_later">Để sau</string>
 
     <!-- DL_Checkout — Thanh toán -->
     <string name="checkout_title">Thanh toán</string>
@@ -95,6 +161,62 @@
     <string name="checkout_voucher_screen_title">Mã giảm giá</string>
     <string name="checkout_voucher_no_voucher">Không dùng mã</string>
 
+    <!-- DL_Checkout — bổ sung (i18n) -->
+    <string name="checkout_wallet_coming_soon">Tính năng ví điện tử đang phát triển</string>
+    <string name="checkout_wallet_unavailable">Tính năng ví điện tử đang phát triển, vui lòng chọn COD hoặc Chuyển khoản</string>
+    <string name="checkout_guest_voucher_title">Lựa chọn mã giảm giá dành cho thành viên</string>
+    <string name="checkout_guest_voucher_login_required">Lựa chọn mã giảm giá dành cho thành viên — vui lòng đăng nhập</string>
+    <string name="checkout_terms_link">Điều khoản Glassity</string>
+    <string name="checkout_points_label_active">Sử dụng %1$d điểm thành viên</string>
+    <string name="checkout_address_placeholder">Nhấn để thêm địa chỉ nhận hàng</string>
+    <string name="checkout_address_required">Vui lòng thêm địa chỉ nhận hàng</string>
+    <string name="checkout_receiver_info_title">Thông tin nhận hàng</string>
+    <string name="checkout_products_label">Sản phẩm</string>
+    <string name="checkout_ship_standard_days">3-4 ngày nhận</string>
+    <string name="checkout_ship_fast_days">1-2 ngày nhận</string>
+    <string name="checkout_voucher_input_existing_hint">Nhập mã giảm giá hiện có</string>
+    <string name="checkout_no_points_msg">Bạn chưa có điểm thành viên</string>
+    <string name="checkout_voucher_min_ship50">SHIP50 áp dụng đơn từ 200.000đ</string>
+    <string name="checkout_voucher_min_newuser">NEWUSER áp dụng đơn từ 100.000đ</string>
+    <string name="checkout_voucher_min_giam10">GIAM10 áp dụng đơn từ 300.000đ</string>
+    <string name="checkout_voucher_min_member15">MEMBER15 áp dụng đơn từ 400.000đ</string>
+    <string name="checkout_voucher_min_giam50k">GIAM50K áp dụng đơn từ 500.000đ</string>
+    <string name="checkout_voucher_min_sale20">SALE20 áp dụng đơn từ 500.000đ</string>
+    <string name="checkout_voucher_min_giam100k">GIAM100K áp dụng đơn từ 800.000đ</string>
+    <string name="err_voucher_invalid">Mã không hợp lệ</string>
+    <string name="checkout_voucher_applied">Đã áp dụng mã %1$s</string>
+    <string name="checkout_item_count_paren">(%1$d sản phẩm)</string>
+    <string name="checkout_shipdiscount_free">Miễn phí vận chuyển</string>
+    <string name="checkout_voucher_not_met">%1$s (chưa đủ ĐK)</string>
+    <string name="checkout_voucher_choose">Chọn mã</string>
+    <string name="checkout_max_stock_reached">Đã đạt số lượng tối đa trong kho</string>
+    <string name="checkout_color_default">Mặc định</string>
+    <string name="checkout_max_stock_msg">Tối đa %1$d sản phẩm trong kho</string>
+    <string name="checkout_notif_more_products"> (+%1$d sản phẩm)</string>
+
+    <!-- LA_Payment — chọn mã giảm giá (CheckoutVoucherActivity) -->
+    <string name="voucher_title_freeship">Miễn phí vận chuyển toàn quốc</string>
+    <string name="voucher_title_ship50">Giảm 50% phí vận chuyển</string>
+    <string name="voucher_title_newuser">Giảm 30.000đ cho đơn đầu tiên</string>
+    <string name="voucher_title_giam10">Giảm 10% tối đa 100.000đ</string>
+    <string name="voucher_title_member15">Giảm 15% tối đa 150.000đ</string>
+    <string name="voucher_title_giam50k">Giảm 50.000đ</string>
+    <string name="voucher_title_sale20">Giảm 20% tối đa 200.000đ</string>
+    <string name="voucher_title_giam100k">Giảm 100.000đ</string>
+    <string name="err_voucher_code_empty">Nhập mã giảm giá trước</string>
+    <string name="voucher_header_shipping">Mã vận chuyển</string>
+    <string name="voucher_tab_all">Tất cả</string>
+    <string name="voucher_tab_discount">Giảm giá</string>
+    <string name="voucher_tab_ship">Vận chuyển</string>
+    <string name="voucher_tab_count_format">%1$s (%2$d)</string>
+    <string name="voucher_min_order">Đơn tối thiểu %1$sđ</string>
+    <string name="voucher_no_min_order">Không cần đơn tối thiểu</string>
+    <string name="voucher_days_left">Còn %1$d ngày</string>
+    <string name="voucher_terms_apply">Điều kiện áp dụng</string>
+    <string name="err_voucher_not_eligible">Đơn hàng chưa đủ điều kiện dùng mã này</string>
+    <string name="voucher_confirm_btn">Xác nhận</string>
+    <string name="voucher_empty_msg">🎁 Bạn chưa có mã giảm giá nào\nVào Kho mã để nhận mã từ Glassity</string>
+
     <!-- LA_Payment — Kết quả -->
     <string name="payment_pending_title">ĐANG CHỜ THANH TOÁN</string>
     <string name="payment_pending_desc">Đơn hàng chưa được thanh toán. Vui lòng chuyển khoản theo thông tin bên dưới, đơn hàng sẽ được xử lý sau khi xác nhận.</string>
@@ -103,4 +225,24 @@
     <string name="payment_view_order">XEM ĐƠN HÀNG</string>
     <string name="payment_go_home">VỀ TRANG CHỦ</string>
     <string name="payment_suggest_title">Có thể bạn cũng thích</string>
+    <string name="payment_order_code_label">Mã đơn: %1$s</string>
+    <string name="payment_confirmed_desc">Đã nhận được thanh toán. Đơn hàng của bạn đang được xử lý!</string>
+    <string name="payment_confirmed_toast">Thanh toán thành công!</string>
+    <string name="err_login_required_buy">Vui lòng đăng nhập để mua hàng</string>
+    <string name="payment_error_prefix">Lỗi: %1$s</string>
+    <string name="payment_clip_label_content">nội dung CK</string>
+    <string name="payment_copied_content">Đã copy nội dung CK</string>
+    <string name="payment_clip_label_account">STK</string>
+    <string name="payment_copied_account">Đã copy số tài khoản</string>
+    <string name="payment_qr_scan_title">Quét mã để thanh toán</string>
+    <string name="payment_qr_scan_desc">Dùng bất kỳ ứng dụng ngân hàng nào để quét</string>
+    <string name="payment_checking_transaction">Đang tự động kiểm tra giao dịch...</string>
+    <string name="payment_account_number_label">Số tài khoản</string>
+    <string name="payment_amount_label">Số tiền</string>
+    <string name="payment_transfer_content_label">Nội dung CK</string>
+
+    <!-- Settings — chọn ngôn ngữ -->
+    <string name="settings_language_dialog_title">Chọn ngôn ngữ</string>
+    <string name="settings_language_vi">Tiếng Việt</string>
+    <string name="settings_language_en">English</string>
 </resources>

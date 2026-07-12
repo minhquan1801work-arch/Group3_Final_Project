@@ -41,7 +41,7 @@ public class WelcomeActivity extends AppCompatActivity {
                             .getResult(ApiException.class);
                     handleGoogleAccount(account);
                 } catch (ApiException e) {
-                    Toast.makeText(this, "Đăng nhập Google thất bại: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.err_google_signin_failed, e.getStatusCode()), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -82,7 +82,7 @@ public class WelcomeActivity extends AppCompatActivity {
         // Facebook: UI giữ chỗ theo Figma — cần Facebook App ID mới kích hoạt được
         binding.btnFacebook.setOnClickListener(v ->
                 android.widget.Toast.makeText(this,
-                        "Đăng nhập bằng Facebook đang được phát triển",
+                        R.string.msg_facebook_login_soon,
                         android.widget.Toast.LENGTH_SHORT).show());
 
         binding.tvContinueGuest.setOnClickListener(v -> {
@@ -93,7 +93,7 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     private void handleGoogleAccount(GoogleSignInAccount account) {
-        authRepository.loginWithGoogle(account, new AuthRepository.AuthCallback() {
+        authRepository.loginWithGoogle(this, account, new AuthRepository.AuthCallback() {
             @Override
             public void onSuccess() {
                 goToMain();

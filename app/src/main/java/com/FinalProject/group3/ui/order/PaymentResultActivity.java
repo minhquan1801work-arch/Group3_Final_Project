@@ -71,7 +71,7 @@ public class PaymentResultActivity extends AppCompatActivity {
         double amount = getIntent().getDoubleExtra(EXTRA_AMOUNT, 0);
         String method = getIntent().getStringExtra(EXTRA_METHOD);
 
-        binding.tvOrderCode.setText("Mã đơn: " + orderCode);
+        binding.tvOrderCode.setText(getString(R.string.payment_order_code_label, orderCode));
 
         if ("BANK_TRANSFER".equals(method)) {
             // Biến thể 1: chờ chuyển khoản — ẩn gợi ý sản phẩm, tập trung vào QR + trạng thái
@@ -134,11 +134,11 @@ public class PaymentResultActivity extends AppCompatActivity {
     private void onPaymentConfirmed() {
         binding.ivStatus.setImageResource(R.drawable.ic_check_circle);
         binding.tvStatusTitle.setText(R.string.payment_success_title);
-        binding.tvStatusDesc.setText("Đã nhận được thanh toán. Đơn hàng của bạn đang được xử lý!");
+        binding.tvStatusDesc.setText(R.string.payment_confirmed_desc);
         binding.llBankInfo.setVisibility(View.GONE);
         binding.llSuggest.setVisibility(View.VISIBLE);
         loadSuggestions();
-        Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.payment_confirmed_toast, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -161,7 +161,7 @@ public class PaymentResultActivity extends AppCompatActivity {
         // "Mua ngay" → thêm cart với qty=1 + màu đầu tiên → thẳng Checkout
         adapter.setOnBuyNowListener(product -> {
             if (FirebaseHelper.getCurrentUserId() == null) {
-                Toast.makeText(this, "Vui lòng đăng nhập để mua hàng", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, R.string.err_login_required_buy, Toast.LENGTH_SHORT).show();
                 return;
             }
             String color = (product.getColors() != null && !product.getColors().isEmpty())
@@ -174,7 +174,7 @@ public class PaymentResultActivity extends AppCompatActivity {
                     CheckoutActivity.start(PaymentResultActivity.this, ids);
                 }
                 @Override public void onFailure(String error) {
-                    Toast.makeText(PaymentResultActivity.this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PaymentResultActivity.this, getString(R.string.payment_error_prefix, error), Toast.LENGTH_SHORT).show();
                 }
             });
         });
@@ -211,15 +211,15 @@ public class PaymentResultActivity extends AppCompatActivity {
         // Copy nội dung CK
         binding.btnCopyContent.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            clipboard.setPrimaryClip(ClipData.newPlainText("nội dung CK", transferContent));
-            Toast.makeText(this, "Đã copy nội dung CK", Toast.LENGTH_SHORT).show();
+            clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.payment_clip_label_content), transferContent));
+            Toast.makeText(this, R.string.payment_copied_content, Toast.LENGTH_SHORT).show();
         });
 
         // Copy STK
         binding.btnCopyAccount.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            clipboard.setPrimaryClip(ClipData.newPlainText("STK", "0977780173"));
-            Toast.makeText(this, "Đã copy số tài khoản", Toast.LENGTH_SHORT).show();
+            clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.payment_clip_label_account), "0977780173"));
+            Toast.makeText(this, R.string.payment_copied_account, Toast.LENGTH_SHORT).show();
         });
     }
 }

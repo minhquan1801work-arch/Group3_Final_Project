@@ -104,17 +104,17 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tất cả" />
+            android:text="@string/voucher_tab_all" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Giảm giá" />
+            android:text="@string/voucher_tab_discount" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Vận chuyển" />
+            android:text="@string/voucher_tab_ship" />
     </com.google.android.material.tabs.TabLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -136,7 +136,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/bg_btn_black_filled"
-        android:text="Xác nhận"
+        android:text="@string/voucher_confirm_btn"
         android:textColor="@color/white"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -150,7 +150,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:gravity="center"
-        android:text="🎁 Bạn chưa có mã giảm giá nào\nVào Kho mã để nhận mã từ Glassity"
+        android:text="@string/voucher_empty_msg"
         android:textColor="@color/color_text_secondary"
         android:textSize="14sp"
         android:visibility="gone"

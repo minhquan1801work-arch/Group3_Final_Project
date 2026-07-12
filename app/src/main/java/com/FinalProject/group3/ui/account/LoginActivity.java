@@ -35,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
                     GoogleSignInAccount account = GoogleSignIn.getSignedInAccountFromIntent(data)
                             .getResult(ApiException.class);
                     setLoading(true);
-                    authRepository.loginWithGoogle(account, new AuthRepository.AuthCallback() {
+                    authRepository.loginWithGoogle(this, account, new AuthRepository.AuthCallback() {
                         @Override
                         public void onSuccess() {
                             setLoading(false);
@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
                     });
                 } catch (ApiException e) {
                     if (e.getStatusCode() == 12501) return; // người dùng bấm hủy — không báo lỗi
-                    Toast.makeText(this, AuthRepository.googleErrorMessage(e.getStatusCode()), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, AuthRepository.googleErrorMessage(this, e.getStatusCode()), Toast.LENGTH_LONG).show();
                 }
             });
 
@@ -81,7 +81,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // Facebook: UI giữ chỗ theo Figma — cần Facebook App ID mới kích hoạt được
         binding.btnFacebook.setOnClickListener(v ->
-                Toast.makeText(this, "Đăng nhập bằng Facebook đang được phát triển",
+                Toast.makeText(this, R.string.msg_facebook_login_soon,
                         Toast.LENGTH_SHORT).show());
 
         binding.btnLogin.setOnClickListener(v -> attemptLogin());
@@ -109,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
         if (!valid) return;
 
         setLoading(true);
-        authRepository.login(email, password, new AuthRepository.AuthCallback() {
+        authRepository.login(this, email, password, new AuthRepository.AuthCallback() {
             @Override
             public void onSuccess() {
                 setLoading(false);
