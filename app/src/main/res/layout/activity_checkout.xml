@@ -445,9 +445,10 @@
                     android:id="@+id/tvVoucherValue"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:gravity="end"
                     android:textColor="@color/color_price"
                     android:textSize="12sp"
-                    tools:text="-100.000đ · Miễn phí VC" />
+                    tools:text="-100.000đ\nMiễn phí vận chuyển" />
 
                 <ImageView
                     android:layout_width="16dp"
@@ -643,7 +644,8 @@
                 android:textColor="@color/color_text_primary"
                 android:textSize="13sp" />
 
-            <!-- Ví điện tử -->
+            <!-- Ngân hàng / Ví điện tử — chọn logo cụ thể (chưa có luồng thanh toán thật, bấm
+                 Đặt hàng vẫn thành công như COD) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -658,15 +660,74 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:buttonTint="@color/color_btn_black"
+                    android:ellipsize="end"
+                    android:justificationMode="none"
+                    android:maxLines="1"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="8dp"
                     android:text="@string/checkout_pay_wallet"
                     android:textColor="@color/color_text_primary"
                     android:textSize="13sp" />
 
-                <!-- Logo ví điện tử (Figma: Momo, ZaloPay, VNPAY) -->
+                <!-- Hàng 1: Ví điện tử -->
                 <LinearLayout
                     android:id="@+id/layoutWalletLogos"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="8dp"
+                    android:paddingBottom="6dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ImageView
+                        android:id="@+id/logoMomo"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="MoMo"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_wallet_momo" />
+
+                    <ImageView
+                        android:id="@+id/logoZaloPay"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="ZaloPay"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_wallet_zalopay" />
+
+                    <ImageView
+                        android:id="@+id/logoVnpay"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="VNPAY"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_wallet_vnpay" />
+
+                    <!-- Spacer vô hình: hàng này chỉ có 3 logo trong khi hàng ngân hàng có 4,
+                         nếu không có chỗ này thì mỗi logo ví sẽ bị to hơn logo ngân hàng
+                         do chia weight=1 trên ít ô hơn -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_weight="1"
+                        android:visibility="invisible" />
+                </LinearLayout>
+
+                <!-- Hàng 2: Ngân hàng -->
+                <LinearLayout
+                    android:id="@+id/layoutBankLogos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -675,40 +736,52 @@
                     android:visibility="gone"
                     tools:visibility="visible">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="#E61F5C"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:text="Momo"
-                        android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/logoVietcombank"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="Vietcombank"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_bank_vietcombank" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:layout_marginEnd="8dp"
-                        android:background="#0068FF"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:text="ZaloPay"
-                        android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/logoVietinbank"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="VietinBank"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_bank_vietinbank" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="28dp"
-                        android:background="#00509D"
-                        android:gravity="center"
-                        android:paddingHorizontal="10dp"
-                        android:text="VNPAY"
-                        android:textColor="@color/white"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                    <ImageView
+                        android:id="@+id/logoBidv"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="BIDV"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_bank_bidv" />
+
+                    <ImageView
+                        android:id="@+id/logoMbbank"
+                        android:layout_width="0dp"
+                        android:layout_height="36dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_chip_variant"
+                        android:contentDescription="MB Bank"
+                        android:padding="6dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_bank_mbbank" />
                 </LinearLayout>
             </LinearLayout>
 
@@ -916,87 +989,6 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     tools:text="376.520đ" />
-            </LinearLayout>
-
-            <!-- Logo ngân hàng / cổng thanh toán được chấp nhận (trust signal) -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:background="@color/color_section_gap"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="8dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="#215A0D"
-                    android:gravity="center"
-                    android:paddingHorizontal="7dp"
-                    android:text="VCB"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="#1E3A8A"
-                    android:gravity="center"
-                    android:paddingHorizontal="7dp"
-                    android:text="CTG"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="#8B0000"
-                    android:gravity="center"
-                    android:paddingHorizontal="7dp"
-                    android:text="AGR"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="#005BAC"
-                    android:gravity="center"
-                    android:paddingHorizontal="7dp"
-                    android:text="BIDV"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="6dp"
-                    android:background="#CC1F3A"
-                    android:gravity="center"
-                    android:paddingHorizontal="7dp"
-                    android:text="MB"
-                    android:textColor="@color/white"
-                    android:textSize="10sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:gravity="center"
-                    android:paddingHorizontal="7dp"
-                    android:text="+44"
-                    android:textColor="@color/color_text_secondary"
-                    android:textSize="10sp" />
             </LinearLayout>
 
             <!-- Footnote điều khoản (Figma) — "Điều khoản Glassity" clickable -->

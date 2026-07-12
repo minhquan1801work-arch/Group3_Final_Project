@@ -142,7 +142,7 @@
     <string name="checkout_voucher_apply">Áp dụng</string>
     <string name="checkout_payment_title">Phương thức thanh toán</string>
     <string name="checkout_pay_cod">Thanh toán khi giao hàng [COD]</string>
-    <string name="checkout_pay_bank">Thanh toán chuyển khoản ngân hàng</string>
+    <string name="checkout_pay_bank">Thanh toán qua QR</string>
     <string name="checkout_summary_title">Chi tiết thanh toán</string>
     <string name="checkout_summary_subtotal">Tổng tiền hàng</string>
     <string name="checkout_summary_shipping">Tổng tiền phí vận chuyển</string>
@@ -155,7 +155,7 @@
     <string name="checkout_err_no_address">Vui lòng nhập địa chỉ nhận hàng</string>
     <string name="checkout_points_label">Sử dụng Điểm thành viên</string>
     <string name="checkout_points_balance">Số điểm: %1$d điểm</string>
-    <string name="checkout_pay_wallet">Thanh toán qua Ví điện tử</string>
+    <string name="checkout_pay_wallet">Thanh toán qua ngân hàng hoặc ví điện tử</string>
     <string name="checkout_summary_reward_points">Điểm thưởng</string>
     <string name="checkout_summary_points_discount">Giảm điểm thành viên</string>
     <string name="checkout_voucher_screen_title">Mã giảm giá</string>

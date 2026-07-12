@@ -50,7 +50,48 @@ public final class ReviewViewBinder {
 
         item.llReviewImages.removeAllViews();
         Object imgs = d.get("imageUrls");
-        if (imgs instanceof List && !((List<?>) imgs).isEmpty()) {
+        String videoUrl = d.getString("videoUrl");
+        boolean hasImages = imgs instanceof List && !((List<?>) imgs).isEmpty();
+
+        // Video: thumbnail (frame đầu, Cloudinary trả về .jpg) + icon play, bấm mở trình phát
+        if (videoUrl != null && !videoUrl.isEmpty()) {
+            item.hsReviewImages.setVisibility(View.VISIBLE);
+            int thumbSize = (int) (64 * density);
+            int thumbGap = (int) (6 * density);
+
+            android.widget.FrameLayout frame = new android.widget.FrameLayout(context);
+            LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(thumbSize, thumbSize);
+            flp.setMarginEnd(thumbGap);
+            frame.setLayoutParams(flp);
+
+            ImageView iv = new ImageView(context);
+            iv.setLayoutParams(new android.widget.FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+            iv.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            String thumbUrl = videoUrl.replaceAll("\\.(mp4|webm|mov)$", ".jpg");
+            Glide.with(context).load(thumbUrl).into(iv);
+            frame.addView(iv);
+
+            ImageView play = new ImageView(context);
+            int playSize = (int) (24 * density);
+            android.widget.FrameLayout.LayoutParams plp =
+                    new android.widget.FrameLayout.LayoutParams(playSize, playSize);
+            plp.gravity = android.view.Gravity.CENTER;
+            play.setLayoutParams(plp);
+            play.setImageResource(R.drawable.ic_play_circle);
+            frame.addView(play);
+
+            final String url = videoUrl;
+            frame.setOnClickListener(v -> {
+                android.content.Intent i = new android.content.Intent(
+                        android.content.Intent.ACTION_VIEW);
+                i.setDataAndType(android.net.Uri.parse(url), "video/*");
+                context.startActivity(i);
+            });
+            item.llReviewImages.addView(frame);
+        }
+
+        if (hasImages) {
             item.hsReviewImages.setVisibility(View.VISIBLE);
             int thumbSize = (int) (64 * density);
             int thumbGap = (int) (6 * density);
@@ -70,7 +111,7 @@ public final class ReviewViewBinder {
                         com.FinalProject.group3.ui.catalog.PhotoViewerActivity.start(context, urls, index));
                 item.llReviewImages.addView(iv);
             }
-        } else {
+        } else if (videoUrl == null || videoUrl.isEmpty()) {
             item.hsReviewImages.setVisibility(View.GONE);
         }
     }

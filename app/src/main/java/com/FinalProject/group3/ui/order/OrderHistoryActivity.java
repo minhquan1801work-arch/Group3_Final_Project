@@ -71,6 +71,13 @@ public class OrderHistoryActivity extends AppCompatActivity {
         loadOrders();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Quay lại từ ReviewActivity / OrderDetailActivity → trạng thái đơn có thể đã đổi
+        loadOrders();
+    }
+
     private void setupTabs(int startTab) {
         for (int i = 0; i < TABS.length; i++) {
             final int index = i;
@@ -269,9 +276,9 @@ public class OrderHistoryActivity extends AppCompatActivity {
                     if (o.isReviewed()) {
                         b.btnReview.setText("Đã đánh giá");
                         b.btnReview.setEnabled(false);
-                        b.btnReview.setAlpha(0.5f);
-                        b.btnReview.setBackgroundResource(R.drawable.bg_btn_wine_outline);
-                        b.btnReview.setTextColor(getColor(R.color.color_accent));
+                        b.btnReview.setAlpha(1f);
+                        b.btnReview.setBackgroundResource(R.drawable.bg_btn_gray_filled);
+                        b.btnReview.setTextColor(getColor(R.color.color_text_secondary));
                     } else {
                         b.btnReview.setText("Đánh giá");
                         b.btnReview.setEnabled(true);
@@ -329,6 +336,14 @@ public class OrderHistoryActivity extends AppCompatActivity {
 
                             OrderDetail first = details.get(0);
                             b.tvQty.setText("x" + first.getQuantity());
+
+                            // Bấm ảnh/tên sản phẩm → mở trang chi tiết sản phẩm đó
+                            View.OnClickListener openProduct = v ->
+                                    com.FinalProject.group3.ui.catalog.ProductDetailActivity
+                                            .start(OrderHistoryActivity.this, first.getProductId());
+                            b.ivProduct.setOnClickListener(openProduct);
+                            b.tvProductName.setOnClickListener(openProduct);
+                            b.tvProductColor.setOnClickListener(openProduct);
 
                             if (count > 1) {
                                 b.tvMoreItems.setVisibility(View.VISIBLE);
