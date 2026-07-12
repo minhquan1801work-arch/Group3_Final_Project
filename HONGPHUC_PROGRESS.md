@@ -713,3 +713,14 @@ Build assembleDebug PASS
 - **Nguyên nhân**: WebView nhúng bản đồ thêm trước đó KHÔNG gắn `WebViewClient` — khi trang Google Maps embed tự điều hướng (redirect/trang consent), Android mặc định coi là điều hướng ra ngoài WebView và bắn sang Chrome (hành vi mặc định của WebView khi thiếu WebViewClient). Việc app "chớp tắt" ở chỗ khác nhiều khả năng là hệ quả WebView làm tiến trình không ổn định
 - **Đã bỏ hẳn WebView** (rủi ro nhất, không sửa nửa vời) — thay bằng khối tĩnh: icon vị trí + "Xem trên Google Maps" + mũi tên, bấm vào mở thẳng app Google Maps qua Intent `ACTION_VIEW` — đúng yêu cầu gốc "bấm vào bay qua app gg map", chỉ bỏ phần preview nhúng trực tiếp (rủi ro không đáng)
 - Build assembleDebug PASS — cần bạn test lại gấp xem hết flicker/crash chưa
+
+### Tìm sản phẩm bằng camera/gallery — làm xong phần 1 (12/07/2026)
+- Theo kế hoạch trong `SPEC_CAMERA_TRYON.md` mục 1 — **chỉ đụng `SearchActivity`**, không đụng phần Try-on (mục 2, vẫn đợi ảnh gọng kính demo từ user).
+- `build.gradle.kts`: thêm `androidx.palette:palette-ktx:1.0.0` (free, on-device, cực nhẹ).
+- `SearchActivity.java`: copy pattern 3 launcher (camera/gallery/permission) từ `ReviewActivity`, tái dùng cache dir `camera_images/` sẵn có trong `file_paths.xml` (khác prefix filename `search_...`).
+- Bấm icon camera → bottom sheet mới `dialog_image_search_chooser.xml` (2 lựa chọn: Chụp ảnh / Thư viện — bớt phần video so với `dialog_media_chooser.xml` gốc).
+- Có ảnh → `Palette.from(bitmap).generate()` lấy màu chủ đạo (dominant → fallback vibrant → fallback muted) → so khoảng cách Euclidean RGB với `variant.color` (hex) của từng sản phẩm → lấy khoảng cách nhỏ nhất mỗi SP → sort tăng dần → hiện **top 12** qua `resultAdapter`/`showResults()` sẵn có (đã hỏi và chốt số lượng + kiểu bottom sheet với user trước khi code).
+- Build compileDebugJavaWithJavac PASS (chỉ có warning deprecation `MediaStore.Images.Media.getBitmap`, chấp nhận được cho MVP theo scope đồ án).
+- **Chưa làm**: ML Kit Image Labeling xác nhận ảnh có kính (phần "nâng cao, không bắt buộc" trong spec) — đã bàn với user, quyết định KHÔNG làm (chi phí/rủi ro miss-detect > lợi ích cho scope đồ án), thay bằng disclaimer nhỏ.
+- **Fix nền đen chữ đen (12/07/2026)**: `dialog_image_search_chooser.xml` bị chữ/icon đen trên nền đen khi máy thật bật Dark mode hệ thống (app theme `Material3.DayNight`, BottomSheetDialog lấy nền tối mặc định nhưng nội dung hardcode màu sáng-only) — fix bằng `android:background="@color/white"` ở root layout, ép nền sheet luôn sáng.
+- **Thêm disclaimer (12/07/2026)**: `tvImageSearchDisclaimer` mới trong `activity_search.xml` (ẩn mặc định) — hiện "Kết quả hiển thị theo màu sắc ảnh — tính năng sẽ sớm hoàn thiện" khi show kết quả tìm bằng ảnh, ẩn lại khi search bằng text thường (`liveSearch`).

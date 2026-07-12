@@ -172,6 +172,19 @@
             android:textColor="@color/color_text_secondary"
             android:textSize="13sp" />
 
+        <!-- Disclaimer: chỉ hiện khi kết quả đến từ tìm bằng ảnh (so màu chủ đạo) -->
+        <TextView
+            android:id="@+id/tvImageSearchDisclaimer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="10dp"
+            android:text="Kết quả hiện tại được tìm theo màu sắc ảnh. Glassity sẽ sớm hoàn thiện tính năng!"
+            android:textColor="@color/color_hint"
+            android:textSize="12sp"
+            android:textStyle="italic"
+            android:visibility="gone" />
+
         <!-- Empty state -->
         <TextView
             android:id="@+id/layoutEmpty"

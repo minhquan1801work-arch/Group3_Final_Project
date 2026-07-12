@@ -1,19 +1,33 @@
 package com.FinalProject.group3.ui.catalog;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.GridLayoutManager;
 
+import com.FinalProject.group3.R;
 import com.FinalProject.group3.adapter.ProductAdapter;
 import com.FinalProject.group3.adapter.SearchSuggestAdapter;
 import com.FinalProject.group3.databinding.ActivitySearchBinding;
@@ -25,8 +39,11 @@ import com.FinalProject.group3.repository.FavoriteRepository;
 import com.FinalProject.group3.repository.ProductRepository;
 import com.FinalProject.group3.utils.FirebaseHelper;
 import com.FinalProject.group3.utils.InsetsUtil;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.chip.Chip;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,6 +75,7 @@ public class SearchActivity extends AppCompatActivity {
     private static final int    MAX_HISTORY  = 8;
     private static final int    SUGGEST_COUNT = 6;
     private static final long   TYPE_DEBOUNCE_MS = 250;
+    private static final int    IMAGE_SEARCH_RESULT_COUNT = 12;
 
     private ActivitySearchBinding binding;
     private ProductAdapter resultAdapter;
@@ -70,6 +88,12 @@ public class SearchActivity extends AppCompatActivity {
 
     private String uid; // null = guest
 
+    // Tìm bằng hình ảnh
+    private ActivityResultLauncher<Uri> cameraLauncher;
+    private ActivityResultLauncher<String> galleryLauncher;
+    private ActivityResultLauncher<String> cameraPermLauncher;
+    private Uri cameraImageUri;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +104,7 @@ public class SearchActivity extends AppCompatActivity {
         prefs = getSharedPreferences(PREFS_SEARCH, MODE_PRIVATE);
         uid   = FirebaseHelper.getCurrentUserId();
 
+        setupImageSearchLaunchers();
         setupToolbar();
         setupSearchBar();
         setupResultsGrid();
@@ -133,9 +158,8 @@ public class SearchActivity extends AppCompatActivity {
             showBrowse();
         });
 
-        // Tìm bằng hình ảnh — UI giữ chỗ, tính năng làm sau
-        binding.btnCamera.setOnClickListener(v ->
-                Toast.makeText(this, "Tìm bằng hình ảnh — sắp ra mắt!", Toast.LENGTH_SHORT).show());
+        // Tìm bằng hình ảnh
+        binding.btnCamera.setOnClickListener(v -> showImageSearchChooser());
     }
 
     private void updateSearchBarIcons(String query) {
@@ -176,6 +200,136 @@ public class SearchActivity extends AppCompatActivity {
         });
     }
 
+    // ── Tìm bằng hình ảnh (so màu chủ đạo qua Palette API) ──────────────────────
+
+    private void setupImageSearchLaunchers() {
+        cameraLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(), success -> {
+                    if (Boolean.TRUE.equals(success) && cameraImageUri != null) {
+                        searchByImageUri(cameraImageUri);
+                    }
+                });
+
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.GetContent(), uri -> {
+                    if (uri != null) searchByImageUri(uri);
+                });
+
+        cameraPermLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(), granted -> {
+                    if (Boolean.TRUE.equals(granted)) launchCamera();
+                    else Toast.makeText(this, "Cần quyền camera để chụp ảnh", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void showImageSearchChooser() {
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        View sheetView = LayoutInflater.from(this)
+                .inflate(R.layout.dialog_image_search_chooser, null);
+        sheet.setContentView(sheetView);
+
+        sheetView.findViewById(R.id.optionCamera).setOnClickListener(v -> {
+            sheet.dismiss();
+            requestCameraAndShoot();
+        });
+        sheetView.findViewById(R.id.optionGallery).setOnClickListener(v -> {
+            sheet.dismiss();
+            galleryLauncher.launch("image/*");
+        });
+
+        sheet.show();
+    }
+
+    private void requestCameraAndShoot() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+            launchCamera();
+        } else {
+            cameraPermLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private void launchCamera() {
+        File cacheDir = new File(getCacheDir(), "camera_images");
+        //noinspection ResultOfMethodCallIgnored
+        cacheDir.mkdirs();
+        File imageFile = new File(cacheDir, "search_" + System.currentTimeMillis() + ".jpg");
+        cameraImageUri = FileProvider.getUriForFile(this,
+                getPackageName() + ".fileprovider", imageFile);
+        cameraLauncher.launch(cameraImageUri);
+    }
+
+    private void searchByImageUri(Uri uri) {
+        Bitmap bitmap;
+        try {
+            bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+        } catch (IOException e) {
+            Toast.makeText(this, "Không đọc được ảnh, thử lại", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Palette.from(bitmap).generate(palette -> {
+            if (binding == null || palette == null) return;
+            Integer dominant = palette.getDominantColor(0);
+            if (dominant == 0) dominant = palette.getVibrantColor(0);
+            if (dominant == 0) dominant = palette.getMutedColor(0);
+            if (dominant == 0) {
+                Toast.makeText(this, "Không nhận diện được màu trong ảnh", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            showImageSearchResults(dominant);
+        });
+    }
+
+    private void showImageSearchResults(int targetColor) {
+        List<Product> ranked = new ArrayList<>();
+        Map<String, Double> distances = new HashMap<>();
+
+        for (Product p : allProducts) {
+            Double best = closestVariantDistance(p, targetColor);
+            if (best == null) continue;
+            ranked.add(p);
+            distances.put(p.getProductId(), best);
+        }
+
+        Collections.sort(ranked, (a, b) ->
+                Double.compare(distances.get(a.getProductId()), distances.get(b.getProductId())));
+
+        List<Product> top = ranked.subList(0, Math.min(IMAGE_SEARCH_RESULT_COUNT, ranked.size()));
+
+        binding.etSearch.setText("");
+        showResults();
+        binding.tvResultCount.setText("Kết quả tìm bằng ảnh (" + top.size() + ")");
+        binding.tvImageSearchDisclaimer.setVisibility(View.VISIBLE);
+        resultAdapter.submitList(top);
+        binding.layoutEmpty.setVisibility(top.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    /** Khoảng cách Euclidean RGB nhỏ nhất giữa targetColor và các variant.color của sản phẩm. */
+    private Double closestVariantDistance(Product p, int targetColor) {
+        if (p.getVariants() == null || p.getVariants().isEmpty()) return null;
+        Double min = null;
+        for (ProductVariant v : p.getVariants()) {
+            if (v.getColor() == null || v.getColor().isEmpty()) continue;
+            int variantColor;
+            try {
+                variantColor = Color.parseColor(v.getColor());
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
+            double dist = colorDistance(targetColor, variantColor);
+            if (min == null || dist < min) min = dist;
+        }
+        return min;
+    }
+
+    private static double colorDistance(int c1, int c2) {
+        int rDiff = Color.red(c1) - Color.red(c2);
+        int gDiff = Color.green(c1) - Color.green(c2);
+        int bDiff = Color.blue(c1) - Color.blue(c2);
+        return Math.sqrt((double) rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+    }
+
     // ── Tìm kiếm in-memory ────────────────────────────────────────────────────
 
     /** Bỏ dấu tiếng Việt + lowercase để so khớp. */
@@ -213,6 +367,7 @@ public class SearchActivity extends AppCompatActivity {
         List<Product> results = filterProducts(query);
         showResults();
         binding.tvResultCount.setText(results.size() + " kết quả cho \"" + query + "\"");
+        binding.tvImageSearchDisclaimer.setVisibility(View.GONE);
         resultAdapter.submitList(results);
         binding.layoutEmpty.setVisibility(results.isEmpty() ? View.VISIBLE : View.GONE);
     }

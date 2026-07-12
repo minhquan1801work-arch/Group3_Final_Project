@@ -76,6 +76,9 @@ dependencies {
     // PhotoView — pinch-zoom xem ảnh review full-size
     implementation("com.github.chrisbanes:PhotoView:2.3.0")
 
+    // Palette — lấy màu chủ đạo từ ảnh để tìm sản phẩm bằng camera
+    implementation("androidx.palette:palette-ktx:1.0.0")
+
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.espresso.core)
