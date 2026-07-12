@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Item voucher trong màn chọn mã giảm giá (LA.Voucher3) — icon | info | radio -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -73,7 +74,7 @@
             android:id="@+id/rbVoucher"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/color_btn_black"
+            app:buttonTint="@color/color_btn_black"
             android:clickable="false"
             android:focusable="false" />
     </LinearLayout>

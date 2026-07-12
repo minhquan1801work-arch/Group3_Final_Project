@@ -751,3 +751,21 @@ Build assembleDebug PASS
 - `AndroidManifest.xml`: thêm `<service android:name="androidx.appcompat.app.AppLocalesMetadataHolderService">` với `autoStoreLocales=true` (khuyến nghị chính thức để tối ưu lưu locale trên API < 33).
 - Build assembleDebug PASS. Đã grep lại toàn bộ 10 file đã sửa — không còn hardcode Vietnamese sót (trừ "đ" và dấu " · ").
 - **Chưa test UI thật** (không có emulator/máy trong session) — bạn cần vào Cài đặt → Ngôn ngữ, chọn English, rồi đi qua cả 4 luồng (đăng nhập, giỏ hàng, thanh toán, kết quả thanh toán) xem chữ hiện đúng không, đặc biệt các câu có `%1$d`/`%1$s` format.
+
+### Merge nhánh teammate (MinhQuanver3) — resolve conflict CheckoutActivity.java (12/07/2026)
+- User tự merge `origin/MinhQuanver3` vào `main` qua IDE — teammate thêm tính năng chọn logo ngân hàng/ví điện tử khi thanh toán (`layoutBankLogos`, `setupPaymentLogoPicker()`) + nâng cấp logic hiển thị giảm giá ship (hỗ trợ giảm từng phần, không chỉ nhị phân free/không). 4 chỗ conflict với phần i18n Checkout vừa làm.
+- **Quyết định**: giữ toàn bộ tính năng mới của teammate, chỉ bọc lại các chữ hardcode của họ vào string resource (thêm `checkout_shipdiscount_partial` mới, sửa `checkout_voucher_not_met` khớp đúng câu chữ teammate dùng — cả VI lẫn EN). Riêng đoạn text thông báo đơn hàng giữ bản của mình (bản teammate thiếu dấu cách, bug nhỏ).
+- Bỏ hẳn phần chặn đặt hàng khi chọn ví (theo bản teammate) — giờ chọn ví vẫn đặt được đơn, xử lý như COD (`checkout_wallet_unavailable` không còn dùng trong `placeOrder()`, nhưng vẫn giữ resource vì có thể dùng lại sau).
+- Build compileDebugJavaWithJavac PASS sau khi resolve — **user tự `git add` + hoàn tất merge qua IDE** (không tự ý commit thay).
+
+### Fix radio/switch màu tím trên một số máy (12/07/2026)
+- **Nguyên nhân**: `<RadioButton>` dùng `android:buttonTint` (namespace `android:`) — khi AppCompat inflate thành `AppCompatRadioButton`, thuộc tính này không được mọi phiên bản Android/OEM tôn trọng nhất quán, một số máy rơi về màu tím mặc định của Material theme thay vì màu đen của app. Đổi sang `app:buttonTint` (namespace AppCompat) để tint áp dụng nhất quán mọi máy.
+- Sửa cả 4 file có pattern này: `activity_checkout.xml`, `bottom_sheet_filter.xml`, `dialog_voucher.xml`, `item_checkout_voucher.xml` — 2 file sau chưa từng khai báo `xmlns:app` ở root, phải thêm mới.
+- `item_checkout_voucher.xml` có sẵn `xmlns:app` nhưng khai báo cục bộ trên 1 `ImageView` lồng sâu, không phủ tới `RadioButton` ở ngoài — build lỗi `AttributePrefixUnbound`, phải dời khai báo namespace lên root `LinearLayout`.
+- `SwitchCompat` "Sử dụng điểm thành viên" trong `activity_checkout.xml` trước đó không có tint nào — thêm `res/color/switch_thumb_tint.xml` + `switch_track_tint.xml` (color state list: đen/xám khi bật, trắng/xám nhạt khi tắt) qua `app:thumbTint`/`app:trackTint`.
+- Build assembleDebug PASS. **Chưa test lại trên máy từng bị tím** — bạn kiểm tra lại đúng máy đó xem hết tím chưa.
+
+### Fix tím gốc rễ — values-night/themes.xml trống (12/07/2026)
+- Fix `buttonTint` ở trên đúng nhưng chưa phải nguyên nhân chính — teammate (qua Claude khác) chẩn đoán đúng hơn: `app/src/main/res/values-night/themes.xml` **hoàn toàn trống** (chỉ có comment mẫu, không override màu nào). App không có bản thiết kế dark mode riêng (toàn bộ layout nền trắng/chữ đen cứng), nên khi máy bật Dark Mode hệ thống, theme rơi thẳng về màu mặc định của `Theme.Material3.DayNight` — chính là tím Material3 — áp dụng cho **mọi** widget dùng theme attr (`?attr/colorPrimary` ...), không chỉ riêng RadioButton/Switch đã sửa ở trên.
+- Fix: copy y hệt nội dung `values/themes.xml` (colorPrimary/colorOnPrimary/colorSecondary/windowBackground/colorError) vào `values-night/themes.xml` — ép app luôn dùng đúng màu thương hiệu bất kể máy bật/tắt Dark Mode.
+- Build assembleDebug PASS. **Sau khi cài lại app, tắt/bật Dark Mode hệ thống 1 lần để chắc theme reload** (Android đôi khi cache theme đã resolve).

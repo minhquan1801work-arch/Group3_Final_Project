@@ -337,7 +337,7 @@
                             android:id="@+id/rbShipStandard"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:buttonTint="@color/color_btn_black"
+                            app:buttonTint="@color/color_btn_black"
                             android:checked="true"
                             android:text="@string/checkout_ship_saving"
                             android:textColor="@color/color_text_primary"
@@ -386,7 +386,7 @@
                             android:id="@+id/rbShipFast"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:buttonTint="@color/color_btn_black"
+                            app:buttonTint="@color/color_btn_black"
                             android:text="@string/checkout_ship_fast"
                             android:textColor="@color/color_text_primary"
                             android:textSize="13sp" />
@@ -569,7 +569,9 @@
                         android:id="@+id/swUsePoints"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="false" />
+                        android:checked="false"
+                        app:thumbTint="@color/switch_thumb_tint"
+                        app:trackTint="@color/switch_track_tint" />
                 </LinearLayout>
 
                 <TextView
@@ -621,7 +623,7 @@
                 android:layout_marginHorizontal="12dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_chip_variant"
-                android:buttonTint="@color/color_btn_black"
+                app:buttonTint="@color/color_btn_black"
                 android:checked="true"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="10dp"
@@ -637,7 +639,7 @@
                 android:layout_marginHorizontal="12dp"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_chip_variant"
-                android:buttonTint="@color/color_btn_black"
+                app:buttonTint="@color/color_btn_black"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="10dp"
                 android:text="@string/checkout_pay_bank"
@@ -659,7 +661,7 @@
                     android:id="@+id/rbWallet"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:buttonTint="@color/color_btn_black"
+                    app:buttonTint="@color/color_btn_black"
                     android:ellipsize="end"
                     android:justificationMode="none"
                     android:maxLines="1"

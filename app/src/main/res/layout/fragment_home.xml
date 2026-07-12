@@ -129,7 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="MUA SẢN PHẨM THỨ HAI\nGIẢM NGAY 20%"
+                android:text="ĐỊNH HÌNH PHONG CÁCH\nKHẲNG ĐỊNH CHẤT RIÊNG"
                 android:textColor="#1A1A1A"
                 android:textSize="24sp"
                 android:textStyle="bold"
